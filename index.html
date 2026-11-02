@@ -21226,7 +21226,17 @@ function engine(){
     }
 
     /* ---------- ziplines ---------- */
-    function zipBlocked(e, li, s, dir) { const p = laneAt(LANES[li], s + dir * 240); for (const st of STRUCTS) if (st.alive && st.team !== e.team && STYPE[st.st].range && dist(p[0], p[1], st.x, st.y) < STYPE[st.st].range * .8) return true; return false; }
+    /* how far along a lane a team's zipline runs: up to its furthest goon (or its furthest standing tower if the goons are gone) */
+    const ZL = { t: -1, v: [[0, 0, 0], [0, 0, 0]] };
+    function zipLimit(team, li) {
+      if (ZL.t !== time) { ZL.t = time; for (let t = 0; t < 2; t++) for (let l = 0; l < 3; l++) { const L = LANES[l], dir = t ? -1 : 1; let best = t ? L.total : 0;
+        for (const s of STRUCTS) if (s.alive && s.team === t && s.lane === l) { const p = laneProj(L, s.x, s.y)[0]; if (dir > 0 ? p > best : p < best) best = p; }
+        for (const u of units) { if (!u.alive || u.kind !== 'goon' || u.team !== t) continue; const [p, d] = laneProj(L, u.x, u.y); if (d < 320 && (dir > 0 ? p > best : p < best)) best = p; }
+        ZL.v[t][l] = best + dir * 120; } }
+      return ZL.v[team][li];
+    }
+    const pastFront = (e, li, s, dir) => { if (e.team > 1 || dir !== (e.team ? -1 : 1)) return false; const lim = zipLimit(e.team, li); return dir > 0 ? s >= lim : s <= lim; };
+    function zipBlocked(e, li, s, dir) { if (pastFront(e, li, s, dir)) return 'front'; const p = laneAt(LANES[li], s + dir * 240); for (const st of STRUCTS) if (st.alive && st.team !== e.team && STYPE[st.st].range && dist(p[0], p[1], st.x, st.y) < STYPE[st.st].range * .8) return true; return false; }
     function nearZip(e) { let best = -1, bd = 140, bs = 0; LANES.forEach((L, li) => { const [s, d] = laneProj(L, e.x, e.y); if (d < bd) { bd = d; best = li; bs = s; } }); return best < 0 ? null : { L: best, s: bs }; }
     function zipToggle(e, mx, my) {
       if (!e.alive) return false; if (e.zip) { e.zip = null; sx('zipoff'); return true; }
@@ -21234,14 +21244,14 @@ function engine(){
       const z = nearZip(e); if (!z) { if (e === player) toast('Get closer to a zipline (the cable over the lane)', '#ffe9a6'); return false; }
       const L = LANES[z.L], p = laneAt(L, z.s); let dir = e.team ? -1 : 1;
       if (Math.hypot(mx, my) > .3) dir = Math.cos(angDiff(p[2], Math.atan2(my, mx))) >= 0 ? 1 : -1;
-      if (zipBlocked(e, z.L, z.s, dir)) { if (e === player) toast('Enemy defenses ahead, the zipline is cut', '#ffb0a0'); return false; }
+      const zb = zipBlocked(e, z.L, z.s, dir); if (zb) { if (e === player) toast(zb === 'front' ? 'Your goons don\'t hold the lane past here' : 'Enemy defenses ahead, the zipline is cut', '#ffb0a0'); return false; }
       e.zip = { L: z.L, s: z.s, dir }; e.fm = null; if (e === player) sx('zip'); return true;
     }
     function zipMove(e, dt) {
       const z = e.zip, L = LANES[z.L], sp = 980 * (1 + (e.S.ms || 0)) * (gatorOn(e.team) ? 1.1 : 1);
       z.s += z.dir * sp * dt;
       if (z.s <= 0 || z.s >= L.total) { z.s = clamp(z.s, 0, L.total); e.zip = null; }
-      else if (zipBlocked(e, z.L, z.s, z.dir)) { e.zip = null; if (e === player) toast('Enemy defenses ahead', '#ffb0a0'); }
+      else { const zb = zipBlocked(e, z.L, z.s, z.dir); if (zb) { e.zip = null; if (e === player) toast(zb === 'front' ? 'End of the line: your goons are fighting here' : 'Enemy defenses ahead', '#ffb0a0'); } }
       const p = laneAt(L, z.s); e.vx = (p[0] - e.x) / Math.max(dt, 1e-3); e.vy = (p[1] - e.y) / Math.max(dt, 1e-3); e.x = p[0]; e.y = p[1];
       if (!e.zip) collide(e);
     }
@@ -22147,6 +22157,12 @@ function engine(){
       for (const b of DEC.birds) { if (b.x < x0 - 60 || b.x > x1 + 60 || b.y < y0 - 60 || b.y > y1 + 60) continue; const since = time - (b.fly || -99); if (since > 30) { for (const u of units) if (u.alive && (u.kind === 'hero' || u.kind === 'goon') && Math.abs(u.x - b.x) < 160 && Math.abs(u.y - b.y) < 160) { b.fly = time; sx('flap', b.x, b.y); break; } }
         const s2 = time - (b.fly || -99); for (let k = 0; k < b.n; k++) { const bx = b.x + (hash(k, b.n, b.x | 0) - .5) * 70, by = b.y + (hash(k, 3, b.y | 0) - .5) * 70; if (s2 < 1.8) flying.push([bx, by, k, s2, b]); else if (s2 > 30) { const peck = Math.sin(time * 6 + k * 1.7) > .6; ctx.save(); ctx.translate(bx, by); ctx.rotate(hash(k, 9, b.x | 0) * TAU); ctx.fillStyle = 'rgba(0,0,0,.3)'; ctx.beginPath(); ctx.ellipse(2, 3, 7, 4.5, 0, 0, TAU); ctx.fill(); ctx.fillStyle = '#8a8a92'; ctx.beginPath(); ctx.ellipse(0, 0, 7, 4.5, 0, 0, TAU); ctx.fill(); ctx.fillStyle = '#5a6a7a'; circ(ctx, peck ? 8 : 6, 0, 3); ctx.fillStyle = '#6a6a74'; ctx.fillRect(-9, -2, 4, 4); ctx.restore(); } } }
       const up = -FS(); for (const v of VENTS) { if (v.x < x0 || v.x > x1 || v.y < y0 - 80 || v.y > y1 + 80) continue; for (let k = 0; k < 5; k++) { const ph = (time * .45 + k / 5 + v.h) % 1; ctx.fillStyle = 'rgba(230,226,220,' + (.16 * (1 - ph)) + ')'; circ(ctx, v.x + Math.sin(time * 1.3 + k * 2 + v.h * 9) * 12 * ph, v.y + up * ph * 90, 12 + ph * 34); } }
+      /* your team's zipline: lit up as far as your goons hold each lane */
+      if (player) { ctx.save(); ctx.lineCap = 'round'; ctx.lineJoin = 'round'; const t = player.team;
+        for (let li = 0; li < 3; li++) { const L = LANES[li], lim = clamp(zipLimit(t, li), 0, L.total), a = t ? lim : 0, b = t ? L.total : lim; if (b <= a) continue; const pts = [laneAt(L, a)]; for (let i = 1; i < L.pts.length - 1; i++) if (L.len[i] > a && L.len[i] < b) pts.push(L.pts[i]); pts.push(laneAt(L, b));
+          const pulse = .55 + Math.sin(time * 3) * .15; ctx.strokeStyle = hexA(TCOL[t], .25 * pulse); ctx.lineWidth = 14; ctx.beginPath(); pts.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1])); ctx.stroke(); ctx.strokeStyle = hexA(TCOL[t], .85); ctx.lineWidth = 3; ctx.stroke();
+          const e = laneAt(L, t ? a : b); ctx.fillStyle = TCOL[t]; circ(ctx, e[0], e[1], 9 + Math.sin(time * 5) * 2); ctx.fillStyle = '#fff'; circ(ctx, e[0], e[1], 4); }
+        ctx.restore(); }
       for (const z of zones) drawZone(ctx, z, false);
       for (const s of STRUCTS) if (vis(s)) drawStruct(ctx, s);
       for (const u of units) if (u.alive && u.kind !== 'hero' && u.kind !== 'struct' && vis(u)) drawUnit(ctx, u);
