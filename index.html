@@ -7771,10 +7771,16 @@ html.fs .fsgp{display:block;position:fixed;left:0;right:0;bottom:6px;z-index:6;t
     }, MIX);
   }
 
-  /* summit v2 physics + levels (every level verified beatable by summit2/solve.js) */
-// Summit v2 physics. Units: tiles, seconds. Rooms are 16x16 tiles.
+  /* summit v3 physics (Celeste movement) + levels (every level verified beatable with these physics by a search solver) */
+// Summit v3 physics: Celeste's movement (Player.cs constants), scaled to this game's tiles.
+// Units: tiles, seconds. Rooms are 16x16 tiles. P = tiles per Celeste pixel (jump height kept at ~2.3 tiles so the rooms still fit).
 const SUM = (() => {
-  const C = { RUN: 4.4, ACCG: 75, ACCA: 48, DEC: 30, GRAV: 40, APEX: 1.4, MAXF: 9, WSL: 2.0, JV: 13.4, WJX: 6.2, WJV: 12.8, WJL: 0.16, DSP: 19, DT: 0.14, DEND: 0.62, SPR: 16, PW: 0.62, PH: 0.75, COY: 0.12, BUF: 0.12, CRUMBLE: 0.45, CRBACK: 2.4 };
+  const P = 0.65 / 8;
+  const C = { RUN: 90 * P, ACC: 1000 * P, RED: 400 * P, AIR: 0.65, GRAV: 900 * P, HALF: 40 * P, MAXF: 160 * P, FASTF: 240 * P, FASTA: 300 * P,
+    JV: 105 * P, JHB: 40 * P, VAR: 0.2, WJH: 130 * P, WJF: 0.16, WCHK: 3 * P, WSL: 20 * P, WST: 1.2,
+    SJH: 260 * P, HYX: 1.25, HYY: 0.5, SWJV: 160 * P, SWJH: 170 * P, SWVAR: 0.25, SWF: 0.2,
+    DSP: 240 * P, DEND: 160 * P, DUP: 0.75, DT: 0.15, DREF: 0.1, SLIDE: 1.2,
+    SPR: 185 * P, SPRVAR: 0.15, PW: 0.62, PH: 0.75, COY: 0.1, BUF: 0.1, CORN: 4 * P, CRUMBLE: 0.45, CRBACK: 2.4 };
   const cell = (L, cx, cy) => (cy < 0 || cy > 15 || cx < 0 || cx > 15) ? (cx < 0 || cx > 15 ? '#' : '.') : L[cy][cx];
   const isSolid = (L, s, cx, cy) => { const ch = cell(L, cx, cy); if (ch === '#') return true; if (ch === 'c') { const k = cx + ',' + cy, g = s.crumb[k]; return !(g && g.gone > 0); } return false; };
   const hit = (L, s, x, y) => { const x0 = Math.floor(x + 1e-6), x1 = Math.floor(x + C.PW - 1e-6), y0 = Math.floor(y + 1e-6), y1 = Math.floor(y + C.PH - 1e-6);
@@ -7783,44 +7789,81 @@ const SUM = (() => {
   const cloudBelow = (L, x, yOld, yNew) => { const b0 = yOld + C.PH, b1 = yNew + C.PH; if (b1 < b0) return null; const x0 = Math.floor(x + 0.05), x1 = Math.floor(x + C.PW - 0.05); for (let cy = Math.floor(b0 - 1e-6) + (Number.isInteger(b0) ? 0 : 1); cy <= Math.floor(b1); cy++) { if (cy < 0 || cy > 15) continue; for (let cx = x0; cx <= x1; cx++) if (cell(L, cx, cy) === '=' && b0 <= cy + 1e-6) return cy; } return null; };
   const touch = (L, x, y, set) => { const x0 = Math.floor(x - 0.3), x1 = Math.floor(x + C.PW + 0.3), y0 = Math.floor(y - 0.3), y1 = Math.floor(y + C.PH + 0.3), out = []; for (let cy = y0; cy <= y1; cy++) for (let cx = x0; cx <= x1; cx++) { if (cy < 0 || cy > 15 || cx < 0 || cx > 15) continue; const ch = L[cy][cx]; if (set.indexOf(ch) >= 0) out.push([cx, cy, ch]); } return out; };
   const ov = (x, y, bx, by, bw, bh) => x < bx + bw && x + C.PW > bx && y < by + bh && y + C.PH > by;
-  const init = L => { for (let y = 0; y < 16; y++) for (let x = 0; x < 16; x++) if (L[y][x] === 'P') return { x: x + 0.19, y: y + 0.25, vx: 0, vy: 0, dash: 1, dt: 0, ddx: 0, ddy: 0, coy: 0, buf: 0, onG: false, wall: 0, dead: false, win: false, used: {}, crumb: {}, face: 1, wj: 0, freeze: 0, flowers: {}, ev: [] }; };
+  const init = L => { for (let y = 0; y < 16; y++) for (let x = 0; x < 16; x++) if (L[y][x] === 'P') return { x: x + 0.19, y: y + 0.25, vx: 0, vy: 0, dash: 1, dt: 0, dref: 0, ddx: 0, ddy: 0, coy: 0, buf: 0, var: 0, vjs: 0, auto: false, force: 0, fdir: 0, wst: C.WST, onG: false, wall: 0, dead: false, win: false, used: {}, crumb: {}, face: 1, freeze: 0, flowers: {}, ev: [] }; };
   const spikeKill = (L, s) => { for (const [cx, cy, ch] of touch(L, s.x, s.y, '^v<>')) {
       if (ch === '^' && s.vy >= 0 && ov(s.x, s.y, cx + 0.15, cy + 0.55, 0.7, 0.45)) return true;
       if (ch === 'v' && s.vy <= 0 && ov(s.x, s.y, cx + 0.15, cy, 0.7, 0.45)) return true;
       if (ch === '<' && s.vx >= 0 && ov(s.x, s.y, cx + 0.55, cy + 0.15, 0.45, 0.7)) return true;
       if (ch === '>' && s.vx <= 0 && ov(s.x, s.y, cx, cy + 0.15, 0.45, 0.7)) return true; } return false; };
-  // inp: {l,r,u,d,j (held), jp (pressed), dp (dash pressed)}
+  const appr = (v, t, a) => v < t ? Math.min(t, v + a) : Math.max(t, v - a);
+  const wallAt = (L, s, d, dist) => hit(L, s, s.x + d * (dist || C.WCHK), s.y);
+  // jumps (all set Celeste's variable-jump timer: holding jump keeps the launch speed for a moment)
+  const jump = (s, dirx) => { s.vy = -C.JV; s.vx += C.JHB * dirx; s.var = C.VAR; s.vjs = s.vy; s.auto = false; s.coy = 0; s.buf = 0; s.ev.push('jump'); };
+  const wallJump = (s, d) => { s.vx = C.WJH * d; s.vy = -C.JV; s.var = C.VAR; s.vjs = s.vy; s.auto = false; s.force = C.WJF; s.fdir = d; s.face = d; s.buf = 0; s.ev.push('walljump'); };
+  const superJump = (s, hyper) => { s.vx = C.SJH * s.face; s.vy = -C.JV; if (hyper) { s.vx *= C.HYX; s.vy *= C.HYY; } s.var = C.VAR; s.vjs = s.vy; s.auto = false; s.coy = 0; s.buf = 0; s.dt = 0; s.ev.push(hyper ? 'hyper' : 'super'); };
+  const superWallJump = (s, d) => { s.vx = C.SWJH * d; s.vy = -C.SWJV; s.var = C.SWVAR; s.vjs = s.vy; s.auto = false; s.force = C.SWF; s.fdir = d; s.face = d; s.buf = 0; s.dt = 0; s.ev.push('bounce'); };
+  // inp: {l,r,u,d,j (held), jp (pressed this step), dp (dash pressed this step)}
   const step = (L, s, inp, h, t) => {
     if (s.dead || s.win) return s; s.ev.length = 0;
     for (const k in s.crumb) { const g = s.crumb[k]; if (g.t > 0) { g.t -= h; if (g.t <= 0) { g.gone = C.CRBACK; s.ev.push('crumble'); } } else if (g.gone > 0) { g.gone -= h; if (g.gone <= 0) { const [cx, cy] = k.split(',').map(Number); if (ov(s.x, s.y, cx, cy, 1, 1)) g.gone = 0.2; else delete s.crumb[k]; } } }
+    // presses are buffered before anything else, so a tap during the dash freeze (or a dash) is never lost
+    if (inp.jp) s.buf = C.BUF; if (inp.dp) s.dbuf = C.BUF;
     if (s.freeze > 0) { s.freeze -= h; return s; }
-    const dirx = (inp.r ? 1 : 0) - (inp.l ? 1 : 0), diry = (inp.d ? 1 : 0) - (inp.u ? 1 : 0); if (dirx) s.face = dirx;
+    let dirx = (inp.r ? 1 : 0) - (inp.l ? 1 : 0); const diry = (inp.d ? 1 : 0) - (inp.u ? 1 : 0);
+    if (s.force > 0) { s.force -= h; dirx = s.fdir; }
+    if (dirx && s.dt <= 0) s.face = dirx;
     const ground = hit(L, s, s.x, s.y + 0.03) || (s.vy >= 0 && cloudBelow(L, s.x, s.y, s.y + 0.03) !== null);
     if (ground && !s.onG) s.ev.push('land'); s.onG = ground;
-    s.wall = !ground ? (hit(L, s, s.x + 0.18, s.y) ? 1 : hit(L, s, s.x - 0.18, s.y) ? -1 : 0) : 0;
-    if (ground) { s.coy = C.COY; if (s.dt <= 0 && s.dash < 1) { s.dash = 1; } } else s.coy -= h;
+    s.wall = !ground ? (wallAt(L, s, 1) ? 1 : wallAt(L, s, -1) ? -1 : 0) : 0;
+    if (s.dref > 0) s.dref -= h;
+    if (ground) { s.coy = C.COY; s.wst = C.WST; if (s.dref <= 0 && s.dash < 1) { s.dash = 1; s.ev.push('refill'); } } else s.coy -= h;
     // crumble blocks start falling when stood on or grabbed
     for (const [cx, cy] of [[Math.floor(s.x + 0.1), Math.floor(s.y + C.PH + 0.05)], [Math.floor(s.x + C.PW - 0.1), Math.floor(s.y + C.PH + 0.05)], [s.wall ? Math.floor(s.wall > 0 ? s.x + C.PW + 0.1 : s.x - 0.1) : -9, Math.floor(s.y + C.PH / 2)]]) { if (cell(L, cx, cy) === 'c') { const k = cx + ',' + cy; if (!s.crumb[k]) { s.crumb[k] = { t: C.CRUMBLE, gone: 0 }; s.ev.push('shake'); } } }
-    if (inp.jp) s.buf = C.BUF; else s.buf -= h;
-    if (inp.dp && s.dash > 0) { let dx = dirx, dy = diry; if (!dx && !dy) dx = s.face; const n = Math.hypot(dx, dy); s.ddx = dx / n; s.ddy = dy / n; s.dt = C.DT; s.dash = 0; s.buf = 0; s.freeze = 0.05; s.wj = 0; s.ev.push('dash'); return s; }
-    if (s.dt > 0) { s.dt -= h; s.vx = s.ddx * C.DSP; s.vy = s.ddy * C.DSP; if (s.dt <= 0) { s.vx = s.ddx * C.DSP * C.DEND * (s.ddy ? 0.75 : 1); s.vy = s.ddy * C.DSP * C.DEND * (s.ddy < 0 ? 0.75 : 1); } }
-    else {
-      if (s.wj > 0) s.wj -= h;
-      const tgt = dirx * C.RUN; if (s.wj <= 0) { if (Math.abs(s.vx) > C.RUN && Math.sign(s.vx) === Math.sign(tgt)) s.vx -= Math.sign(s.vx) * Math.min(Math.abs(s.vx) - C.RUN, C.DEC * h); else { const acc = s.onG ? C.ACCG : C.ACCA; if (s.vx < tgt) s.vx = Math.min(tgt, s.vx + acc * h); else if (s.vx > tgt) s.vx = Math.max(tgt, s.vx - acc * h); } }
-      let g = C.GRAV; if (Math.abs(s.vy) < C.APEX && inp.j) g *= 0.5; if (s.vy < 0 && !inp.j) g *= 2.0;
-      s.vy += g * h; const maxf = s.wall && dirx === s.wall ? C.WSL : C.MAXF; if (s.vy > maxf) s.vy = Math.max(maxf, s.vy - 40 * h);
-      if (s.buf > 0) { if (s.coy > 0) { s.vy = -C.JV; s.coy = 0; s.buf = 0; s.ev.push('jump'); } else if (s.wall) { s.vy = -C.WJV; s.vx = -s.wall * C.WJX; s.wj = C.WJL; s.buf = 0; s.face = -s.wall; s.ev.push('walljump'); } }
+    s.buf -= h; if (s.dbuf > 0) s.dbuf -= h;
+    // start a dash (8 directions, facing if no direction held)
+    if (s.dbuf > 0 && s.dash > 0) { let dx = dirx, dy = diry; if (!dx && !dy) dx = s.face; const n = Math.hypot(dx, dy); s.ddx = dx / n; s.ddy = dy / n; if (dx) s.face = dx; s.vx = s.ddx * C.DSP; s.vy = s.ddy * C.DSP; s.dt = C.DT; s.dash = 0; s.dref = C.DREF; s.dbuf = 0; s.freeze = 0.05; s.force = 0; s.var = 0; s.ev.push('dash'); return s; }
+    if (s.dt > 0) {
+      s.dt -= h;
+      // a down-diagonal dash that hits the floor turns into a ground slide (jump out of it = hyper / wavedash)
+      if (ground && s.ddx && s.ddy > 0) { s.ddy = 0; s.ddx = Math.sign(s.ddx); s.vy = 0; s.vx *= C.SLIDE; s.duck = true; }
+      if (s.buf > 0) {
+        if (s.ddy <= 0.01 && s.ddx && s.coy > 0) superJump(s, !!s.duck);
+        else if (!s.ddx && s.ddy < 0) { if (wallAt(L, s, 1, C.WCHK * 1.7)) superWallJump(s, -1); else if (wallAt(L, s, -1, C.WCHK * 1.7)) superWallJump(s, 1); }
+        else { if (wallAt(L, s, 1)) { wallJump(s, -1); s.dt = 0; } else if (wallAt(L, s, -1)) { wallJump(s, 1); s.dt = 0; } }
+      }
+      if (s.dt > 0) { s.vx = s.vx || s.ddx * C.DSP; if (!s.duck) s.vy = s.ddy * C.DSP; }
+      else if (s.ev.indexOf('jump') < 0 && s.ev.indexOf('super') < 0 && s.ev.indexOf('hyper') < 0 && s.ev.indexOf('bounce') < 0 && s.ev.indexOf('walljump') < 0) {
+        // dash ended on its own
+        if (s.ddy <= 0) { s.vx = s.ddx * C.DEND * (s.duck ? C.SLIDE : 1); s.vy = s.ddy * C.DEND; } if (s.vy < 0) s.vy *= C.DUP; }
+      if (s.dt <= 0) s.duck = false;
+    } else {
+      // run: fast acceleration, softer in the air; speed above max bleeds off slowly (keeps super/hyper momentum)
+      const mult = ground ? 1 : C.AIR, tgt = dirx * C.RUN;
+      if (Math.abs(s.vx) > C.RUN && Math.sign(s.vx) === dirx) s.vx = appr(s.vx, tgt, C.RED * mult * h); else s.vx = appr(s.vx, tgt, C.ACC * mult * h);
+      // gravity: half gravity at the top of a jump while jump is held; wall slide when holding into a wall; hold down to fall faster
+      if (!ground) {
+        let mf = C.MAXF;
+        if (diry > 0 && !s.wall) mf = C.FASTF;
+        else if (s.wall && dirx === s.wall && s.vy >= 0) { mf = C.MAXF + (C.WSL - C.MAXF) * Math.max(0, s.wst / C.WST); s.wst -= h; }
+        const gm = (Math.abs(s.vy) < C.HALF && (inp.j || s.auto)) ? 0.5 : 1;
+        if (s.vy > mf) s.vy = appr(s.vy, mf, (diry > 0 ? C.FASTA : C.GRAV) * h); else s.vy = appr(s.vy, mf, C.GRAV * gm * h);
+      }
+      if (s.var > 0) { if (inp.j || s.auto) s.vy = Math.min(s.vy, s.vjs); else s.var = 0; s.var -= h; if (s.var <= 0) s.auto = false; }
+      if (s.buf > 0) { if (s.coy > 0) jump(s, dirx); else if (wallAt(L, s, 1)) wallJump(s, -1); else if (wallAt(L, s, -1)) wallJump(s, 1); }
     }
-    // move x
-    let nx = s.x + s.vx * h; if (hit(L, s, nx, s.y)) { if (s.dt > 0 && s.ddy === 0) { let fixed = false; for (const o of [-0.25, 0.25, -0.45, 0.45]) if (!hit(L, s, nx, s.y + o)) { s.y += o; fixed = true; break; } if (!fixed) { nx = s.x; const st = Math.sign(s.vx) * 0.02; let k = 0; while (!hit(L, s, nx + st, s.y) && k++ < 60) nx += st; s.vx = 0; } } else { const st = Math.sign(s.vx) * 0.02; nx = s.x; let k = 0; while (!hit(L, s, nx + st, s.y) && k++ < 60) nx += st; s.vx = 0; } }
+    // move x (dashes slide up/down around corners)
+    let nx = s.x + s.vx * h; if (hit(L, s, nx, s.y)) { let fixed = false; if (s.dt > 0 && Math.abs(s.ddy) < 0.01) { for (const o of [-0.12, 0.12, -0.24, 0.24, -C.CORN, C.CORN]) if (!hit(L, s, nx, s.y + o)) { s.y += o; fixed = true; break; } }
+      if (!fixed) { const st = Math.sign(s.vx) * 0.01; nx = s.x; let k = 0; while (!hit(L, s, nx + st, s.y) && k++ < 120) nx += st; s.vx = 0; } }
     s.x = nx;
+    // move y (rising into a ceiling corner nudges you around it)
     let ny = s.y + s.vy * h; const cl = s.vy > 0 ? cloudBelow(L, s.x, s.y, ny) : null;
     if (cl !== null) { ny = cl - C.PH; s.vy = 0; }
-    else if (hit(L, s, s.x, ny)) { if (s.vy < 0) { let fixed = false; for (const o of [-0.3, 0.3]) if (!hit(L, s, s.x + o, ny)) { s.x += o; fixed = true; break; } if (fixed) { s.y = ny; } else { const st = -0.02; ny = s.y; let k = 0; while (!hit(L, s, s.x, ny + st) && k++ < 60) ny += st; s.vy = 0; } } else { const st = 0.02; ny = s.y; let k = 0; while (!hit(L, s, s.x, ny + st) && k++ < 60) ny += st; s.vy = 0; } }
-    if (cl === null || true) s.y = ny;
+    else if (hit(L, s, s.x, ny)) { let fixed = false; if (s.vy < 0) for (const o of [-0.12, 0.12, -0.24, 0.24, -C.CORN, C.CORN]) if (!hit(L, s, s.x + o, ny)) { s.x += o; fixed = true; break; }
+      if (!fixed) { const st = Math.sign(s.vy) * 0.01; ny = s.y; let k = 0; while (!hit(L, s, s.x, ny + st) && k++ < 120) ny += st; if (s.vy < 0) s.var = 0; s.vy = 0; } }
+    s.y = ny;
     if (spikeKill(L, s) || s.y > 16.2) { s.dead = true; return s; }
     for (const [cx, cy, ch] of touch(L, s.x, s.y, 'so*fF')) {
-      if (ch === 's' && s.vy >= 0 && ov(s.x, s.y, cx, cy + 0.5, 1, 0.5)) { s.vy = -C.SPR; s.dash = 1; s.dt = 0; s.coy = 0; s.wj = 0; s.ev.push('spring:' + cx + ',' + cy); }
+      if (ch === 's' && s.vy >= 0 && ov(s.x, s.y, cx, cy + 0.5, 1, 0.5)) { s.vy = -C.SPR; s.var = C.SPRVAR; s.vjs = s.vy; s.auto = true; s.dash = 1; s.dt = 0; s.duck = false; s.coy = 0; s.force = 0; s.ev.push('spring:' + cx + ',' + cy); }
       if (ch === 'o') { const k = cx + ',' + cy; if ((s.used[k] == null || s.used[k] + 2.5 < t) && s.dash < 1 && ov(s.x, s.y, cx - 0.25, cy - 0.25, 1.5, 1.5)) { s.dash = 1; s.used = Object.assign({}, s.used, { [k]: t }); s.ev.push('crystal'); } }
       if (ch === 'f') { const k = cx + ',' + cy; if (!s.flowers[k] && ov(s.x, s.y, cx + 0.2, cy + 0.2, 0.6, 0.6)) { s.flowers = Object.assign({}, s.flowers, { [k]: 1 }); s.ev.push('flower'); } }
       if (ch === 'F' && ov(s.x, s.y, cx, cy, 1, 1)) s.win = true;
@@ -8090,7 +8133,7 @@ const SUMMIT_LEVELS = [
     const hash = (x, y) => { let h = (x * 374761393 + y * 668265263) | 0; h = (h ^ (h >>> 13)) * 1274126177; return ((h ^ (h >>> 16)) >>> 0) / 4294967296; };
     const SKY = [['#1b2a4a', '#3b4f7a'], ['#22305a', '#4a5f92'], ['#2b3368', '#6a6aa6'], ['#3a3570', '#8a74b0'], ['#4a3a78', '#b07fb2'], ['#5a3f7a', '#d08aa8'], ['#6a4680', '#e8a0a0'], ['#7a5288', '#f2b69a'], ['#8a6090', '#f8c99a'], ['#9a70a0', '#fbd9a6'], ['#6f8fd0', '#ffe2b8'], ['#5fa0e0', '#fff0d0']];
     return Object.assign({
-      sk, hold: true, title: 'Summit', how: 'Climb each screen and reach the top. Phone: drag the left pad to move and aim, tap JUMP and DASH. PC: WASD or arrows, Space/C to jump, Shift/X to dash. One dash in the air, landing refills it. Jump off walls. Flowers are optional.',
+      sk, hold: true, title: 'Summit', how: 'Climb each screen and reach the top. Phone: drag the left pad to move and aim, tap JUMP and DASH. PC: WASD or arrows, Space/C to jump, Shift/X to dash. One dash in the air, landing refills it. Jump off walls. Jump during a dash on the ground for a super jump (dash down-diagonal into the floor for an even longer one). Flowers are optional.',
       state: 'ready', score: 0, best: 0, dead: 0, shake: 0, flash: 0, floats: [], ptr: {}, joy: null,
       geom() { this.T = Math.max(8, Math.floor(Math.min(this.w / 16, (this.h - 150) / 16))); this.mx = Math.floor((this.w - this.T * 16) / 2); this.my = 26; const cy = this.my + this.T * 16 + 10; this.cy = cy; this.ch = this.h - cy; const bs = Math.min(70, this.ch - 16); this.bJ = { x: this.w - bs - 10, y: cy + (this.ch - bs) / 2, w: bs, h: bs }; this.bD = { x: this.w - 2 * bs - 22, y: cy + (this.ch - bs) / 2, w: bs, h: bs }; this.pad = { x: 10, y: cy + 4, w: this.w * 0.46, h: this.ch - 8 }; },
       layout() { this.geom(); },
@@ -8115,10 +8158,10 @@ const SUMMIT_LEVELS = [
         this.snow.forEach(f => { f.x += f.s * dt * 8; f.y += f.s * dt * 10; if (f.y > 128) { f.y = 0; f.x = Math.random() * 128; } if (f.x > 128) f.x = 0; });
         this.sq[0] += (1 - this.sq[0]) * Math.min(1, dt * 12); this.sq[1] += (1 - this.sq[1]) * Math.min(1, dt * 12);
         if (this.die > 0) { this.die -= dt; if (this.die <= 0) { this.load(); this.wipe = 1; } return; }
-        this.acc += Math.min(dt, 0.05); const s = this.s; let jp = this.jp, dp = this.dp; this.jp = false; this.dp = false;
-        while (this.acc >= H) { this.acc -= H; this.t += H; const i = this.inp(); SUM.step(this.L, s, Object.assign(i, { jp, dp }), H, this.t); jp = false; dp = false;
+        this.acc += Math.min(dt, 0.05); const s = this.s; let jp = this.jp, dp = this.dp;
+        while (this.acc >= H) { this.acc -= H; this.t += H; const i = this.inp(); SUM.step(this.L, s, Object.assign(i, { jp, dp }), H, this.t); jp = false; dp = false; this.jp = false; this.dp = false;
           const fx = s.x * PX + 2.5, fy = s.y * PX + 6;
-          s.ev.forEach(ev => { if (ev === 'jump') { this.sq = [0.7, 1.3]; this.puff(fx, fy, 4); sfx(523, 0.05, 0.025, 'sine'); } else if (ev === 'walljump') { this.sq = [0.75, 1.25]; this.puff(fx - s.face * 3, fy - 3, 4); sfx(587, 0.05, 0.025, 'sine'); } else if (ev === 'land') { this.sq = [1.3, 0.75]; this.puff(fx, fy, 3, null, 14); }
+          s.ev.forEach(ev => { if (ev === 'jump') { this.sq = [0.7, 1.3]; this.puff(fx, fy, 4); sfx(523, 0.05, 0.025, 'sine'); } else if (ev === 'walljump') { this.sq = [0.75, 1.25]; this.puff(fx - s.face * 3, fy - 3, 4); sfx(587, 0.05, 0.025, 'sine'); } else if (ev === 'super' || ev === 'hyper' || ev === 'bounce') { this.sq = [0.7, 1.3]; this.shake = 0.08; this.puff(fx, fy, 7, '#ffd6a0', 26); sfx(659, 0.06, 0.03, 'sine'); setTimeout(() => sfx(880, 0.08, 0.025, 'sine'), 35); } else if (ev === 'land') { this.sq = [1.3, 0.75]; this.puff(fx, fy, 3, null, 14); }
             else if (ev === 'dash') { this.shake = 0.12; sfx(740, 0.08, 0.035, 'sine'); setTimeout(() => sfx(988, 0.06, 0.025, 'sine'), 40); } else if (ev.indexOf('spring') === 0) { this.springT[ev.slice(7)] = 0.3; this.sq = [0.6, 1.4]; sfx(392, 0.15, 0.04, 'sine'); setTimeout(() => sfx(784, 0.15, 0.03, 'sine'), 60); }
             else if (ev === 'crystal') { sfx(1175, 0.15, 0.035, 'sine'); this.puff(fx, fy - 3, 8, '#7fffd4', 30); } else if (ev === 'flower') { sfx(880, 0.1, 0.035, 'sine'); setTimeout(() => sfx(1319, 0.2, 0.03, 'sine'), 90); this.floats.push({ t: '+1 flower', x: this.w / 2, y: this.my + 60, age: 0, c: 'good' }); }
             else if (ev === 'shake') sfx(200, 0.05, 0.02, 'sine'); else if (ev === 'crumble') this.puff(fx, fy + 4, 5, '#a07850', 18); });

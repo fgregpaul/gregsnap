@@ -200,7 +200,7 @@ Plus the 7 Galaxy Casino games (Blackjack, Hold'em, Roulette, Slots, Crash, Mine
 | Stat Check | Higher or Lower | `hl` |
 | Steady Greg | GregSnap original (movie joke) | (one of the original 8) |
 | Sudoku | Sudoku | `sudoku` |
-| Summit | Celeste | `summit` |
+| Summit | Celeste. Movement (`SUM`) copies Celeste's Player.cs numbers (run/accel, variable-height jump, half gravity at the apex, coyote time, jump + dash buffering, wall jump/slide, 8-way dash with freeze, super jump, hyper/wavedash, wallbounce, corner correction), scaled by `P` so the jump stays ~2.3 tiles and the 12 rooms still fit; all 12 levels re-checked beatable with a search solver after the change. Jump/dash taps are kept until a physics step uses them (they used to be dropped on frames with no step, e.g. on 120 Hz phones) | `summit` |
 | Storm Isle | Fortnite (top-down 2D battle royale: Sky Barge drop, 14 named towns on a big island, chests, 6 guns in 5 rarities incl. a rocket launcher, wall building, shrinking storm, 50 players in Solo/Duos/Trios/Squads with knock + revive and bot teams; phones: floating move stick on the left + a fixed aim circle bottom-right (`aimGeom()`; push past the dashed ring to shoot); online lobbies with friends via GregNet) | `royale` |
 | Survive the Night | Vampire Survivors | `survive` |
 | Suspects | Among Us | `sus` |
