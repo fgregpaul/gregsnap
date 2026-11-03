@@ -25063,6 +25063,8 @@ function engine(){
     ? '<div class="it' + (it.id === 'g10k' ? ' rb' : '') + '" style="--c:' + it.c + '">' + SWIRL + '<b>' + fmtN(it.n) + '</b><small>' + (it.n === 1 ? 'GALAXY' : 'GALAXIES') + '</small></div>'
     : '<div class="it none" style="--c:' + it.c + '">' + SWIRL + '<b>NOT<br>GALAXY</b></div>';
 
+  let galCheat = false; try { galCheat = localStorage.getItem('gregsnap_galcheat_v1') === '1'; } catch (_) {}
+  let galTaps = 0, galTapT = 0;
   let gal = 0, opened = 0, spinning = false, rig = null, soundOn = true, ac = null, amtSel = 10, giftT = 0, dTarget = 0;
   const galn = $('galn'), balN = $('balN'), dBal = $('dBal');
   const strip = $('strip'), reel = $('reel'), result = $('result'), openBtn = $('openBtn');
@@ -25179,7 +25181,7 @@ function engine(){
   function spin() {
     if (spinning) return;
     spinning = true; openBtn.disabled = true; result.classList.remove('rb'); result.textContent = ''; result.style.color = '';
-    const win = rig || roll(); rig = null;
+    const win = rig || (galCheat ? ITEMS.find(it => it.id === 'g10k') : roll()); rig = null;
     const items = [];
     for (let i = 0; i < TOTAL; i++) items.push(i === WINIDX ? win : visRoll());
     strip.innerHTML = items.map(itemHTML).join('');
@@ -25206,6 +25208,15 @@ function engine(){
     else { result.textContent = pick(['NOT GALAXY. Open another.', 'NOT GALAXY. So close.', 'NOT GALAXY. The crate is fine.']); result.style.color = 'var(--muted)'; ethLose(); }
   }
   openBtn.addEventListener('click', spin);
+  /* secret: tap the galaxy icon in the crate 10 times and every crate gives 10,000 (10 more taps turns it off) */
+  const balIc = $('balIcon'); balIc.style.cssText += ';padding:8px;margin:-8px;cursor:default;-webkit-tap-highlight-color:transparent';
+  balIc.addEventListener('click', () => {
+    const now = performance.now(); galTaps = now - galTapT > 2000 ? 1 : galTaps + 1; galTapT = now;
+    if (galTaps >= 10) {
+      galTaps = 0; galCheat = !galCheat; try { localStorage.setItem('gregsnap_galcheat_v1', galCheat ? '1' : '0'); } catch (_) {}
+      ethNote(ethF(galCheat ? 12 : -5), 0.9, 0.05);
+    }
+  });
   $('galchip').addEventListener('click', () => showSheet(crate));
   function rigKey(e) {
     if (!crate.classList.contains('open')) return;
