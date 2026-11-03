@@ -3814,7 +3814,7 @@ html.fs .fsgp{display:block;position:fixed;left:0;right:0;bottom:6px;z-index:6;t
         txt(c, this.state === 'dead' ? 'PLAY AGAIN' : 'PLAY COMPUTER', this.w / 2, cb.y + cb.h / 2 + 5, 15, lum(cf) > 0.55 ? '#111' : '#fff', 'center');
         box(c, b.x, b.y, b.w, b.h, { fill: sk.pal[0], r: Math.min(sk.r, 12), hard: Math.min(sk.hard, 3), soft: 0 });
         txt(c, inL ? 'LOBBY ' + NET.s.code + ' (' + NET.s.players.length + ')' : 'PLAY A FRIEND', this.w / 2, b.y + b.h / 2 + 5, 15, lum(sk.pal[0]) > 0.55 ? '#111' : '#fff', 'center');
-        if (this.why && this.state === 'ready') txt(c, this.why, this.w / 2, b.y + 66, 12, sk.bad, 'center', MONO);
+        if (this.why && this.state === 'ready') txt(c, this.why, this.w / 2, (this.whyY && this.whyY()) || b.y + 66, 12, sk.bad, 'center', MONO);
       },
       /* call first in pointerdown; true = the tap was used here */
       mpTap(cv, e) {
@@ -3911,6 +3911,10 @@ html.fs .fsgp{display:block;position:fixed;left:0;right:0;bottom:6px;z-index:6;t
       c.strokeStyle = 'rgba(255,255,255,.35)'; c.lineWidth = r * 0.08; c.beginPath(); c.arc(x, y, r * 0.66, Math.PI * 1.05, Math.PI * 1.55); c.stroke();
       c.restore();
     }
+    /* computer difficulty: 0 easy, 1 normal (default), 2 hard (the old computer). Saved per phone. */
+    const LVLS = ['EASY', 'NORMAL', 'HARD'], LKEY = 'gregsnap_four_v1';
+    let LVL0 = 1; try { const v = JSON.parse(localStorage.getItem(LKEY) || 'null'); if (v && v.lvl >= 0 && v.lvl <= 2) LVL0 = v.lvl | 0; } catch (_) {}
+    const lvlRect = (D, i) => ({ x: D.x + D.w * i / 3, y: D.y, w: D.w / 3, h: D.h });
     const parkArt = {
       geom(g) {
         let by = 132; const foot = 150, cs = Math.floor(Math.min((g.w - 48) / NC, (g.h - by - foot) / NR, 74));
@@ -3982,9 +3986,9 @@ html.fs .fsgp{display:block;position:fixed;left:0;right:0;bottom:6px;z-index:6;t
       boxes(g) {
         if (g.net || (g.state !== 'ready' && g.state !== 'dead')) return null;
         const cw = Math.min(g.w - 32, 340), side = cw >= 290, bw = side ? (cw - 44) / 2 : cw - 32, bh = side ? Math.min(118, bw * 0.92) : 64;
-        const ch = 128 + (side ? bh : bh * 2 + 10) + 22, cx = (g.w - cw) / 2, cy = Math.max(70, Math.min(g.h - ch - 16, g.by + g.cs * NR / 2 - ch / 2));
+        const bxH = side ? bh : bh * 2 + 10, ch = 128 + bxH + 14 + 34 + 20, cx = (g.w - cw) / 2, cy = Math.max(70, Math.min(g.h - ch - 16, g.by + g.cs * NR / 2 - ch / 2));
         const y0 = cy + 128;
-        return { card: { x: cx, y: cy, w: cw, h: ch }, side, cpu: { x: cx + 16, y: y0, w: bw, h: bh }, friend: side ? { x: cx + 28 + bw, y: y0, w: bw, h: bh } : { x: cx + 16, y: y0 + bh + 10, w: bw, h: bh } };
+        return { card: { x: cx, y: cy, w: cw, h: ch }, side, cpu: { x: cx + 16, y: y0, w: bw, h: bh }, friend: side ? { x: cx + 28 + bw, y: y0, w: bw, h: bh } : { x: cx + 16, y: y0 + bh + 10, w: bw, h: bh }, diff: { x: cx + 16, y: y0 + bxH + 14, w: cw - 32, h: 34 } };
       },
       icon(c, k, x, y, s, col) {
         c.strokeStyle = col; c.fillStyle = col; c.lineWidth = Math.max(2, s * 0.08); c.lineJoin = 'round'; c.lineCap = 'round';
@@ -4013,6 +4017,8 @@ html.fs .fsgp{display:block;position:fixed;left:0;right:0;bottom:6px;z-index:6;t
           if (B.side) { parkArt.icon(c, k, b.x + b.w / 2, b.y + b.h * 0.36, Math.min(34, b.h * 0.3), '#f7f1e3'); ptx(c, l1.toUpperCase(), b.x + b.w / 2, b.y + b.h * 0.68, UI(10, 700), 'rgba(247,241,227,.7)'); ptx(c, l2, b.x + b.w / 2, b.y + b.h * 0.84, PF(Math.min(18, b.w / 7.5)), '#f7f1e3'); }
           else { parkArt.icon(c, k, b.x + 34, b.y + b.h / 2, 30, '#f7f1e3'); ptx(c, l1.toUpperCase(), b.x + 66, b.y + b.h * 0.36, UI(10, 700), 'rgba(247,241,227,.7)', 'left'); ptx(c, l2, b.x + 66, b.y + b.h * 0.64, PF(18), '#f7f1e3', 'left'); }
         });
+        { const D = B.diff; c.fillStyle = 'rgba(35,83,58,.1)'; prr(c, D.x, D.y, D.w, D.h, D.h / 2); c.fill();
+          LVLS.forEach((nm, i) => { const r = lvlRect(D, i), on = g.lvl === i; if (on) { c.fillStyle = '#23533a'; prr(c, r.x + 3, r.y + 3, r.w - 6, r.h - 6, (r.h - 6) / 2); c.fill(); } ptx(c, nm, r.x + r.w / 2, r.y + r.h / 2 + 0.5, UI(12, 700), on ? '#f7f1e3' : '#5d6b5f'); }); }
       },
       draw(g) {
         const c = g.ctx, w = g.w, h = g.h, cs = g.cs, bx = g.bx, by = g.by, N = g.net, mine = N && N.side >= 0 ? N.side + 1 : 1, t = performance.now() / 1000;
@@ -4059,7 +4065,24 @@ html.fs .fsgp{display:block;position:fixed;left:0;right:0;bottom:6px;z-index:6;t
     };
     return Object.assign({
       sk, hold: true, title: 'Drop Four', noVeil: PARK, fsAspect: PARK ? 0.62 : undefined, how: 'Tap a column. Get four in a row before the computer does.',
-      state: 'ready', score: 0, best: 0, dead: 0, shake: 0, flash: 0, floats: [], b: [], turn: 1, anim: null, wait: 0, win: null, hover: 3, wins: 0, keep: false, over: false,
+      state: 'ready', score: 0, best: 0, dead: 0, shake: 0, flash: 0, floats: [], b: [], turn: 1, anim: null, wait: 0, win: null, hover: 3, wins: 0, keep: false, over: false, lvl: LVL0,
+      /* the EASY / NORMAL / HARD pills, only on the start and game-over screens vs the computer */
+      diffBox() {
+        if (this.net || (this.state !== 'ready' && this.state !== 'dead')) return null;
+        if (PARK) { const b = parkArt.boxes(this); return b ? b.diff : null; }
+        if (this.mp) { const f = this.fbtn(); return { x: f.x, y: f.y + f.h + 12, w: f.w, h: 32 }; }
+        const bw = Math.min(240, this.w - 60); return { x: this.w / 2 - bw / 2, y: Math.min(this.h - 44, this.h / 2 + 76), w: bw, h: 32 };
+      },
+      diffTap(p) {
+        const D = this.diffBox(); if (!D || p[0] < D.x || p[0] > D.x + D.w || p[1] < D.y - 4 || p[1] > D.y + D.h + 4) return false;
+        const i = clamp(Math.floor((p[0] - D.x) / (D.w / 3)), 0, 2); if (i !== this.lvl) { this.lvl = i; sfx(520 + i * 120, 0.05, 0.05, 'triangle'); try { localStorage.setItem(LKEY, JSON.stringify({ lvl: i })); } catch (_) {} } return true;
+      },
+      drawDiff(c) {
+        const D = this.diffBox(); if (!D || PARK) return; const sk = SK;
+        box(c, D.x, D.y, D.w, D.h, { fill: sk.panel, r: Math.min(sk.r, 16), soft: 0 });
+        LVLS.forEach((nm, i) => { const r = lvlRect(D, i), on = this.lvl === i; if (on) box(c, r.x + 3, r.y + 3, r.w - 6, r.h - 6, { fill: sk.pal[0], r: Math.min(sk.r, 12), soft: 0 }); txt(c, nm, r.x + r.w / 2, r.y + r.h / 2 + 4, 11, on ? (lum(sk.pal[0]) > 0.55 ? '#111' : '#fff') : sk.dim, 'center', MONO); });
+      },
+      whyY() { const D = this.diffBox(); return D ? D.y + D.h + 20 : null; },
       geom() { if (PARK) { parkArt.geom(this); return; } this.cs = Math.floor(Math.min((this.w - 26) / NC, (this.h - 200) / NR)); this.bx = Math.floor((this.w - this.cs * NC) / 2); this.by = 104; },
       layout() { this.geom(); },
       reset() { this.geom(); this.b = []; for (let y = 0; y < NR; y++) this.b.push(new Array(NC).fill(0)); this.turn = 1; this.anim = null; this.wait = 0; this.win = null; this.over = false; this.floats = []; if (!this.keep) this.score = 0; this.keep = false; this.state = 'ready'; },
@@ -4077,14 +4100,21 @@ html.fs .fsgp{display:block;position:fixed;left:0;right:0;bottom:6px;z-index:6;t
         this.turn = a.who === 1 ? 2 : 1; if (this.turn === 2) this.wait = 0.45;
       },
       cpu() {
+        /* hard = the old computer (looks 5 moves ahead). normal looks 2 ahead (takes wins, blocks most threats, falls for traps).
+           easy only looks at its own move, plays a random column a third of the time and sometimes misses your four. */
+        const L = this.lvl, open = [3, 2, 4, 1, 5, 0, 6].filter(c => dropRow(this.b, c) >= 0);
+        if (!open.length) return;
+        if (L === 0 && Math.random() < 0.33) { this.play(pick(open), 2); return; }
+        const depth = L === 2 ? 4 : L === 1 ? (Math.random() < 0.25 ? 0 : 1) : 0, noise = L === 2 ? 1.5 : L === 1 ? 6 : 9;
         let best = -1e9, cs = [];
-        for (const c of [3, 2, 4, 1, 5, 0, 6]) { const r = dropRow(this.b, c); if (r < 0) continue; this.b[r][c] = 2; const v = search(this.b, 4, -1e9, 1e9, false) + rand(-1.5, 1.5); this.b[r][c] = 0; if (v > best) { best = v; cs = [c]; } }
-        this.play(cs.length ? cs[0] : 3, 2);
+        for (const c of open) { const r = dropRow(this.b, c); this.b[r][c] = 2; const v = search(this.b, depth, -1e9, 1e9, false) + rand(-noise, noise); this.b[r][c] = 0; if (v > best) { best = v; cs = [c]; } }
+        this.play(cs.length ? cs[0] : open[0], 2);
       },
       colAt(p) { return clamp(Math.floor((p[0] - this.bx) / this.cs), 0, NC - 1); },
       bind(cv) {
         cv.addEventListener('pointermove', e => { this.hover = this.colAt(ptrPos(cv, e)); });
-        cv.addEventListener('pointerdown', e => { if (this.mp && this.mpTap(cv, e)) return;
+        cv.addEventListener('pointerdown', e => { if (!this.net && (this.state === 'ready' || this.state === 'dead') && this.diffTap(ptrPos(cv, e))) return;
+          if (this.mp && this.mpTap(cv, e)) return;
           if (PARK && !this.net && (this.state === 'ready' || this.state === 'dead')) { const p = ptrPos(cv, e), b = parkArt.boxes(this); if (b && p[0] >= b.cpu.x && p[0] <= b.cpu.x + b.cpu.w && p[1] >= b.cpu.y && p[1] <= b.cpu.y + b.cpu.h && (this.state === 'ready' || this.dead > 0.6)) this.kick(); return; }
           if (!this.net && this.kick()) return; const p = ptrPos(cv, e); this.hover = this.colAt(p); if (this.net) { this.mpLocal({ c: this.hover }); return; } if (this.state === 'run' && this.turn === 1 && !this.anim && !this.over) this.play(this.hover, 1); });
       },
@@ -4110,7 +4140,7 @@ html.fs .fsgp{display:block;position:fixed;left:0;right:0;bottom:6px;z-index:6;t
         if (PARK) { parkArt.draw(this); return; }
         const c = this.ctx, w = this.w, sk = SK, cs = this.cs, bx = this.bx, by = this.by, N = this.net, mine = N && N.side >= 0 ? N.side + 1 : 1;
         drawBg(c, w, this.h);
-        txt(c, 'DROP FOUR', w / 2, 30, 24, sk.fg, 'center'); txt(c, N ? 'ONLINE  ·  LOBBY ' + (NET.s ? NET.s.code : '-') : 'WINS ' + this.wins + '    SCORE ' + this.score, w / 2, 56, 12, sk.dim, 'center', MONO);
+        txt(c, 'DROP FOUR', w / 2, 30, 24, sk.fg, 'center'); txt(c, N ? 'ONLINE  ·  LOBBY ' + (NET.s ? NET.s.code : '-') : LVLS[this.lvl] + '    WINS ' + this.wins + '    SCORE ' + this.score, w / 2, 56, 12, sk.dim, 'center', MONO);
         const yourTurn = N ? this.turn === mine && N.side >= 0 && !this.over : this.turn === 1 && !this.over;
         const nm = k => !N ? (k === 1 ? 'you' : 'computer') : N.side === k - 1 ? 'you' : String(N.names[k - 1] || '?').slice(0, 12);
         dot(c, w / 2 - 80, 82, 8, sk.pal[0], { lw: sk.lw ? 1.5 : 0 }); txt(c, nm(1), w / 2 - 66, 82, 12, this.turn === 1 && !this.over ? sk.fg : sk.dim, 'left', MONO); dot(c, w / 2 + 14, 82, 8, sk.pal[1], { lw: sk.lw ? 1.5 : 0 }); txt(c, nm(2), w / 2 + 28, 82, 12, this.turn === 2 && !this.over ? sk.fg : sk.dim, 'left', MONO);
@@ -4124,9 +4154,9 @@ html.fs .fsgp{display:block;position:fixed;left:0;right:0;bottom:6px;z-index:6;t
         }
         if (this.win) { const pu = 0.5 + 0.5 * Math.sin(performance.now() / 120); this.win.forEach(q => { c.beginPath(); c.arc(bx + q[0] * cs + cs / 2, by + q[1] * cs + cs / 2, cs * 0.44, 0, TAU); c.lineWidth = 3 + pu * 2; c.strokeStyle = sk.fg; c.stroke(); }); }
         txt(c, N ? (this.over ? '' : this.turnName()) : yourTurn ? 'Your move' : this.over ? '' : 'Thinking...', w / 2, by + cs * NR + 34, 14, sk.dim, 'center', MONO);
-        drawFloats(c, this); flashFx(c, this); if (N) this.mpVeil(); else endVeil(this); if (this.mp) this.drawFbtn(c);
+        drawFloats(c, this); flashFx(c, this); if (N) this.mpVeil(); else endVeil(this); if (this.mp) this.drawFbtn(c); this.drawDiff(c);
       }
-    }, MIX, opt && opt.mp ? turnMP('four', 'Drop Four') : {}, PARK ? { fbtn() { const b = parkArt.boxes(this); return b ? b.friend : { x: -1e4, y: -1e4, w: 0, h: 0 }; }, cbtn() { const b = parkArt.boxes(this); return b ? b.cpu : { x: -1e4, y: -1e4, w: 0, h: 0 }; }, drawFbtn() {}, mpVeil() {} } : {});
+    }, MIX, opt && opt.mp ? turnMP('four', 'Drop Four') : {}, opt && opt.mp && !PARK ? { cbtn() { const bw = Math.min(220, this.w - 60), bh = 44; return { x: this.w / 2 - bw / 2, y: Math.min(this.h - bh * 2 - 30 - 48, this.h / 2 + 80), w: bw, h: bh }; } } : {}, PARK ? { fbtn() { const b = parkArt.boxes(this); return b ? b.friend : { x: -1e4, y: -1e4, w: 0, h: 0 }; }, cbtn() { const b = parkArt.boxes(this); return b ? b.cpu : { x: -1e4, y: -1e4, w: 0, h: 0 }; }, drawFbtn() {}, mpVeil() {} } : {});
   }
 
   /* --- Void Run (space shooter) --- */
@@ -24723,7 +24753,7 @@ function engine(){
     { kind: 'gregle', suffix: ['Word', 'Guess', 'Lexi', 'Letters'], blurb: () => 'Guess the five-letter word in six tries.', make: sk => makeGregle(sk) },
     { kind: 'blocks', suffix: ['Blocks', 'Fall', 'Stack', 'Drop'], blurb: () => 'Turn the falling blocks and clear the lines.', make: sk => makeBlocks(sk) },
     { kind: 'sweeper', suffix: ['Sweep', 'Mines', 'Dig', 'Flag'], blurb: () => 'Dig up the safe squares. Do not hit a mine.', make: sk => makeSweeper(sk) },
-    { kind: 'four', suffix: ['Four', 'Connect', 'Discs', 'Drop'], blurb: () => 'Connect four discs before the computer does.', make: sk => makeFour(sk) },
+    { kind: 'four', suffix: ['Four', 'Connect', 'Discs', 'Drop'], blurb: () => 'Connect four discs before the computer does, or play a friend online.', make: sk => makeFour(sk, { mp: true }) },
     { kind: 'shooter', suffix: ['Blaster', 'Shooter', 'Run', 'Strike'], blurb: g => 'Fly, shoot, and grab the upgrades.', make: sk => makeShooter(sk) },
     { kind: 'putt', suffix: ['Putt', 'Golf', 'Links', 'Green'], blurb: () => 'Six holes of mini golf. Pull back and let go.', make: sk => makePutt(sk) },
     { kind: 'clicker', suffix: ['Clicker', 'Tapper', 'Idle', 'Farm'], blurb: () => 'Tap to earn. Buy upgrades to earn more.', make: sk => makeClicker(sk) },
