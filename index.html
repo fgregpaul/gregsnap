@@ -10601,15 +10601,135 @@ const SUMMIT_LEVELS = [
     let CX = 0, CY = 0, GX = 0, GY = 0, GW = 0, GH = 0, PSZ = 2;
     const tri = x => { const f = x - Math.floor(x); return 1 - 2 * Math.abs(f - 0.5); };
     function areaPal() { const ai = G.area >= 0 ? G.area : 0, A = AREAS[ai].c; if (!G.pal || G.pal.to !== ai) G.pal = { to: ai, from: G.pal ? Object.assign({}, G.pal.cur) : Object.assign({}, A), cur: Object.assign({}, A), t: G.pal ? 0 : 1 }; const p = G.pal; if (p.t < 1) { p.t = Math.min(1, p.t + 1 / 45); for (const k in p.cur) p.cur[k] = BL(p.from[k], A[k], p.t); } return p.cur; }
-    function drawBack(C, t) { for (let y = 0; y < LH; y++) { const f = y / LH, row = y * LW, by = (y & 3) * 4; const c0 = BL(C.bg0, C.bg1, Math.floor(f * 6) / 6), c1 = BL(C.bg0, C.bg1, Math.min(1, Math.floor(f * 6 + 1) / 6)), fr = f * 6 - Math.floor(f * 6); for (let x = 0; x < LW; x++) B32[row + x] = fr > BAY[by + (x & 3)] ? c1 : c0; }
-      const offF = Math.floor(CX * 0.3), offM = Math.floor(CX * 0.55), yF = Math.floor(-CY * 0.15) % 400;
+    /* ---------- v3 art: deep parallax, light shafts, fog, near + foreground layers, GregSnap relics ---------- */
+    const GSP = HX('#a77bff'), GSP2 = HX('#efe2ff'), GSPD = HX('#3a2466'), GSR = HX('#ff4a5a');
+    const dth = (x, y) => BAY[(y & 3) * 4 + (x & 3)];
+    const glow = (cx, cy, R, col, k) => { cx = Math.round(cx); cy = Math.round(cy); for (let y = Math.max(0, cy - R); y < Math.min(LH, cy + R); y++) for (let x = Math.max(0, cx - R); x < Math.min(LW, cx + R); x++) { const d = Math.hypot(x - cx, y - cy) / R; if (d >= 1) continue; const a = (1 - d) * k; if (a > dth(x, y) * 0.6) { const o = y * LW + x; B32[o] = BL(B32[o], col, Math.min(0.5, a)); } } };
+    const GEM5 = ['.###.', '#....', '#.##.', '#..#.', '.##..'];
+    const gEmblem = (x, y, c) => { for (let j = 0; j < 5; j++) for (let i = 0; i < 5; i++) if (GEM5[j][i] === '#') PX(x + i, y + j, c); };
+    // the GregSnap galaxy swirl: two arms, bright core, a ring
+    function sigil(cx, cy, R, base, arm, core, t, ring) { cx = Math.round(cx); cy = Math.round(cy); if (cx < -R || cx > LW + R || cy < -R || cy > LH + R) return;
+      for (let y = -R; y <= R; y++) { const yy = cy + y; if (yy < 0 || yy >= LH) continue; for (let x = -R; x <= R; x++) { const xx = cx + x; if (xx < 0 || xx >= LW) continue; const d = Math.hypot(x, y), r = d / R; if (r > 1) continue; const o = yy * LW + xx;
+        if (r < 0.16) { B32[o] = core; continue; } if (ring && r > 0.9) { if (((xx + yy) & 1) === 0) B32[o] = arm; continue; }
+        const a = Math.atan2(y, x), s = Math.sin(2 * a - r * 7.5 + t * 0.35); if (s > 0.35 + r * 0.25) B32[o] = BL(base, arm, Math.min(1, 1.15 - r)); else if (s > 0.1 && (1 - r) * 0.6 > dth(xx, yy)) B32[o] = BL(base, arm, 0.35); } } }
+    let DB = null, DBK = '', DBX = 0, DBY = 0, DW = 0, DH = 0;
+    function drawDeepCached(C, t, ai) { const PAD = 64, u0 = Math.floor(CX * 0.14) + 96000, oY = Math.floor(CY * 0.14) + 280 * 60, key = ai + ':' + C.bg1 + ':' + C.light + ':' + LW + 'x' + LH;
+      if (!DB || key !== DBK || u0 < DBX || oY < DBY || u0 - DBX > PAD || oY - DBY > PAD) { DW = LW + PAD; DH = LH + PAD; if (!DB || DB.length !== DW * DH) DB = new Uint32Array(DW * DH); else DB.fill(0); DBK = key; DBX = u0 - PAD / 2; DBY = oY - PAD / 2;
+        const sB = B32, sW = LW, sH = LH; B32 = DB; LW = DW; LH = DH; try { drawDeep(C, 0, ai, DBX, DBY); } finally { B32 = sB; LW = sW; LH = sH; } }
+      const dx = u0 - DBX, dy = oY - DBY; for (let y = 0; y < LH; y++) { const r0 = (y + dy) * DW + dx, row = y * LW; for (let x = 0; x < LW; x++) { const c = DB[r0 + x]; if (c) B32[row + x] = c; } } }
+    function drawDeep(C, t, ai, u0, oY) { const Pv = 280, Pc = 96;
+      const cA = BL(C.bg1, C.light, 0.09), cB = BL(C.bg1, C.light, 0.17), cL = BL(C.bg1, C.light, 0.6);
+      const ARC = new Float32Array(LW);
+      for (let x = 0; x < LW; x++) { const u = x + u0, cell = Math.floor(u / Pc), lu = u - cell * Pc;
+        if (ai === 2) { const m = (u % 48 + 48) % 48, a = (m - 28) / 20; ARC[x] = 64 - 44 * Math.sqrt(Math.max(0, 1 - a * a)); } else if (ai === 4) { const m = (u % 64 + 64) % 64, a = (m - 37) / 27; ARC[x] = 74 - 48 * Math.sqrt(Math.max(0, 1 - a * a)); }
+        let band = Math.floor(oY / Pv), lv = oY - band * Pv - 1, h = hs(cell, band * 31 + ai * 7);
+        for (let y = 0; y < LH; y++) { if (++lv >= Pv) { lv = 0; band++; h = hs(cell, band * 31 + ai * 7); } const up = Pv - lv; let s = 0;
+          if (ai === 0) { const w = 12 + h % 14, x0 = 8 + (h >> 5) % (Pc - w - 30), H = 90 + (h >> 9) % 140, dx = lu - x0 - w / 2, ad = Math.abs(dx);
+            if (ad < w / 2) { const top = H - dx * dx / (w * w / 4) * 12; if (up < top) { s = ad >= w / 2 - 1 ? 2 : 1; if (s === 1 && (lu - x0) % 5 === 2 && up % 11 === 5 && up < top - 14 && (hs(cell * 97 + lu, band * 7 + up) & 3) === 0) s = 3; } }
+            else if (ad < 1.2 && up < H + 22) s = 1;
+            else { const x1 = x0 + w + 5, w1 = 16 + (h >> 14) % 10, H1 = 34 + (h >> 18) % 40, d1 = Math.abs(lu - x1 - w1 / 2); if (lu >= x1 && lu < x1 + w1 && up < H1 + Math.max(0, 8 - d1)) s = (up % 9 === 4 && (lu - x1) % 6 === 3) ? 3 : 1; }
+            if (!s && up < 8 + 5 * tri(u / 31)) s = 1; }
+          else if (ai === 1) { const tw2 = 5 + h % 4, x0 = 20 + (h >> 4) % 50, H = 150 + (h >> 10) % 90, cr = 18 + (h >> 16) % 12, dcx = lu - x0 - tw2 / 2, dcy = up - H;
+            if (lu >= x0 && lu < x0 + tw2 && up < H) s = lu === x0 ? 2 : 1;
+            else if (dcx * dcx + dcy * dcy * 1.8 < cr * cr * (0.82 + 0.18 * tri((lu + up) / 9))) s = (dcy > cr * 0.4 && (lu + up) % 3 === 0) ? 2 : 1;
+            if (!s && up < 18 + 14 * tri(u / 41) + 7 * tri(u / 13)) s = 1;
+            if (!s && lv < 30 + 20 * tri(u / 23) && ((lu * 7 + h) % 13 === 0)) s = 2; }
+          else if (ai === 2) { const m = (u % 48 + 48) % 48;
+            if (m < 8) s = (m === 0 || m === 7) ? 2 : 1;
+            else { const ay = ARC[x]; if (lv < ay) s = (lv > ay - 2) ? 2 : 1; if (up < 12) s = up === 11 ? 2 : 1; if (!s && Math.abs(m - 28) < 3 && lv > ay + 6 && lv < ay + 30 && (lv & 1)) s = 3; } }
+          else if (ai === 3) { if (up < 10 + 8 * tri(u / 29) + 6 * tri(u / 7)) s = 1; const cx0 = 14 + h % 20; if (lu === cx0 && lv < 60 + (h >> 8) % 90 && (lv % 4) !== 3) s = 2; }
+          else if (ai === 4) { const m = (u % 64 + 64) % 64;
+            if (m < 10) s = (m === 0 || m === 9) ? 2 : 1;
+            else { const ay = ARC[x]; if (lv < ay) s = lv > ay - 2 ? 2 : 1; else if (Math.abs(m - 37) < 3 && (h & 1)) s = ((lv * 1 + Math.floor(t * 50)) % 10 < 5) ? 3 : 2; if (up < 14 + 4 * tri(u / 17)) s = 1; } }
+          else { for (let k = 0; k < 3 && !s; k++) { const ck = 10 + (h >> (k * 5)) % 76, Hk = 60 + (h >> (k * 7 + 3)) % 150, wk = 7 + (h >> (k * 3 + 11)) % 9, dx = lu - ck; if (Math.abs(dx) < wk && up < Hk * (1 - Math.abs(dx) / wk) + 8) s = dx < 0 && dx > -3 ? 2 : (dx === 0 ? 3 : 1); }
+            if (!s && up < 12 + 9 * tri(u / 21)) s = 1; }
+          if (s) B32[y * LW + x] = s === 1 ? cA : s === 2 ? cB : cL; } }
+      // carved GregSnap sigils + statues of Greg holding up his phone
+      const c0 = Math.floor(u0 / Pc) - 1, c1 = Math.floor((u0 + LW) / Pc) + 1, b0 = Math.floor(oY / Pv) - 1, b1 = Math.floor((oY + LH) / Pv) + 1;
+      for (let ci = c0; ci <= c1; ci++) for (let bi = b0; bi <= b1; bi++) { const h = hs(ci, bi * 5 + 99), sx = ci * Pc + 48 - u0, base = (bi + 1) * Pv - oY;
+        if ((ai === 3 && (h & 1)) || (ai === 0 && h % 9 === 0)) statue(sx, base, cA, cB, cL, t, ci);
+        else if (h % 6 === 0) sigil(sx, base - Pv * 0.62, 15 + h % 9, cA, BL(cA, GSP, 0.45), BL(cA, GSP2, 0.6), t, 1); } }
+    function statue(x, yb, cA, cB, cL, t, seed) { x = Math.round(x); yb = Math.round(yb); if (x < -40 || x > LW + 40 || yb < -10 || yb > LH + 120) return;
+      RF(x - 16, yb - 12, 32, 12, cA); RF(x - 18, yb - 14, 36, 2, cB);
+      for (let j = 0; j < 46; j++) { const w = Math.round(12 - j * 0.12); RF(x - w, yb - 14 - j, w * 2, 1, cA); PX(x - w, yb - 14 - j, cB); }
+      for (let y = -8; y <= 8; y++) for (let xx = -7; xx <= 7; xx++) if (xx * xx / 49 + y * y / 64 <= 1) PX(x + xx, yb - 68 + y, cA);
+      for (let k = 0; k < 6; k++) { PX(x - 5 - (k >> 1), yb - 75 - k, cA); PX(x + 5 + (k >> 1), yb - 75 - k, cA); }
+      RF(x - 4, yb - 70, 2, 3, BL(cA, INK, 0.35)); RF(x + 2, yb - 70, 2, 3, BL(cA, INK, 0.35));
+      for (let k = 0; k < 22; k++) RF(x + 7 + k * 0.45, yb - 54 - k, 3, 1, cA);
+      const px = x + 13, py = yb - 92; BOX(px - 1, py - 1, 11, 17, cA, cB); RF(px + 1, py + 1, 7, 12, BL(cA, GSP, 0.4)); sigil(px + 4, py + 7, 3, BL(cA, GSP, 0.4), GSP2, GSP2, t, 0);
+      glow(px + 4, py + 7, 22, GSP, 0.22 + 0.06 * Math.sin(t * 2 + seed)); }
+    function drawRays(C, t) { const off = Math.floor(CX * 0.35), col = C.light;
+      for (let y = 0; y < LH; y++) { const fy = 1 - y / LH; if (fy < 0.12) break; const sl = Math.floor(y * 0.45) + off + 64000, row = y * LW;
+        for (let x = 0; x < LW; x++) { const s = x + sl, idx = Math.floor(s / 64), hh = hs(idx, 5); if (hh % 3) { x += 63 - (s - idx * 64); continue; } const ls = s - idx * 64, w = 6 + hh % 16; if (ls >= w) { x += 63 - ls; continue; }
+          const e = Math.min(ls, w - 1 - ls) / (w / 2), a = fy * fy * 0.2 * (0.7 + 0.3 * Math.sin(t * 0.6 + idx)) * Math.min(1, e * 1.6 + 0.25); if (a > dth(x, y) * 0.3) B32[row + x] = BL(B32[row + x], col, 0.16); } } }
+    let FS = null, FC = null;
+    function drawFog(C, t) { const fc = BL(C.bg1, C.light, 0.25), ph = CX * 0.6 + t * 6;
+      if (!FS || FS.length !== LW) { FS = new Float32Array(LW); FC = new Float32Array(LW); } for (let x = 0; x < LW; x++) { FS[x] = Math.sin((x + ph) * 0.045); FC[x] = Math.cos((x + ph) * 0.045); }
+      for (let y = 0; y < LH; y++) { const wy = y + CY * 0.6, band = Math.sin(wy * 0.028 + t * 0.15); if (band < 0.2) continue; const k = (band - 0.2) * 0.5, rp = Math.sin(wy * 0.09) * 1.7, cr = Math.cos(rp), sr = Math.sin(rp), row = y * LW, by = (y & 3) * 4;
+        for (let x = 0; x < LW; x++) { const a = k * (0.55 + 0.45 * (FS[x] * cr + FC[x] * sr)); if (a > BAY[by + (x & 3)] * 0.55) B32[row + x] = BL(B32[row + x], fc, 0.22); } } }
+    function relicPhone(x, y, nc, t, seed) { x = Math.round(x); y = Math.round(y); if (x < -16 || x > LW + 16 || y < -24 || y > LH + 4) return;
+      glow(x, y + 8, 16, GSP, 0.24 + 0.05 * Math.sin(t * 3 + seed)); BOX(x - 5, y, 11, 17, nc, BL(nc, GSP, 0.35)); RF(x - 3, y + 2, 7, 12, GSPD); for (let j = 0; j < 12; j++) if ((j + Math.floor(t * 4)) % 12 < 2) RF(x - 3, y + 2 + j, 7, 1, BL(GSPD, GSP, 0.35));
+      sigil(x, y + 6, 2, GSPD, GSP2, GSP2, t, 0); PX(x - 1, y + 11, GSR); PX(x + 1, y + 11, GSR); PX(x, y + 12, GSR); RF(x - 1, y + 15, 3, 1, BL(nc, GSP, 0.5)); }
+    function drawNear(C, t, ai) { const Pc = 54, Pv = 170, oX = Math.floor(CX * 0.78) + 54000, oY = Math.floor(CY * 0.78) + 17000;
+      const nc = BL(C.far, C.rock, 0.5), nh = BL(C.far, C.rim, 0.45), c0 = Math.floor(oX / Pc) - 1, c1 = Math.floor((oX + LW) / Pc) + 1, b0 = Math.floor(oY / Pv) - 1, b1 = Math.floor((oY + LH) / Pv) + 1;
+      for (let ci = c0; ci <= c1; ci++) for (let bi = b0; bi <= b1; bi++) { const h = hs(ci * 3 + ai, bi * 17 + 5); if (h % 3 === 0) continue; const x = ci * Pc + (h >> 4) % Pc - oX, y0 = bi * Pv - oY, L = 18 + (h >> 9) % 80;
+        if (x < -20 || x > LW + 20) continue;
+        if ((h >> 20) % 3 === 0) { const sh = 10 + (h >> 22) % 26, sw = 4 + (h >> 25) % 5, yb = y0 + Pv; for (let k = 0; k < sh; k++) { const w = Math.round(sw * (1 - k / sh)); RF(x - w, yb - k, w * 2 + 1, 1, nc); PX(x - w, yb - k, nh); } }
+        if ((h >> 12) % 9 === 0) { const sw = Math.round(Math.sin(t * 1.1 + h) * 1.5); LINE(x, y0, x + sw, y0 + L - 16, nh); relicPhone(x + sw, y0 + L - 16, nc, t, h & 7); continue; }
+        if (ai === 0 || ai === 3) { for (let k = 0; k < L; k++) { if (k % 3 !== 2) PX(x, y0 + k, nc); if (k % 3 === 1) { PX(x - 1, y0 + k, nc); PX(x + 1, y0 + k, nc); } }
+          if ((h >> 15) & 1) { const cy = y0 + L; BOX(x - 3, cy, 7, 9, ai === 3 ? BL(nc, C.acc, 0.25) : BL(nc, C.light, 0.5), nh); PX(x, cy + 4, C.light); glow(x, cy + 4, 14, C.light, 0.3); } else RF(x - 2, y0 + L, 5, 4, nc); }
+        else if (ai === 1) { const sw = Math.sin(t * 0.9 + h) * 2; for (let k = 0; k < L; k++) { const xx = Math.round(x + Math.sin(k * 0.15 + h) * 1.5 + sw * k / L); PX(xx, y0 + k, nc); if (k % 5 === 2) { PX(xx + (k & 8 ? 1 : -1), y0 + k, nh); PX(xx + (k & 8 ? 2 : -2), y0 + k - 1, nh); } } const ex = Math.round(x + sw); if ((h >> 15) & 1) { RF(ex - 1, y0 + L, 3, 2, BL(C.acc, C.light, 0.4)); glow(ex, y0 + L + 1, 9, C.light, 0.35); } }
+        else if (ai === 2) { const L2 = Math.max(26, L), bc = BL(C.acc, C.rock, 0.58), bd = BL(C.acc, C.rock, 0.75); RF(x - 6, y0, 13, 1, nh); RF(x - 4, y0 + 1, 9, L2, bc); RF(x - 4, y0 + 1, 1, L2, bd); RF(x + 4, y0 + 1, 1, L2, bd); for (let i = 0; i < 9; i++) RF(x - 4 + i, y0 + 1 + L2, 1, (i & 1) ? 1 : 3, bc);
+          RF(x - 3, y0 + 4, 7, 1, BL(C.acc, C.rock, 0.3)); RF(x - 3, y0 + L2 - 3, 7, 1, BL(C.acc, C.rock, 0.3)); gEmblem(x - 2, y0 + Math.floor(L2 / 2) - 2, BL(C.acc, C.light, 0.25)); }
+        else if (ai === 4) { RF(x - 1, y0, 3, L, nc); RF(x, y0, 1, L, nh); RF(x - 2, y0 + L, 5, 2, nh); const ph = (t * 0.8 + (h % 100) / 100) % 1, dy = Math.floor(ph * ph * 70); PX(x, y0 + L + 2 + dy, C.light); PX(x, y0 + L + 1 + dy, BL(C.light, nc, 0.5)); }
+        else { for (let k = 0; k < L; k++) { const w = Math.round((1 - k / L) * 4); RF(x - w, y0 + k, w * 2 + 1, 1, nc); PX(x - w, y0 + k, nh); } PX(x, y0 + L, (Math.floor(t * 3 + h) % 5) ? C.acc : W_); } } }
+    function drawMidDeco(C, t, ai) { const offM = Math.floor(CX * 0.55), oy = Math.floor(CY * 0.55) + 11000, c0 = Math.floor(offM / 70) - 1, c1 = Math.floor((offM + LW) / 70) + 1, mc = BL(C.mid, C.light, 0.18);
+      for (let ci = c0; ci <= c1; ci++) { const hh = hs(ci, 21); if (hh % 3 === 0) continue; const pw = 8 + hh % 10, sx = ci * 70 + 20 + (hh >> 5) % 30 - offM;
+        for (let k = Math.floor(oy / 110) - 1; k <= Math.floor((oy + LH) / 110) + 1; k++) { const h2 = hs(ci, k), y = k * 110 + h2 % 60 - oy; if (y < -40 || y > LH + 10) continue;
+          if (ai === 2) { if (h2 & 1) { RF(sx, y, pw, 1, mc); RF(sx + 1, y + 1, pw - 2, 20, BL(C.acc, C.mid, 0.6)); for (let i = 1; i < pw - 1; i++) PX(sx + i, y + 21 + (i & 1), BL(C.acc, C.mid, 0.6)); gEmblem(sx + Math.floor(pw / 2) - 2, y + 8, BL(C.acc, C.light, 0.35)); } }
+          else if (ai === 1) { for (let v = 0; v < 3; v++) { const vx = sx + 1 + ((h2 >> v * 3) % Math.max(1, pw - 2)), vl = 8 + (h2 >> (v * 4 + 2)) % 28; for (let j = 0; j < vl; j++) PX(vx + Math.round(Math.sin(j * 0.3 + v) * 0.7), y + j, j % 4 === 0 ? BL(C.acc, C.mid, 0.4) : BL(C.acc, C.mid, 0.65)); } }
+          else if (ai === 0) { if (h2 % 3 === 0) { const lx = sx + (h2 & 2 ? -3 : pw + 2); RF(Math.min(lx, sx + pw), y, Math.abs(lx - (h2 & 2 ? sx : sx + pw)) + 1, 1, mc); RF(lx - 1, y + 1, 3, 4, BL(C.mid, C.light, 0.5)); PX(lx, y + 2, C.light); glow(lx, y + 3, 12, C.light, 0.28); } }
+          else if (ai === 3) { for (let j = 0; j < 14; j++) PX(sx + 2 + ((j * 5 + h2) % Math.max(1, pw - 4)), y + j * 2, (Math.floor(t * 2 + j) % 7) ? BL(C.acc, C.mid, 0.55) : C.acc); }
+          else if (ai === 4) { const wx = sx + (h2 & 1 ? -1 : pw); for (let j = 0; j < 60; j++) if (((j + Math.floor(t * 40)) % 7) < 4) PX(wx, y + j, BL(C.light, C.mid, 0.55)); }
+          else { RF(sx - 2, y + 4, 3, 5, BL(C.acc, C.mid, 0.4)); RF(sx - 3, y + 6, 1, 3, BL(C.acc, C.mid, 0.4)); PX(sx - 2, y + 4, (Math.floor(t * 2 + k) % 4) ? C.rimHi : W_); } } } }
+    function drawBack(C, t) { const ai = Math.max(0, G.area); for (let y = 0; y < LH; y++) { const f = y / LH, row = y * LW, by = (y & 3) * 4; const c0 = BL(C.bg0, C.bg1, Math.floor(f * 6) / 6), c1 = BL(C.bg0, C.bg1, Math.min(1, Math.floor(f * 6 + 1) / 6)), fr = f * 6 - Math.floor(f * 6); for (let x = 0; x < LW; x++) B32[row + x] = fr > BAY[by + (x & 3)] ? c1 : c0; }
+      drawDeepCached(C, t, ai); drawRays(C, t);
+      const offF = Math.floor(CX * 0.3), offM = Math.floor(CX * 0.55);
       for (let x = 0; x < LW; x++) { const u = x + offF, hT = 14 + 18 * tri(u / 41) + 9 * tri(u / 17 + 0.4) + 4 * tri(u / 7), hB = 10 + 14 * tri(u / 53 + 0.2) + 6 * tri(u / 19);
         for (let y = 0; y < Math.min(LH, hT); y++) B32[y * LW + x] = C.far; for (let y = Math.max(0, LH - Math.floor(hB)); y < LH; y++) B32[y * LW + x] = C.far; }
-      for (let x = 0; x < LW; x++) { const u = x + offM, cw = 70, ci = Math.floor(u / cw), lo = u - ci * cw, hh = hs(ci, 21), pw = 8 + hh % 10, px0 = 20 + (hh >> 5) % 30; if (hh % 3 !== 0 && lo >= px0 && lo < px0 + pw) { const edge = lo === px0 || lo === px0 + pw - 1; for (let y = 0; y < LH; y++) { const wob = (hs(u, (y + Math.floor(CY * 0.55)) >> 3) & 3) === 0; B32[y * LW + x] = edge || wob ? BL(C.mid, C.far, 0.4) : C.mid; } }
+      for (let x = 0; x < LW; x++) { const u = x + offM, cw = 70, ci = Math.floor(u / cw), lo = u - ci * cw, hh = hs(ci, 21), pw = 8 + hh % 10, px0 = 20 + (hh >> 5) % 30; if (hh % 3 !== 0 && lo >= px0 && lo < px0 + pw) { const edge = lo === px0 || lo === px0 + pw - 1; for (let y = 0; y < LH; y++) { const wob = (hs(u, (y + Math.floor(CY * 0.55)) >> 3) & 3) === 0; B32[y * LW + x] = edge || wob ? BL(C.mid, C.far, 0.4) : (lo === px0 + 1 ? BL(C.mid, C.light, 0.12) : C.mid); } }
         else if (hh % 5 === 1 && lo === 8) { for (let y = 0; y < LH * 0.5 + (hh % 40); y++) if (((y + Math.floor(CY * 0.55)) & 3) !== 3) B32[y * LW + x] = C.mid; } }
-      if (AREAS[Math.max(0, G.area)].moss) for (let y = 0; y < LH; y++) for (let x = 0; x < LW; x++) { const d = ((x + y + Math.floor(CX * 0.6)) % 90 + 90) % 90; if (d < 14 && ((x * 3 + y) & 3) === 0) B32[y * LW + x] = BL(B32[y * LW + x], C.light, 0.18); }
+      drawMidDeco(C, t, ai); drawFog(C, t); drawNear(C, t, ai);
+      if (AREAS[ai].moss) for (let y = 0; y < LH; y++) for (let x = 0; x < LW; x++) { const d = ((x + y + Math.floor(CX * 0.6)) % 90 + 90) % 90; if (d < 14 && ((x * 3 + y) & 3) === 0) B32[y * LW + x] = BL(B32[y * LW + x], C.light, 0.18); }
     }
-    function drawTiles(t) { const tx0 = Math.floor(CX / T) - 1, tx1 = Math.floor((CX + LW) / T) + 1, ty0 = Math.floor(CY / T) - 1, ty1 = Math.floor((CY + LH) / T) + 1;
+    // foreground: big dark silhouettes in front of everything, anchored to real floors/ceilings, moving 1.3x faster than the world
+    function drawFore(C, t) { const S = 1.32, hx = LW / 2, hy = LH / 2, inv = (s, c, h) => (s - h) / S + h + c;
+      const tx0 = Math.floor(inv(-50, CX, hx) / T), tx1 = Math.floor(inv(LW + 50, CX, hx) / T), ty0 = Math.floor(inv(-60, CY, hy) / T), ty1 = Math.floor(inv(LH + 60, CY, hy) / T);
+      for (let ty = ty0; ty <= ty1; ty++) for (let tx = tx0; tx <= tx1; tx++) { const v = tile(tx, ty); if (!solidT(v) || v === GATE) continue; const h = hs(tx * 5 + 3, ty * 7 + 71);
+        const floor = tile(tx, ty - 1) === AIR && tile(tx, ty - 2) === AIR && tile(tx, ty - 3) === AIR, ceil = !floor && tile(tx, ty + 1) === AIR && tile(tx, ty + 2) === AIR && tile(tx, ty + 3) === AIR;
+        if (!(floor && h % 14 === 0) && !(ceil && h % 13 === 0)) continue;
+        const A = AREAS[areaT(tx, ty)], Ck = A.c, fc = BL(Ck.rock, INK, 0.3), rc = BL(Ck.rock, Ck.rim, 0.5), sx = hx + (tx * T + 4 - CX - hx) * S;
+        if (floor) { const sy = hy + (ty * T + 1 - CY - hy) * S; if (sy < -10 || sy > LH + 60) continue; const kind = (h >> 6) % 4;
+          if (true) { const n = 5 + (h >> 9) % 4, sway = Math.sin(t * 1.3 + tx) * 0.08; for (let b = 0; b < n; b++) { let ang = -Math.PI / 2 + (b / (n - 1) - 0.5) * 2.3 + sway, x = sx + (b - n / 2) * 1.5, y = sy; const len = 12 + (h >> (b * 2 + 3)) % 16, bend = (ang + Math.PI / 2) * 0.9;
+              for (let s = 0; s < len; s += 0.7) { const a2 = ang + bend * (s / len) * 0.9; x += Math.cos(a2) * 0.7; y += Math.sin(a2) * 0.7; PX(x, y, fc); if (s < len * 0.55) PX(x + 1, y, fc); if (s > len * 0.3 && ((s * 3) | 0) % 4 === 0) PX(x, y - 1, rc); } } }
+          else if (kind === 2) { const H = 24 + (h >> 11) % 24, W2 = 7 + (h >> 15) % 7; for (let k = 0; k < H; k++) { const w = Math.round(W2 * (1 - k / H) + (k % 7 === 3 ? 1 : 0)); RF(sx - w, sy - k, w * 2 + 1, 1, fc); PX(sx - w, sy - k, rc); } }
+          else { const R = 9 + (h >> 11) % 8; for (let y = -R; y <= 0; y++) for (let x = -R - 4; x <= R + 4; x++) if ((x * x) / ((R + 4) * (R + 4)) + (y * y) / (R * R) <= 1) PX(sx + x, sy + y, ((x + 1) * (x + 1) / ((R + 4) * (R + 4)) + ((y + 1) * (y + 1)) / (R * R) > 1 && y < -R * 0.4) ? rc : fc); if (A.moss || A.gem) { for (let k = 0; k < 5; k++) PX(sx - 6 + k * 3, sy - R - 1 + (k & 1), Ck.acc); } } }
+        else { const sy = hy + ((ty + 1) * T - 1 - CY - hy) * S; if (sy < -60 || sy > LH + 10) continue; const H = 22 + (h >> 8) % 34, W2 = 4 + (h >> 13) % 6;
+          if (A.moss) { for (let s = 0; s < 4; s++) { const L = H * (0.5 + ((h >> (s * 3)) % 5) / 8), ox = sx - 6 + s * 4; for (let k = 0; k < L; k++) { const xx = ox + Math.sin(k * 0.2 + t + s) * 1.2; PX(xx, sy + k, fc); if (k % 6 === 3) PX(xx + 1, sy + k, rc); } } }
+          else { for (let k = 0; k < H; k++) { const w = Math.round(W2 * (1 - k / H)); RF(sx - w, sy + k, w * 2 + 1, 1, fc); PX(sx - w, sy + k, rc); } if (A.drip) { const ph = (t * 0.7 + (h % 97) / 97) % 1; PX(sx, sy + H + ph * ph * 90, Ck.light); } } } } }
+    // ambient life: lumaflies, fireflies, leaves, embers, bubbles, sparkles, plus a few drifting GregSnap galaxies
+    function drawAmb(C, t, ai) { for (let i = 0; i < 34; i++) { const sx = (hs(i, 41) % 1000) / 1000, sy = (hs(i, 42) % 1000) / 1000, par = 0.6 + (i % 5) * 0.12, sp = 3 + (i % 6) * 2;
+        const rise = ai === 3 || ai === 4 || ai === 2, fall = ai === 1 && i % 3 === 0, vy = rise ? -sp * 1.6 : fall ? sp * 1.8 : Math.sin(t * 0.5 + i) * 3;
+        const x = Math.floor((((sx * LW * 3 + Math.sin(t * 0.7 + i * 1.7) * 10 + (fall ? t * 6 : t * 2) - CX * par) % LW) + LW) % LW), y = Math.floor((((sy * LH * 3 + t * vy - CY * par) % LH) + LH) % LH);
+        if (tile(Math.floor((x + CX) / T), Math.floor((y + CY) / T)) !== AIR) continue; const fl = 0.5 + 0.5 * Math.sin(t * (2 + i % 3) + i);
+        if (i % 9 === 4) { sigil(x, y, 3, BL(C.bg1, GSP, 0.4), GSP, GSP2, t * 3, 0); glow(x, y, 9, GSP, 0.25 * fl + 0.1); continue; }
+        if (fall) { const k = Math.floor(t * 3 + i) & 3; PX(x, y, C.acc); PX(x + (k < 2 ? 1 : -1), y + (k & 1), BL(C.acc, C.rock, 0.4)); continue; }
+        if (ai === 4) { if ((i & 1) === 0) { PX(x - 1, y, C.light); PX(x + 1, y, C.light); PX(x, y - 1, C.light); PX(x, y + 1, BL(C.light, C.bg1, 0.5)); } else PX(x, y, C.dust); continue; }
+        if (ai === 5) { if (fl > 0.8) { PX(x, y, W_); PX(x - 1, y, C.acc); PX(x + 1, y, C.acc); PX(x, y - 1, C.acc); PX(x, y + 1, C.acc); } else if (fl > 0.4) PX(x, y, C.rimHi); continue; }
+        const col = ai === 3 ? (fl > 0.6 ? HX('#ffd27a') : C.acc) : ai === 1 ? HX('#e8ff8a') : C.light; if (fl > 0.25) { glow(x, y, ai === 3 ? 4 : 7, col, 0.35 * fl); PX(x, y, fl > 0.7 ? W_ : col); } } }
+    function blitG(sp, x, y, flip, col, ph) { x = Math.round(x) - (flip ? sp.w - 1 - sp.ox : sp.ox); y = Math.round(y) - sp.oy; for (let j = 0; j < sp.h; j++) { const yy = y + j; if (yy < 0 || yy >= LH) continue; for (let i = 0; i < sp.w; i++) { const xx = x + i; if (xx < 0 || xx >= LW || ((xx + yy + ph) & 1)) continue; if (sp.d[j * sp.w + (flip ? sp.w - 1 - i : i)]) B32[yy * LW + xx] = col; } } }
+    const DLT = [];
+    function drawTiles(t) { DLT.length = 0; const tx0 = Math.floor(CX / T) - 1, tx1 = Math.floor((CX + LW) / T) + 1, ty0 = Math.floor(CY / T) - 1, ty1 = Math.floor((CY + LH) / T) + 1;
       for (let ty = ty0; ty <= ty1; ty++) for (let tx = tx0; tx <= tx1; tx++) { const v = tile(tx, ty); if (v === AIR) continue; const A = AREAS[areaT(tx, ty)], C = A.c, X = tx * T - CX, Y = ty * T - CY;
         if (v === ROCK || v === GATE || v === BRK) { const up = !solidT(tile(tx, ty - 1)), dn = !solidT(tile(tx, ty + 1)), lf = !solidT(tile(tx - 1, ty)), rt = !solidT(tile(tx + 1, ty));
           for (let j = 0; j < T; j++) { const yy = Y + j; if (yy < 0 || yy >= LH) continue; for (let i = 0; i < T; i++) { const xx = X + i; if (xx < 0 || xx >= LW) continue; const wx = tx * T + i, wy = ty * T + j; let c = ((hs(wx >> 2, wy >> 2) & 3) === 0 && ((wx + wy) & 1)) || (hs(wx, wy) & 31) === 0 ? C.rockB : C.rock; const de = Math.min(up ? j : 9, dn ? T - 1 - j : 9, lf ? i : 9, rt ? T - 1 - i : 9); if (de >= 2 && de < 4 && ((wx + wy) & 1)) c = BL(C.rock, C.rim, 0.22);
@@ -10619,6 +10739,15 @@ const SUMMIT_LEVELS = [
               B32[yy * LW + xx] = c; } }
           if (up && A.moss) for (let i = 0; i < T; i++) { const wx = tx * T + i, h = hs(wx, 7); if (h % 3) { PX(X + i, Y - 1, C.acc); if (h % 7 === 0) { PX(X + i, Y - 2, C.acc); PX(X + i, Y - 3, BL(C.acc, C.light, 0.5)); } } }
           if (dn && (hs(tx, ty) % 4 === 0)) { const n = 1 + hs(tx, ty + 3) % 3; for (let k = 0; k < n; k++) PX(X + 3 + (hs(tx, 9) % 3), Y + T + k, BL(C.rock, C.rim, 0.4)); }
+          if (up && tile(tx, ty - 1) === AIR) { const hd = hs(tx * 7 + 1, ty * 3 + 9);
+            if (!A.moss && hd % 3 === 0) for (let i = 0; i < T; i++) { const g2 = hs(tx * T + i, ty + 5); if (g2 % 3 === 0) { PX(X + i, Y - 1, BL(C.rim, C.rimHi, 0.35)); if (g2 % 7 === 0) PX(X + i, Y - 2, BL(C.rim, C.rimHi, 0.2)); } }
+            if (hd % 23 === 5) { const bn = HX('#d8d2c2'); RF(X + 2, Y - 3, 4, 3, bn); PX(X + 3, Y - 2, INK); PX(X + 5, Y - 2, INK); PX(X + 6, Y - 1, bn); PX(X + 1, Y - 1, BL(bn, C.rock, 0.4)); }
+            else if (A.moss && hd % 11 === 3) { const mc = HX('#e8e0c8'); PX(X + 4, Y - 1, mc); PX(X + 4, Y - 2, mc); RF(X + 2, Y - 4, 5, 2, BL(C.acc, C.light, 0.5)); PX(X + 3, Y - 4, W_); DLT.push([X + 4, Y - 4, C.light, 10]); }
+            else if (A.halls && hd % 13 === 7) { RF(X + 3, Y - 4, 2, 4, HX('#efe2c8')); PX(X + 3 + (Math.floor(t * 8 + tx) & 1), Y - 5, HX('#ffd890')); PX(X + 3, Y - 6, HX('#fff3c4')); DLT.push([X + 4, Y - 5, HX('#ffd890'), 11]); }
+            else if (A.drip && hd % 9 === 4) { PX(X + 3, Y - 1, C.rimHi); PX(X + 4, Y - 1, C.rim); PX(X + 3, Y - 2, C.rimHi); PX(X + 5, Y - 1, BL(C.rim, C.rock, 0.5)); }
+            else if (A.arena && hd % 6 === 2) { const fl = (Math.floor(t * 3 + tx) % 4) ? HX('#c8442a') : HX('#ff8a4a'); for (let k = 0; k < 4; k++) PX(X + 2 + k, Y + 2 + ((k * 3 + hd) % 3), fl); }
+            else if (A.gem && hd % 10 === 6) DLT.push([X + 3, Y - 2, C.acc, 9]);
+            if (hd % 47 === 13 && !solidT(tile(tx, ty - 1))) gEmblem(X + 1, Y + 2, BL(C.rock, GSP, 0.55)); }
           if (up && A.halls && (tx % 6 === 0)) { PX(X + 3, Y - 1, C.rimHi); PX(X + 4, Y - 1, C.rimHi); }
           if (A.gem) { if (dn && hs(tx, ty) % 3 === 0) { const L2 = 2 + hs(tx, ty + 5) % 5, ox = 2 + hs(tx, 3) % 4; for (let k = 0; k < L2; k++) { PX(X + ox, Y + T + k, k === L2 - 1 ? C.rimHi : C.acc); if (k < L2 - 2) PX(X + ox + 1, Y + T + k, C.rim); } } if (up && hs(tx, ty + 11) % 6 === 0) { const gl = (Math.floor(t * 3 + tx) % 7) === 0; PX(X + 2, Y - 1, C.acc); PX(X + 2, Y - 2, gl ? HX('#ffffff') : C.rimHi); PX(X + 3, Y - 1, C.rim); PX(X + 1, Y - 1, C.rim); } }
           if (A.drip && dn && hs(tx, ty) % 5 === 0) { const ph = (t * 0.6 + (hs(tx, 1) % 100) / 100) % 1, dy = Math.floor(ph * ph * 48); PX(X + 4, Y + T, C.light); if (ph > 0.25 && !solidT(tile(tx, ty + 1 + (dy >> 3)))) { PX(X + 4, Y + T + dy, C.light); PX(X + 4, Y + T + dy - 1, BL(C.light, C.rock, 0.5)); } } }
@@ -10628,6 +10757,7 @@ const SUMMIT_LEVELS = [
     function drawLights(C, t) { const lit = (cx, cy, R, col, k) => { for (let y = Math.max(0, Math.floor(cy - R)); y < Math.min(LH, cy + R); y++) for (let x = Math.max(0, Math.floor(cx - R)); x < Math.min(LW, cx + R); x++) { const d = Math.hypot(x - cx, y - cy) / R; if (d >= 1) continue; const a = (1 - d) * k; if (a > BAY[(y & 3) * 4 + (x & 3)] * 0.6) { const o = y * LW + x; B32[o] = BL(B32[o], col, Math.min(0.5, a)); } } };
       for (const [lx, ly] of LANT) { const X = lx * T + 4 - CX, Y = ly * T - CY; if (X < -40 || X > LW + 40 || Y < -60 || Y > LH + 40) continue; const C2 = AREAS[areaT(lx, ly)].c, len = 10 + (lx % 3) * 4; for (let k = 0; k < len; k += 2) PX(X, Y + k, C2.rim); const by = Y + len, fl = 0.85 + 0.15 * Math.sin(t * 5 + lx); lit(X, by + 4, 30, C2.light, 0.42 * fl);
         RF(X - 2, by, 5, 1, C2.rim); RF(X - 3, by + 1, 1, 6, C2.rim); RF(X + 3, by + 1, 1, 6, C2.rim); RF(X - 2, by + 7, 5, 1, C2.rim); RF(X - 1, by + 2, 3, 4, C2.light); PX(X, by + 3, HX('#ffffff')); }
+      for (const d of DLT) glow(d[0], d[1], d[3], d[2], 0.4);
       const P = G.P; if (P) lit(P.x + 3 - CX, P.y + 4 - CY, 22, C.light, 0.16); }
     function drawEntities(t) { const P = G.P;
       BENCH.forEach(b => { const X = b[0] * T + 4 - CX, Y = (b[1] + 1) * T - CY; blitS(BENCHS, X, Y); if (G.bench === b) { PX(X, Y - 10 + Math.round(Math.sin(t * 3)), HX('#ffe9a8')); } });
@@ -10649,6 +10779,7 @@ const SUMMIT_LEVELS = [
       for (const w of G.waves) { const X = Math.floor(w.x - CX), Y = Math.floor(w.y - CY); for (let k = 0; k < 8; k++) RF(X - 2 + ((k + Math.floor(t * 20)) & 1), Y - k, 4 - (k >> 2), 1, k < 3 ? HX('#ffffff') : HX('#ff9a7a')); }
       for (const r of G.debris) { const X = Math.floor(r.x - CX), Y = Math.floor(r.y - CY); if (r.t > 0) { if (Math.floor(t * 12) & 1) { const yT = (BOSSR.y + 1) * T - CY; PX(X, yT + 1, HX('#8a7a8a')); PX(X - 2, yT + 2, HX('#8a7a8a')); PX(X + 2, yT + 3, HX('#8a7a8a')); } } else { RF(X - 3, Y - 3, 6, 6, HX('#6a5a6a')); RF(X - 2, Y - 3, 3, 2, HX('#9a8a9a')); } }
       for (const b of G.bolts) { const X = Math.floor(b.x - CX), Y = Math.floor(b.y - CY); RF(X - 4, Y - 2, 8, 4, HX('#b8c8ff')); RF(X - 3, Y - 1, 6, 2, HX('#ffffff')); }
+      if (P && G.ghosts) for (const g of G.ghosts) if (g.a < 0.1 || (g.n & 1)) blitG(HERO.dash, g.x + 3 - CX, g.y + P.h - 1 - CY, g.face < 0, g.a < 0.08 ? GSP2 : GSP, g.n & 1);
       if (P && G.deathT <= 0 && !(G.hazT > 0 && G.hazT < 0.3)) { const blink = P.inv > 0 && (Math.floor(P.inv * 14) & 1); if (!blink) { let fr = 'idle'; if (P.dashT > 0) fr = 'dash'; else if (P.focusT > 0) fr = 'focus'; else if (P.cling) fr = 'idle'; else if (!P.on) fr = P.vy < 0 ? 'jump' : 'fall'; else if (Math.abs(P.vx) > 10) fr = (Math.floor(P.anim / 9) & 1) ? 'run1' : 'run2'; blitS(HERO[fr], P.x + 3 - CX, P.y + P.h - 1 - CY, P.face < 0); }
         if (P.atk > 0) { const k = P.atk / 0.14, cx = P.x + 3 - CX, cy = P.y + 5 - CY; const arc = (ox, oy, a0, a1, r) => { for (let a = a0; a <= a1; a += 0.08) for (let rr = r - 2; rr <= r; rr++) PX(ox + Math.cos(a) * rr, oy + Math.sin(a) * rr, rr === r ? HX('#ffffff') : HX('#c8d4f0')); };
           if (P.adir === 'u') arc(cx, cy + 2, -Math.PI + 0.5, -0.5, 12); else if (P.adir === 'd') arc(cx, cy + 2, 0.5, Math.PI - 0.5, 12); else if (P.face > 0) arc(cx + 2, cy, -1.2, 1.2 - (1 - k), 12); else arc(cx - 2, cy, Math.PI - 1.2 + (1 - k), Math.PI + 1.2, 12); } }
@@ -10671,12 +10802,12 @@ const SUMMIT_LEVELS = [
       { const L0 = btnLayout(); if (L0.touch) { const [mx, my] = L0.map; circ(mx, my, 9, HX('#1c2434'), HX('#6a7a98')); PT('MAP', mx + 1, my - 2, 1, W_, null, 'c'); } else PT('M  MAP', x0, y0 + 22, 1, DIMC, INK); }
       const L = btnLayout(); if (L.touch) { const T2 = Object.values(G.ptrs); [['jump', 'JMP'], ['slash', 'ATK'], ['dash', 'DSH'], ['spell', 'SPL']].forEach(([k, lab]) => { const [bx, by] = L[k], on = T2.indexOf(k) >= 0, r = k === 'jump' ? L.r : L.r - 2; circ(bx, by, r, on ? HX('#e8eef8') : HX('#1c2434'), on ? W_ : HX('#6a7a98')); PT(lab, bx + 1, by - 2, 1, on ? INK : W_, null, 'c'); });
         const j = G.joy, [jx, jy] = j ? [j.ox, j.oy] : L.joy; circ(jx, jy, 18, HX('#141a26'), HX('#4a5670')); const kx = j ? clamp(j.x - j.ox, -12, 12) : 0, ky = j ? clamp(j.y - j.oy, -12, 12) : 0; circ(jx + kx, jy + ky, 7, HX('#8a96ac'), HX('#c8d0e0')); } }
-    function drawTitle(t) { const C = AREAS[0].c; CX = Math.floor(t * 8) % 4000; CY = 18 * T - Math.floor(LH * 0.35); drawBack(C, t); drawDust(C, t);
+    function drawTitle(t) { const C = AREAS[0].c; CX = Math.floor(t * 8) % 4000; CY = 18 * T - Math.floor(LH * 0.35); drawBack(C, t); drawAmb(C, t, 0); drawDust(C, t);
       const gy = Math.floor(GY + GH * 0.72); for (let y = gy; y < LH; y++) for (let x = 0; x < LW; x++) B32[y * LW + x] = y === gy ? C.rimHi : y === gy + 1 ? C.rim : C.rock;
       const hx = Math.floor(GX + GW * 0.42); blitS(HERO.idle, hx, gy - 1, false); blitS(BENCHS, hx + 20, gy - 1);
       const lx = Math.floor(GX + GW * 0.68), ly = Math.floor(gy - 46); for (let k = 0; k < 14; k += 2) PX(lx, ly - 14 + k, C.rim); RF(lx - 1, ly + 2, 3, 4, C.light); PX(lx, ly + 3, W_);
       for (let y = Math.max(0, ly - 30); y < Math.min(LH, ly + 34); y++) for (let x = Math.max(0, lx - 32); x < Math.min(LW, lx + 32); x++) { const d = Math.hypot(x - lx, y - ly - 4) / 32; if (d < 1 && (1 - d) * 0.45 > BAY[(y & 3) * 4 + (x & 3)] * 0.6) B32[y * LW + x] = BL(B32[y * LW + x], C.light, Math.min(0.5, (1 - d) * 0.45)); }
-      const ty = Math.floor(GY + GH * 0.16); PT('HOLLOW', GX + GW / 2, ty, 4, HX('#eef2f8'), INK, 'c'); PT('PATH', GX + GW / 2, ty + 24, 4, HX('#eef2f8'), INK, 'c'); RF(GX + GW / 2 - 30, ty + 48, 60, 1, DIMC); PT('A JOURNEY BENEATH', GX + GW / 2, ty + 52, 1, DIMC, null, 'c');
+      const ty = Math.floor(GY + GH * 0.16); sigil(GX + GW / 2, ty + 22, 46, BL(C.bg1, C.light, 0.05), BL(C.bg1, GSP, 0.35), BL(C.bg1, GSP2, 0.5), t, 1); glow(GX + GW / 2, ty + 22, 50, GSP, 0.16); PT('A GREGSNAP ORIGINAL', GX + GW / 2, ty - 12, 1, GSP2, INK, 'c'); PT('HOLLOW', GX + GW / 2, ty, 4, HX('#eef2f8'), INK, 'c'); PT('PATH', GX + GW / 2, ty + 24, 4, HX('#eef2f8'), INK, 'c'); RF(GX + GW / 2 - 30, ty + 48, 60, 1, DIMC); PT('A JOURNEY BENEATH', GX + GW / 2, ty + 52, 1, DIMC, null, 'c');
       { const tc = G.touch || matchMedia('(pointer:coarse)').matches; if (Math.floor(t * 1.6) & 1) PT(G.sv ? (tc ? 'TAP TO CONTINUE' : 'PRESS ANY KEY TO CONTINUE') : (tc ? 'TAP TO BEGIN' : 'PRESS ANY KEY'), GX + GW / 2, gy + 14, 1, W_, INK, 'c');
         if (G.sv) { const nb = newBtn(); BOX(nb[0], nb[1], nb[2], nb[3], HX('#1c2434'), HX('#6a7a98')); PT(tc ? 'NEW GAME' : 'N  NEW GAME', nb[0] + nb[2] / 2, nb[1] + 3, 1, W_, null, 'c'); } }
       const tch = G.touch || (typeof matchMedia === 'function' && matchMedia('(pointer:coarse)').matches); (tch ? ['LEFT STICK TO MOVE AND AIM', 'JMP  ATK  DSH  SPL', 'HOLD SPL TO HEAL', 'AIM DOWN + ATK IN AIR = POGO'] : ['ARROWS OR WASD MOVE AND AIM', 'Z JUMP  X ATTACK  C DASH', 'F CAST   HOLD F TO HEAL', 'DOWN + X IN THE AIR = POGO   M MAP']).forEach((s, i) => PT(s, GX + GW / 2, gy + 26 + i * 8, 1, DIMC, INK, 'c'));
@@ -10732,6 +10863,8 @@ const SUMMIT_LEVELS = [
         G.shake = Math.max(0, G.shake - dt * 2.5); G.flash = Math.max(0, G.flash - dt * 2.5);
         if (G.winT > 0) { G.winT += dt; if (G.winT > 2.2) G.mode = 'win'; }
         if (G.hitstop > 0) { G.hitstop -= dt; } else if (G.mode === 'play' && !G.mapOpen) { const n = Math.ceil(dt / (1 / 120)); for (let i = 0; i < n; i++) step(dt / n); }
+        { const P = G.P; G.ghosts = G.ghosts || []; if (P.dashT > 0 && G.mode === 'play') { G.gn = (G.gn || 0) + 1; G.ghosts.push({ x: P.x, y: P.y, face: P.face, a: 0, n: G.gn }); } G.ghosts.forEach(g => g.a += dt); G.ghosts = G.ghosts.filter(g => g.a < 0.2);
+          if (P.on && Math.abs(P.vx) > 60 && Math.random() < dt * 9) G.parts.push({ x: P.x + 3 - P.face * 3, y: P.y + P.h - 1, vx: -P.face * 15, vy: -12, l: 0, ml: 0.3, c: AREAS[areaAt(P.x + 3, P.y + 5)].c.dust, g: 0 }); }
         const P = G.P, ai = areaAt(P.x + 3, P.y + 5); if (ai !== G.area) { G.area = ai; if (G.bannerQ || true) G.banner = { t: 0, a: AREAS[ai].name, b: null }; }
         const tx = P.x + 3 - (GX + GW * 0.5) + P.face * 14, ty = P.y + 5 - (GY + GH * 0.52); if (G.camInit) { G.cam.x = tx; G.cam.y = ty; G.camInit = false; } else { G.cam.x += (tx - G.cam.x) * Math.min(1, dt * 5); G.cam.y += (ty - G.cam.y) * Math.min(1, dt * 4); }
         G.cam.x = clamp(G.cam.x, -LW * 0.25, MW * T - LW * 0.75); G.cam.y = clamp(G.cam.y, -LH * 0.3, MH * T - LH * 0.6);
@@ -10739,7 +10872,7 @@ const SUMMIT_LEVELS = [
       draw() { const c = this.ctx; this.geom(); if (!this.W || !this.H) return; ensureBuf(this.W, this.H, PSZ); const t = G.t;
         if (G.mode === 'title') drawTitle(t);
         else { const sh = G.shake > 0 ? Math.round((Math.random() - 0.5) * 6 * G.shake) : 0; CX = Math.round(G.cam.x) + sh; CY = Math.round(G.cam.y) + (G.shake > 0 ? Math.round((Math.random() - 0.5) * 6 * G.shake) : 0); const C = areaPal();
-          drawBack(C, t); drawTiles(t); drawLights(C, t); drawEntities(t); drawDust(C, t); vignette(); if (G.flash > 0 && (Math.floor(t * 30) & 1)) DV(0, 0, LW, LH, HX('#ffffff'), 0); drawHUD(t); if (G.mapOpen && G.mode === 'play') drawMap(t); if (G.mode === 'win') drawWin(t); }
+          drawBack(C, t); drawTiles(t); drawLights(C, t); drawEntities(t); drawAmb(C, t, Math.max(0, G.area)); drawFore(C, t); drawDust(C, t); vignette(); if (G.flash > 0 && (Math.floor(t * 30) & 1)) DV(0, 0, LW, LH, HX('#ffffff'), 0); drawHUD(t); if (G.mapOpen && G.mode === 'play') drawMap(t); if (G.mode === 'win') drawWin(t); }
         lx.putImageData(img, 0, 0); c.save(); c.imageSmoothingEnabled = false; c.drawImage(lc, -this.ox, -this.oy, LW * PSZ, LH * PSZ); c.restore(); }
     }, MIX);
   }
