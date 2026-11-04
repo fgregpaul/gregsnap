@@ -25220,7 +25220,7 @@ function engine(){
   $('galchip').addEventListener('click', () => showSheet(crate));
   function rigKey(e) {
     if (!crate.classList.contains('open')) return;
-    const m = { KeyJ: 'g10k', KeyK: 'g1k', KeyH: 'g100', KeyL: 'g25', KeyN: 'none', KeyM: 'neg' }[e.code];
+    const m = { KeyJ: 'g10k', KeyK: 'g10k', KeyH: 'g100', KeyL: 'g25', KeyN: 'none', KeyM: 'neg' }[e.code];
     if (m) rig = ITEMS.find(it => it.id === m);
   }
 
