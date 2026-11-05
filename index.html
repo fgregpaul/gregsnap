@@ -11159,7 +11159,7 @@ const SUMMIT_LEVELS = [
       const tx0 = Math.floor(inv(-50, CX, hx) / T), tx1 = Math.floor(inv(LW + 50, CX, hx) / T), ty0 = Math.floor(inv(-60, CY, hy) / T), ty1 = Math.floor(inv(LH + 60, CY, hy) / T);
       for (let ty = ty0; ty <= ty1; ty++) for (let tx = tx0; tx <= tx1; tx++) { const v = tile(tx, ty); if (!solidT(v) || v === GATE) continue; const h = hs(tx * 5 + 3, ty * 7 + 71);
         const floor = tile(tx, ty - 1) === AIR && tile(tx, ty - 2) === AIR && tile(tx, ty - 3) === AIR, ceil = !floor && tile(tx, ty + 1) === AIR && tile(tx, ty + 2) === AIR && tile(tx, ty + 3) === AIR;
-        if (!(floor && h % 14 === 0) && !(ceil && h % 13 === 0)) continue;
+        if (!(ceil && h % 13 === 0)) continue; // no foreground shrubs on floors (they drifted off the ground with the parallax)
         const A = AREAS[areaT(tx, ty)], Ck = A.c, fc = BL(Ck.rock, INK, 0.3), rc = BL(Ck.rock, Ck.rim, 0.5), sx = hx + (tx * T + 4 - CX - hx) * S;
         if (floor) { const sy = hy + (ty * T + 1 - CY - hy) * S; if (sy < -10 || sy > LH + 60) continue; const kind = (h >> 6) % 4;
           if (true) { const n = 5 + (h >> 9) % 4, sway = Math.sin(t * 1.3 + tx) * 0.08; for (let b = 0; b < n; b++) { let ang = -Math.PI / 2 + (b / (n - 1) - 0.5) * 2.3 + sway, x = sx + (b - n / 2) * 1.5, y = sy; const len = 12 + (h >> (b * 2 + 3)) % 16, bend = (ang + Math.PI / 2) * 0.9;
