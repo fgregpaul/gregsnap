@@ -67,6 +67,7 @@ The file is too big to read whole. **Find things with grep on these markers**, n
 | `Dune Strike:` | First-person 5v5 shooter (see the game list). Flow-field bots, WebGL box world, own HUD; `Float64Array` for the Dijkstra fields (float32 rounding made `d > F[k]` skip nodes). |
 | `Storm Isle:` | Top-down battle royale (50 players on a 7200-unit island, `NPLAY`; bots fill the rest). **Teams:** `MODE` = team size (Solo/Duos/Trios/Squads, picked on the title screen, saved in `gregsnap_royale_mode`, sent to clients in the start data). Every entry in the player list gets `team = floor(index / MODE)`, humans first, so friends in a lobby share a team. No friendly fire (bullets, pickaxe, rocket splash). In team modes 0 HP = knocked (`down`, crawl, bleed 3 HP/s) until a standing teammate revives (`reviving`, `revP`, 4.5s; clients send `rv`) or the whole team is down (`teamCheck` → `tx` to clients, `v` to the winners). Bots follow their team's human (or first bot), drop with them, revive downed mates and help teammates under fire. Guns are drawn by `gunShape()` (one silhouette per gun, also used in-hand with `GRIPS`); the Rocket Launcher's splash is `explode()`. The island is generated from a seed with deterministic maths only (integer hashing, `Math.sqrt`, hand-rasterised roads; no `Math.pow/hypot/sin` or canvas reads in anything that decides layout) so every phone builds the same map; `worldSum` is compared on join. The host simulates bots, storm, loot and damage; clients move themselves, send actions (`f` fire, `w` swing, `c` chest, `p` pick, `b` build...) and get 15 Hz snapshots plus reliable event batches (`E`). `_dbg` on the game object is a test hook. |
 | `html.solo` / `SOLO` | **Standalone Storm Isle** at `fazegregpaul.com/stormisle` (no hyphen; `/storm-isle` still opens it in the feed). 404.html turns it into `/?g=stormisle`; a tiny script in `<head>` adds `html.solo` before first paint, `SOLO` (top of the main script) keeps only the Storm Isle slide (`ensureAhead` adds nothing), the address goes back to `/stormisle` and never follows slides, and lobby invite links use `/stormisle?lobby=CODE`. CSS hides the top bar, caption, rail, galaxies and feed arrows, the game fills the window (desktop) or the phone screen, and `insets()` keeps an 18px strip at the bottom for the "a Greg Paul production" footnote (`.fsgp`). The desktop fullscreen button stays in the bottom-right corner. `stormisle.fazegregpaul.com` is not served from this repo (a Pages repo has one custom domain); point it at `/stormisle` with a redirect at the domain registrar. |
+| `Trending mobile batch (Nov 2026)` | 7 games based on what was topping the mobile charts in Nov 2026 (Arrows puzzles, Subway Surfers, Ludo King, Vita Mahjong, Pizza Ready, Amaze, Smash Fest): Arrow Out, Rail Dash, Pawn Party, Jade Pairs, Slice Shop, Paint Roll, Smash Yard. Each is one `makeX(sk)` with its own skin; saves under `gregsnap_<game>_v1`. |
 | `Quick games (Nov 2026 batch)` | 23 short games (Stick It … Puck Rush) plus their shared helper object `QG`: `QG.hit(box, p)`, `QG.load/save(key, v)` (localStorage `gregsnap_<key>_v1`), `QG.F(size, family, weight)` font string, `QG.T(...)` text, `QG.rr` rounded rect (radius may be an array), `QG.btn(c, box, label, opts)`, `QG.ad`/`QG.nrm` angle maths, `QG.parts/stepParts/drawParts` particles, `QG.over(g, key)` (finish + save best), `QG.veil1(g, sub)` title/game-over veil for turnMP games. Lot Jam's 46 levels (`LV`) were generated offline with a BFS solver (sorted by minimum moves, 3 to 34). Puck Rush has its own realtime online object like Rally's (host runs the puck; table is fixed 1 x 1.6 units so every phone agrees). |
 | `Galaxy Casino` | The crate sheet's tabs: Crate, Blackjack, Hold'em, Roulette, Slots, Crash, Mines, Cluck Cross. Games built with `g.casino = true`; chips are bound to the galaxy balance. |
 
@@ -120,13 +121,14 @@ Minimum before merging:
 - Real touch input: use CDP `Input.dispatchTouchEvent` (synthetic mouse clicks miss touch-only bugs).
 - Google Fonts fail to load in the sandbox. That's expected, not a bug.
 
-## Game list (113 hand-made games, shuffled into the feed on each load)
+## Game list (120 hand-made games, shuffled into the feed on each load)
 
 Plus the 7 Galaxy Casino games (Blackjack, Hold'em, Roulette, Slots, Crash, Mines, Cluck Cross — a chicken-crossing-the-road multiplier game inspired by Shuffle's chicken game) and the endless re-skinned games after them.
 
 | Game | Inspired by | `kind` |
 |---|---|---|
 | Aim Lab | Aim Lab | `aim` |
+| Arrow Out | arrow-escape puzzles (Arrows – Puzzle Escape). Bent arrows (`gen(lvl)`, seeded): each piece is a snake of cells and leaves along its head's direction if the ray ahead is clear. Pieces are placed so each new one could leave past the earlier ones, so removing in reverse always works (checked levels 1-40 with a greedy solver). 3 hearts; level saved in `gregsnap_arrowout_v1` | `arrows` |
 | Balloon Words | hangman (a bear in a basket held up by 7 balloons; each wrong letter pops one) | `hang` |
 | Beat Dash | Geometry Dash | `dash` |
 | Beat Drop | Piano Tiles | `beat` |
@@ -186,6 +188,7 @@ Plus the 7 Galaxy Casino games (Blackjack, Hold'em, Roulette, Slots, Crash, Mine
 | Hop | Doodle Jump (breakable/moving/vanishing platforms, springs, trampolines, propeller hat, jetpack, monsters you stomp or shoot, black holes, wrap-around; `makeHop` is also used by the endless generator) | `hop` |
 | Hot Time | SUPERHOT | `hot` |
 | Hue Hop | Color Switch | `hue` |
+| Jade Pairs | mahjong solitaire (Vita Mahjong): big easy-to-read tiles, 26 drawn faces, blocked tiles shaded. Layouts in half-tile units (`shape(lvl)`), `deal()` assigns faces by removing random free pairs so every deal is solvable; Shuffle re-deals the remaining tiles and lays them out flat if they can't be dealt where they are. Hint / Shuffle / Restart. Level in `gregsnap_jadepairs_v1` | `mahjong` |
 | Lanes | Crossy Road | `cross` |
 | Lantern Out | Lights Out (paper lanterns; 4x4 then 5x5, par = presses used to scramble) | `lights` |
 | Lawn Lords | Paper.io-style territory grab, done with lawn mowers | `lawn` |
@@ -196,7 +199,9 @@ Plus the 7 Galaxy Casino games (Blackjack, Hold'em, Roulette, Slots, Crash, Mine
 | Moto Seasons | Trials / Moto X3M | `moto` |
 | Munch | Pac-Man | `munch` |
 | Order Up | burger stacking | `kitchen` |
+| Paint Roll | Amaze (swipe a ball; it rolls to the next wall and paints the floor). `gen(lvl)` carves by rolling for real and locks each stopping wall, so every level is solvable (BFS-checked 1-25). Level in `gregsnap_paintroll_v1` | `amaze` |
 | Pairs | memory | `pairs` |
+| Pawn Party | Ludo King (4 colours, roll 6 to leave base, captures, safe stars, 3 sixes lose the turn, exact roll home). Vs 3 computers (`ai()` scores captures/safety/threats), or online 1v1 Red vs Yellow via `turnMP('ludo')`: the mover rolls locally and sends `{d, k}` | `ludo` |
 | Petal Isles | Stardew Valley + Moonstone Island | `isle` |
 | Pig Launch | Angry Birds | `sling` |
 | Pinball | pinball | `pinball` |
@@ -208,13 +213,16 @@ Plus the 7 Galaxy Casino games (Blackjack, Hold'em, Roulette, Slots, Crash, Mine
 | Puck Rush | air hockey (first to 7). Vs computer or online 1v1 in real time (`mpKind: 'puck'`) | `puck` |
 | Putt | mini golf | `putt` |
 | Quick Draw | reaction-time test as a western duel | `react` |
+| Rail Dash | Subway Surfers (pseudo-3D 3-track runner at sunset: swipe to switch/jump/roll, low barriers, high bars, parked trains, ramps to run on the roofs, coins, magnet and super-jump power-ups; a side bump brings the yard guard and his dog, a second one gets you caught). Never more than 2 tracks blocked by trains at once. Best in `gregsnap_raildash_v1` | `rails` |
 | Raise Round | GregSnap original (movie joke) | (one of the original 8) |
 | Rally | Pong. The hand-made Rally (`makePong(sk, { mp: true })`) has online 1v1 (PLAY A FRIEND on its title screen, first to 7): the host runs the ball and sends 30 Hz snapshots, the friend sends its paddle; each player sees their own paddle at the bottom. Generated pong games stay solo | `pong` |
 | Road Rush | traffic racer | `road` |
 | Seed Pits | mancala / Kalah (computer = alpha-beta depth 7). Online 1v1 via `turnMP`; side 1 sees the board turned around | `mancala` |
 | Server Fire | GregSnap original (movie joke) | (one of the original 8) |
 | Slice | Fruit Ninja | `slice` |
+| Slice Shop | Pizza Ready (top-down idle pizza shop: drag-joystick, carry stacks from ovens to the counter, stand at the register to serve the queue, collect the cash pile, pay into glowing upgrade pads: ovens, bigger arms, hotter ovens, toppings, a cook, a cashier, shoes, neon sign). Progress in `gregsnap_sliceshop_v1` | `pizza` |
 | Slide 15 | 15 puzzle | `fifteen` |
+| Smash Yard | Smash Fest (drag to aim, throw heavy balls at towers of glass/wood/stone/TNT on a platform; small AABB impulse physics in `step()`, impact damage, shards, TNT blasts; clear the platform before the balls run out). Level in `gregsnap_smashyard_v1` | `smash` |
 | Snack Attack | Snake | `snake` |
 | Solitaire | Klondike | `solitaire` |
 | Space Rocks | Asteroids | `rocks` |
