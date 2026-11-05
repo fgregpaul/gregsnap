@@ -7114,7 +7114,7 @@ html.fs .fsgp{display:block;position:fixed;left:0;right:0;bottom:6px;z-index:6;t
   NEW_SLIDES.push(
     mk(makeGate(SKINS.lab), 'Gate Hop', SKINS.lab, 'Six rooms with portals, buttons, doors, boxes and acid. Light walls take portals, metal does not.', '#portal #puzzle #hard', 6.8e9, 1.8e9, 450e6, 'gate'),
     mk(makeUnderPx(SKINS.styx), 'Underworld', SKINS.styx, 'Escape the underworld room by room. Three-hit combos, dashes, casts and boons from five elements. The Warden waits every sixth room.', '#roguelike #dungeon #boss', 8.4e9, 2.6e9, 740e6, 'under'),
-    mk(makeHollowPx(SKINS.cavern), 'Hollow Path', SKINS.cavern, 'A big web of pixel caverns: six areas, 20 rooms, hidden walls, ambushes and a map. Find the Swift Cloak and Thorn Claws, collect mask shards, rest at benches and face the Hollow Guardian.', '#metroidvania #pixelart #soulslike', 6.1e9, 1.6e9, 410e6, 'hollow')
+    mk(makeHollowPx(SKINS.cavern), 'Hollow Path', SKINS.cavern, 'A huge web of pixel caverns: ten areas, 40 rooms, hidden walls, ambushes and a map. Find the Swift Cloak and Thorn Claws, collect mask shards, rest at benches and face the Hollow Guardian.', '#metroidvania #pixelart #soulslike', 6.1e9, 1.6e9, 410e6, 'hollow')
   );
 
   /* ===== stage 5f: boost ball (car soccer), hot time (time-stop shooter) ===== */
@@ -10288,7 +10288,7 @@ const SUMMIT_LEVELS = [
         D7(40),
         D7(40),
         '.......h............f...........c.......',
-        '##########~~~~~#########################']),
+        '##########~~~~~######xxxxxx#############']),
       // ---------------- SUNKEN CISTERN ----------------
       R_('w1', 'Sunken Cistern', 4, 120, 62, [
         H7(38) + D7(7) + H7(15),
@@ -10332,9 +10332,9 @@ const SUMMIT_LEVELS = [
         '##....................................##',
         '##...........................=====....##',
         '##....................................##',
-        D7(39) + '#',
-        D7(39) + '#',
-        '...B.......a..........r........s.......#',
+        D7(40),
+        D7(40),
+        '...B.......a..........r........s........',
         '#####...#####^^^^^^#####^^^^############']),
       R_('a2', 'Amber Gallery', 2, 200, 38, [
         '#####qqq################################',
@@ -10394,9 +10394,456 @@ const SUMMIT_LEVELS = [
         '##.....................................q######',
         '##.....................................q######',
         '##.................................G...q######',
-        H7(46)], { boss: true })
+        H7(46)], { boss: true }),
+      R_('f1', "Frost Gate", 6, 240, 26, [
+        H7(49),
+        H7(49),
+        '#.....L' + D7(15) + 'L' + D7(17) + 'L.......#',
+        '#' + D7(47) + '#',
+        '#' + D7(48),
+        '#' + D7(11) + 'f' + D7(36),
+        '#' + D7(48),
+        '#.....=====' + D7(27) + '=====......',
+        D7(49),
+        D7(49),
+        '...n' + D7(24) + 'c' + D7(15) + 'h....',
+        H7(16) + '^^^^^^^^^#####~~~~~' + H7(14),
+        H7(49)]),
+      R_('f2', "Icefall", 6, 289, 12, [
+        H7(12),
+        H7(12),
+        '#..L....L..#',
+        '#' + D7(10) + '#',
+        '#' + D7(11),
+        '#' + D7(11),
+        '#' + D7(11),
+        '#.....=====#',
+        '#' + D7(10) + '#',
+        '#' + D7(10) + '#',
+        '#......====#',
+        '#' + D7(10) + '#',
+        '#' + D7(10) + '#',
+        '#====......#',
+        '#' + D7(10) + '#',
+        '#' + D7(10) + '#',
+        '#......====#',
+        '#' + D7(10) + '#',
+        D7(11) + '#',
+        '.====......#',
+        D7(11) + '#',
+        D7(11) + '#',
+        '.......====#',
+        D7(11) + '#',
+        D7(11) + '#',
+        '#=====.....#',
+        '#' + D7(10) + '#',
+        '#' + D7(10) + '#',
+        '#.....=====#',
+        '#' + D7(10) + '#',
+        '#' + D7(10) + '#',
+        '#=====.....#',
+        '#' + D7(10) + '#',
+        '#....f.....#',
+        '#.....=====#',
+        '#' + D7(10) + '#',
+        '#' + D7(10) + '#',
+        '#=====.....#',
+        '#' + D7(11),
+        '#' + D7(11),
+        '#' + D7(11),
+        '#.....=====#',
+        '#' + D7(10) + '#',
+        '#' + D7(10) + '#',
+        '#=====.....#',
+        '#' + D7(10) + '#',
+        '#' + D7(10) + '#',
+        '#.....=====#',
+        '#' + D7(10) + '#',
+        '#' + D7(10) + '#',
+        '#=====.....#',
+        '#' + D7(10) + '#',
+        '#' + D7(10) + '#',
+        '#.....=====#',
+        '#....f.....#',
+        '#' + D7(10) + '#',
+        '#=====.....#',
+        '#' + D7(10) + '#',
+        '#' + D7(10) + '#',
+        '#.....=====#',
+        '#' + D7(10) + '#',
+        '#' + D7(10) + '#',
+        '#=====.....#',
+        '#' + D7(10) + '#',
+        '#' + D7(10) + '#',
+        '#.....=====#',
+        '#' + D7(10) + '#',
+        '#' + D7(10) + '#',
+        '#=====......',
+        '#' + D7(11),
+        '#' + D7(11),
+        '#' + D7(11),
+        H7(12),
+        H7(12)]),
+      R_('f3', "Glacier Hall", 6, 301, 8, [
+        H7(60),
+        H7(60),
+        '#' + D7(13) + 'L' + D7(14) + 'L' + D7(14) + 'L' + D7(14) + '#',
+        '#' + D7(58) + '#',
+        '#' + D7(58) + '#',
+        '#' + D7(58) + '#',
+        '#' + D7(58) + '#',
+        '#' + D7(38) + 'f' + D7(19) + '#',
+        D7(29) + 'r' + D7(29) + '#',
+        D7(27) + '======' + D7(26) + '#',
+        D7(59) + '#',
+        H7(9) + D7(50) + '#',
+        H7(9) + D7(26) + '=======' + D7(17) + '#',
+        H7(9) + D7(50) + '#',
+        H7(9) + '.=====' + D7(44) + '#',
+        H7(9) + D7(16) + '======' + D7(28) + '#',
+        H7(9) + D7(50) + '#',
+        H7(9) + D7(50) + '#',
+        H7(9) + D7(9) + '=====' + D7(22) + '=======.......#',
+        H7(9) + D7(50) + '#',
+        H7(9) + D7(50) + '#',
+        H7(9) + '..======' + D7(42) + '#',
+        H7(9) + D7(51),
+        H7(9) + D7(51),
+        H7(9) + D7(8) + 'r.......a' + D7(27) + 's......',
+        H7(33) + '^^^^^' + H7(22),
+        H7(60),
+        H7(60)]),
+      R_('f4', "Frozen Court", 6, 361, 14, [
+        H7(36),
+        H7(36),
+        '#' + D7(8) + 'L' + D7(17) + 'L.......#',
+        '#' + D7(34) + '#',
+        '#' + D7(34) + '#',
+        '#....=====' + D7(17) + '======..#',
+        '#' + D7(34) + '#',
+        '#' + D7(34) + '#',
+        '#' + D7(15) + 'M' + D7(18) + '#',
+        '#' + D7(12) + '=======' + D7(15) + '#',
+        '#....2' + D7(29) + '#',
+        '#' + D7(28) + '2.....#',
+        '#' + D7(34) + '#',
+        '#' + D7(34) + '#',
+        '#......======' + D7(8) + '======' + D7(8) + '#',
+        '#' + D7(34) + '#',
+        '.q' + D7(33) + '#',
+        '.q' + D7(33) + '#',
+        '.q.......1' + D7(9) + '5.....3.....4...#',
+        H7(36),
+        H7(36),
+        H7(36)], { amb: true }),
+      R_('f5', "Hearth Grotto", 6, 301, 44, [
+        H7(30),
+        H7(30),
+        '#......L' + D7(11) + 'L' + D7(9) + '#',
+        '#' + D7(28) + '#',
+        '#' + D7(28) + '#',
+        '#' + D7(28) + '#',
+        D7(29) + '#',
+        D7(29) + '#',
+        '....n......B' + D7(12) + 'r....#',
+        H7(30),
+        H7(30),
+        H7(30)]),
+      R_('e1', "Cinder Gate", 7, 301, 74, [
+        H7(50),
+        H7(50),
+        '#' + D7(10) + 'L' + D7(25) + 'L' + D7(11) + '#',
+        '#' + D7(23) + 'f' + D7(24) + '#',
+        '#' + D7(48) + '#',
+        '#' + D7(20) + '=======' + D7(21) + '#',
+        D7(50),
+        D7(50),
+        D7(50),
+        D7(8) + 'c' + D7(32) + 'h' + D7(8),
+        H7(14) + '~~~~~' + H7(11) + '~~~~~' + H7(15),
+        H7(50)]),
+      R_('e2', "Furnace Hall", 7, 351, 72, [
+        H7(48),
+        H7(48),
+        '#' + D7(8) + 'L' + D7(14) + 'L' + D7(14) + 'L.......#',
+        '#' + D7(46) + '#',
+        '#' + D7(46) + '#',
+        '#' + D7(46) + '#',
+        '#' + D7(22) + 'f' + D7(23) + '#',
+        '#' + D7(46) + '#',
+        D7(47) + '#',
+        D7(37) + 's.r.......#',
+        D7(33) + '=========.....#',
+        '.......B' + D7(39) + '#',
+        H7(16) + D7(31) + '#',
+        H7(16) + D7(31) + '#',
+        '#' + D7(46) + '#',
+        '#' + D7(16) + '=====' + D7(25) + '#',
+        '#' + D7(46) + '#',
+        '#' + D7(46) + '#',
+        '#' + D7(24) + '=====' + D7(17) + '#',
+        '#' + D7(46) + '#',
+        '#' + D7(46) + '#',
+        '#' + D7(16) + '=====' + D7(25) + '#',
+        '#' + D7(46) + '#',
+        '#' + D7(46) + '#',
+        '#' + D7(24) + '=====' + D7(17) + '#',
+        '#' + D7(46) + '#',
+        '#' + D7(46) + '#',
+        '#' + D7(16) + '=====' + D7(25) + '#',
+        D7(47) + '#',
+        D7(47) + '#',
+        D7(25) + '=====' + D7(17) + '#',
+        D7(47) + '#',
+        D7(11) + 'c' + D7(17) + 'a' + D7(17) + '#',
+        H7(19) + '~~~~~' + H7(8) + '~~~~~####....###',
+        H7(41) + '....###',
+        H7(41) + '....###']),
+      R_('e3', "Bellows Shaft", 7, 388, 108, [
+        '##..==....##',
+        '##' + D7(8) + '##',
+        '##' + D7(8) + '##',
+        '##....====##',
+        '##' + D7(8) + '##',
+        '##' + D7(8) + '##',
+        '##====....##',
+        '##' + D7(8) + '##',
+        '##' + D7(8) + '##',
+        '##....====##',
+        '##' + D7(8) + '##',
+        '##' + D7(8) + '##',
+        '##====....##',
+        '##' + D7(8) + '##',
+        '##' + D7(8) + '##',
+        '##....====##']),
+      R_('e4b', "Slag Run", 7, 301, 94, [
+        H7(50),
+        H7(50),
+        H7(50),
+        H7(50),
+        '#' + D7(8) + 'L' + D7(17) + 'L' + D7(15) + 'L.....#',
+        '#' + D7(22) + 'f' + D7(25) + '#',
+        D7(50),
+        D7(50),
+        D7(50),
+        D7(50),
+        '.......c' + D7(31) + 's' + D7(10),
+        H7(14) + '^^^^^' + H7(10) + '~~~~~' + H7(16),
+        H7(50),
+        H7(50)]),
+      R_('e4', "Ember Vault", 7, 240, 92, [
+        H7(61),
+        H7(61),
+        '#' + D7(9) + 'L' + D7(19) + 'L' + D7(19) + 'L' + D7(9) + '#',
+        '#' + D7(59) + '#',
+        '#' + D7(59) + '#',
+        '#' + D7(41) + 'f' + D7(17) + '#',
+        '#' + D7(59) + '#',
+        '#' + D7(59) + '#',
+        D7(61),
+        D7(14) + '=====' + D7(9) + 'a' + D7(32),
+        D7(22) + H7(14) + D7(25),
+        D7(22) + H7(14) + D7(25),
+        D7(8) + 'h' + D7(13) + H7(14) + D7(16) + 'r' + D7(8),
+        H7(61),
+        H7(61),
+        H7(61)]),
+      R_('e5', "Forge Arena", 7, 200, 90, [
+        H7(40),
+        H7(40),
+        '#' + D7(9) + 'L' + D7(17) + 'L' + D7(10) + '#',
+        '#' + D7(38) + '#',
+        '#' + D7(38) + '#',
+        '#' + D7(38) + '#',
+        '#' + D7(38) + '#',
+        '#....2' + D7(27) + '2.....#',
+        '#' + D7(17) + 'M' + D7(20) + '#',
+        '#' + D7(13) + '=========' + D7(16) + '#',
+        '.q' + D7(36) + 'q.',
+        '.q......4' + D7(29) + 'q.',
+        '.q....======' + D7(15) + '======.....q.',
+        '.q' + D7(36) + 'q.',
+        '.q' + D7(8) + '1' + D7(13) + '5...3' + D7(9) + 'q.',
+        H7(16) + '~~~~~' + H7(19),
+        H7(40),
+        H7(40)], { amb: true }),
+      R_('r1', "Rotwood Hollow", 8, 140, 88, [
+        H7(60),
+        H7(60),
+        '#' + D7(9) + 'L' + D7(19) + 'L' + D7(19) + 'L' + D7(8) + '#',
+        '#' + D7(58) + '#',
+        '#' + D7(58) + '#',
+        '#' + D7(58) + '#',
+        '#' + D7(33) + '=======' + D7(18) + '#',
+        '#' + D7(25) + 'f' + D7(32) + '#',
+        '#' + D7(58) + '#',
+        '#' + D7(58) + '#',
+        '#' + D7(21) + '=======' + D7(30) + '#',
+        '#' + D7(45) + '=======......#',
+        '#' + D7(59),
+        '#' + D7(59),
+        D7(10) + '=======' + D7(43),
+        D7(60),
+        D7(60),
+        D7(59) + '#',
+        D7(15) + 'h' + D7(16) + 'c' + D7(11) + 'r.....s' + D7(8) + '#',
+        H7(20) + '~~~~~~' + H7(34),
+        H7(60),
+        H7(60)]),
+      R_('r3', "Moldering Hall", 8, 40, 86, [
+        H7(61) + '===...' + H7(33),
+        H7(61) + '......' + H7(33),
+        '#' + D7(9) + 'L' + D7(19) + 'L' + D7(19) + 'L' + D7(25) + 'L' + D7(13) + 'L' + D7(8) + '#',
+        '#' + D7(63) + '===' + D7(32) + '#',
+        '#' + D7(98) + '#',
+        '#' + D7(98) + '#',
+        '#' + D7(60) + '===' + D7(35) + '#',
+        '#' + D7(98) + '#',
+        '#' + D7(49) + 'f' + D7(48) + '#',
+        '#' + D7(63) + '===' + D7(32) + '#',
+        '#' + D7(98) + '#',
+        '#' + D7(45) + '=======' + D7(35) + '======.....#',
+        '#' + D7(60) + '===' + D7(35) + '#',
+        '#' + D7(98) + '#',
+        '#' + D7(98) + '#',
+        '#' + D7(33) + '=======' + D7(23) + '===' + D7(11) + '=======' + D7(14) + '#',
+        'x.......=======' + D7(85),
+        'x' + D7(99),
+        'x' + D7(60) + '===' + D7(36),
+        'x' + D7(99),
+        'x......c' + D7(24) + 'h' + D7(13) + 'r' + D7(8) + 'c..a' + D7(10) + 'n..B' + D7(19) + 's.......',
+        H7(23) + '....' + H7(13) + '^^^^^' + H7(34) + '^^^^^' + H7(16)]),
+      R_('r2', "Fungal Drop", 8, 99, 67, [
+        '##......##',
+        '##===...##',
+        '##......##',
+        '##......##',
+        '##...===##',
+        '##......##',
+        '##......##',
+        '##===...##',
+        '##......##',
+        '##..f...##',
+        '##...===##',
+        '##......##',
+        '##......##',
+        '##===...##',
+        '##......##',
+        '##......##',
+        '##...===##',
+        '##......##',
+        '##......##']),
+      R_('r4', "Spore Nook", 8, 22, 98, [
+        H7(18),
+        H7(18),
+        H7(18),
+        '#.......L' + D7(9),
+        '#' + D7(17),
+        '#' + D7(17),
+        '#' + D7(17),
+        '#....M' + D7(12),
+        '#' + D7(10) + 'r..h...',
+        H7(18)]),
+      R_('r5', "Root Abyss", 8, 60, 108, [
+        '#....====#',
+        '#' + D7(8) + '#',
+        '#' + D7(8) + '#',
+        '#====....#',
+        '#' + D7(8) + '#',
+        '#' + D7(8) + '#',
+        '#....====#',
+        '#' + D7(8) + '#',
+        '#' + D7(8) + '#',
+        '#====....#',
+        '#' + D7(8) + '#',
+        '#' + D7(8) + '#',
+        '#....====#',
+        '#' + D7(8) + '#',
+        '#' + D7(8) + '#',
+        '#====....#']),
+      R_('v1', "Abyssal Rim", 9, 40, 124, [
+        H7(21) + D7(8) + H7(71),
+        H7(21) + D7(8) + H7(71),
+        '#' + D7(9) + 'L' + D7(14) + '====' + D7(16) + 'L' + D7(39) + 'L' + D7(13) + '#',
+        '#' + D7(57) + 'r' + D7(40) + '#',
+        '#' + D7(55) + '#####' + D7(38) + '#',
+        '#' + D7(20) + '====' + D7(31) + '#####' + D7(38) + '#',
+        '#' + D7(55) + '#####' + D7(38) + '#',
+        '#' + D7(55) + '#####' + D7(38) + '#',
+        '#' + D7(24) + '====' + D7(27) + '#####' + D7(38) + '#',
+        '#' + D7(39) + 'f' + D7(15) + '#####' + D7(38) + '#',
+        '#' + D7(55) + '#####' + D7(38) + '#',
+        '#' + D7(20) + '====' + D7(31) + '#####' + D7(38) + '#',
+        '#' + D7(55) + '#####' + D7(38) + '#',
+        '#' + D7(55) + '#####' + D7(38) + '#',
+        '#' + D7(24) + '====' + D7(27) + '#####' + D7(39),
+        '#' + D7(55) + '#####' + D7(39),
+        '#' + D7(55) + '#####' + D7(39),
+        '#' + D7(20) + '====' + D7(31) + '#####' + D7(39),
+        '#' + D7(55) + '#####' + D7(39),
+        '#...r...c' + D7(47) + '#####....c' + D7(16) + 'h' + D7(17),
+        H7(70) + '^^^^^' + H7(25),
+        H7(100)]),
+      R_('v2', "Hollow Deep", 9, 140, 124, [
+        H7(120),
+        H7(120),
+        '#' + D7(14) + 'L' + D7(24) + 'L' + D7(39) + 'L' + D7(24) + 'L' + D7(13) + '#',
+        '#' + D7(118) + '#',
+        '#' + D7(118) + '#',
+        '#' + D7(52) + 'r' + D7(65) + '#',
+        '#' + D7(49) + '=======' + D7(62) + '#',
+        '#' + D7(69) + 'f' + D7(48) + '#',
+        '#' + D7(118) + '#',
+        '#' + D7(118) + '#',
+        '#' + D7(34) + '=======' + D7(33) + '=======' + D7(37) + '#',
+        '#' + D7(118) + '#',
+        '#' + D7(118) + '#',
+        '#' + D7(118) + '#',
+        D7(20) + '=======' + D7(68) + '=======' + D7(18),
+        D7(120),
+        D7(120),
+        D7(120),
+        D7(120),
+        D7(10) + 'h' + D7(31) + 'a' + D7(13) + 'n...B' + D7(13) + 'c' + D7(33) + 's' + D7(11),
+        H7(25) + '~~~~~~~~' + H7(55) + '~~~~~~~' + H7(25),
+        H7(120)]),
+      R_('v3', "Void Spire", 9, 260, 112, [
+        H7(140),
+        H7(40) + '..L' + D7(10) + H7(87),
+        H7(40) + D7(10) + 'M..' + H7(87),
+        H7(40) + '.....' + H7(95),
+        H7(40) + '.....' + H7(95),
+        H7(40) + '.....' + H7(95),
+        H7(40) + '.....' + H7(95),
+        H7(40) + '.....' + H7(95),
+        H7(40) + '.....' + H7(95),
+        H7(40) + '.....' + H7(95),
+        H7(40) + '.....' + H7(95),
+        H7(40) + '.....' + H7(95),
+        H7(40) + '.....' + H7(85) + D7(8) + '##',
+        H7(40) + '.....' + H7(85) + D7(8) + '##',
+        '#' + D7(14) + 'L' + D7(44) + 'L' + D7(34) + 'L' + D7(24) + 'L' + D7(9) + '====.....#',
+        '#' + D7(138) + '#',
+        '#' + D7(35) + '====' + D7(99) + '#',
+        '#' + D7(133) + '====.#',
+        '#' + D7(138) + '#',
+        '#' + D7(40) + '====' + D7(47) + 'f' + D7(46) + '#',
+        '#' + D7(129) + '====.....#',
+        '#' + D7(25) + 'f' + D7(112) + '#',
+        '#' + D7(35) + '====' + D7(99) + '#',
+        '#' + D7(133) + '====.#',
+        '#' + D7(138) + '#',
+        '#' + D7(40) + '====' + D7(94) + '#',
+        D7(130) + '====.....#',
+        D7(139) + '#',
+        D7(36) + '====' + D7(99) + '#',
+        D7(134) + '====.#',
+        D7(139) + '#',
+        D7(58) + 'r' + D7(11) + 'a' + D7(31) + 's' + D7(12) + 'h' + D7(23) + '#',
+        H7(16) + '~~~~~~' + H7(58) + '^^^^^^' + H7(54),
+        H7(140)])
     ];
-    const T = 8, MW = 240, MH = 80;
+    const T = 8, MW = 400, MH = 150;
     const AIR = 0, ROCK = 1, ONE = 2, SPK = 3, ACID = 4, GATE = 5, BRK = 6;
     const MAP = new Uint8Array(MW * MH), AREAM = new Uint8Array(MW * MH), ROOMID = new Int16Array(MW * MH);
     const ENT = [], LANT = [], BENCH = [], DECO = [], ITEMS = [], LEVERS = [], ROOMS = [];
@@ -10432,8 +10879,13 @@ const SUMMIT_LEVELS = [
       { name: 'AMBER HALLS', bg0: '#22173a', bg1: '#3a2a52', far: '#2e2148', mid: '#3d2d5e', rock: '#040308', rockB: '#0d0915', rim: '#62508a', rimHi: '#ebc57c', light: '#ffd890', dust: '#d4b4ff', acc: '#e8b860', map: '#c8a050', halls: true },
       { name: "GUARDIAN'S REST", bg0: '#2a1018', bg1: '#4a1c28', far: '#3a1420', mid: '#4c1e2c', rock: '#060203', rockB: '#12070a', rim: '#7a3842', rimHi: '#ffb490', light: '#ffcfa0', dust: '#ff9a8a', acc: '#ff7a5a', map: '#d0604a', arena: true },
       { name: 'SUNKEN CISTERN', bg0: '#0c2228', bg1: '#143a42', far: '#10303a', mid: '#18444e', rock: '#020506', rockB: '#071114', rim: '#2e6a74', rimHi: '#8ae0e0', light: '#c8fff4', dust: '#7ad0d0', acc: '#4ac0c0', map: '#3aa0a8', drip: true },
-      { name: 'GLIMMER DEEP', bg0: '#2a1430', bg1: '#44204a', far: '#361a3e', mid: '#4a2454', rock: '#050206', rockB: '#120814', rim: '#7a3c84', rimHi: '#ffa8f0', light: '#ffd8ff', dust: '#f0a0ff', acc: '#e070e8', map: '#b860c0', gem: true }
-    ].map(a => Object.assign({}, a, { c: {} }));
+      { name: 'GLIMMER DEEP', bg0: '#2a1430', bg1: '#44204a', far: '#361a3e', mid: '#4a2454', rock: '#050206', rockB: '#120814', rim: '#7a3c84', rimHi: '#ffa8f0', light: '#ffd8ff', dust: '#f0a0ff', acc: '#e070e8', map: '#b860c0', gem: true },
+      // the far reaches (st = which area's background art they reuse, recoloured)
+      { name: 'FROSTVEIL', st: 5, bg0: '#0e1a2c', bg1: '#1d3352', far: '#172a44', mid: '#21395a', rock: '#020408', rockB: '#081018', rim: '#4a7aa0', rimHi: '#d8f4ff', light: '#eafcff', dust: '#c8ecff', acc: '#8ad8ff', map: '#6ab0d8', gem: true, snow: true },
+      { name: 'EMBERWORKS', st: 2, bg0: '#24120a', bg1: '#3e2012', far: '#301a0e', mid: '#442614', rock: '#060302', rockB: '#140a05', rim: '#8a4a22', rimHi: '#ffc070', light: '#ffd8a0', dust: '#ffa060', acc: '#ff8030', map: '#d07030', arena: true, lava: true },
+      { name: 'ROTWOOD', st: 1, bg0: '#22160e', bg1: '#3c2816', far: '#2e1e10', mid: '#44301a', rock: '#050302', rockB: '#110b06', rim: '#7a5a2a', rimHi: '#f0c070', light: '#ffe0a0', dust: '#e0b070', acc: '#d88a3a', map: '#b07838', moss: true },
+      { name: 'THE ABYSS', st: 0, bg0: '#06060a', bg1: '#121218', far: '#0c0c12', mid: '#16161e', rock: '#000000', rockB: '#060608', rim: '#3a3a48', rimHi: '#d0d0e0', light: '#e8e8ff', dust: '#9090a8', acc: '#a77bff', map: '#8080a0' }
+    ].map((a, i) => Object.assign({ st: i }, a, { c: {} }));
     AREAS.forEach(a => ['bg0', 'bg1', 'far', 'mid', 'rock', 'rockB', 'rim', 'rimHi', 'light', 'dust', 'acc', 'map'].forEach(k => a.c[k] = HX(a[k])));
     const areaT = (tx, ty) => AREAM[clamp(ty, 0, MH - 1) * MW + clamp(tx, 0, MW - 1)];
     const areaAt = (px, py) => areaT(Math.floor(px / T), Math.floor(py / T));
@@ -10481,14 +10933,14 @@ const SUMMIT_LEVELS = [
     const SKEY = 'gregsnap_hollow_v2';
     const loadSave = () => { try { const v = JSON.parse(localStorage.getItem(SKEY) || 'null'); return v && v.v === 2 ? v : null; } catch (_) { return null; } };
     const clearSave = () => { try { localStorage.removeItem(SKEY); } catch (_) {} };
-    function saveGame() { const P = G.P; if (!P) return; try { localStorage.setItem(SKEY, JSON.stringify({ v: 2, bench: G.lastBench, dash: P.dash, claw: P.claw, shards: P.shards, mhp: P.mhp, geo: P.geo, got: [...G.got], broken: [...G.broken], levers: [...G.levers], amb: [...G.ambDone], vis: [...G.vis], rocks: Object.keys(G.rocksDone), deaths: G.deaths, kills: G.kills, time: Math.round(G.time) })); } catch (_) {} }
+    function saveGame() { const P = G.P; if (!P) return; try { localStorage.setItem(SKEY, JSON.stringify({ v: 2, mw: MW, bench: G.lastBench, dash: P.dash, claw: P.claw, shards: P.shards, mhp: P.mhp, geo: P.geo, got: [...G.got], broken: [...G.broken], levers: [...G.levers], amb: [...G.ambDone], vis: [...G.vis], rocks: Object.keys(G.rocksDone), deaths: G.deaths, kills: G.kills, time: Math.round(G.time) })); } catch (_) {} }
     const setGates = (list, on) => { for (const o of list) { if (on) MAP[o] = GATE; else if (MAP[o] === GATE) MAP[o] = AIR; } };
     function openLever(gid) { G.levers.add(gid); ROOMS.forEach(r => { if (r.gid === gid) setGates(r.g, 0); }); }
     function newRun(sv) { buildMap(); G.rocksDone = {}; G.bossDead = 0; G.bossOn = false; G.deaths = 0; G.kills = 0; G.time = 0; G.shade = null; G.bench = null; G.lastBench = -1; G.geoP = []; G.parts = []; G.bolts = []; G.toasts = []; G.area = -1; G.winT = 0;
       G.got = new Set(); G.broken = new Set(); G.levers = new Set(); G.ambDone = new Set(); G.vis = new Set(); G.amb = null; G.mapOpen = false; G.mapPan = 0; G.mapDrag = null; G.brkHp = new Map(); G.pal = null; G.keys = {}; G.ptrs = {}; G.joy = null;
       G.P = { x: START[0] * T + 1, y: (START[1] + 1) * T - 10, w: 6, h: 10, vx: 0, vy: 0, face: 1, on: false, coy: 0, jb: 0, dashT: 0, dashCd: 0, airDash: true, atk: 0, adir: 's', acd: 0, inv: 0, hp: 5, mhp: 5, soul: 0, focusT: 0, spellDown: false, spellT: 0, geo: 0, safe: null, anim: 0, recoil: 0, dash: false, claw: false, shards: 0, cling: 0, wjT: 0 };
       if (sv) { const P = G.P; P.dash = !!sv.dash; P.claw = !!sv.claw; P.shards = sv.shards | 0; P.mhp = P.hp = clamp(sv.mhp | 0, 5, 9); P.geo = sv.geo | 0; G.deaths = sv.deaths | 0; G.kills = sv.kills | 0; G.time = sv.time || 0;
-        (sv.got || []).forEach(k => G.got.add(k)); (sv.broken || []).forEach(o => { if (MAP[o] === BRK) { MAP[o] = AIR; G.broken.add(o); } }); (sv.levers || []).forEach(openLever); (sv.amb || []).forEach(a => G.ambDone.add(a)); (sv.vis || []).forEach(a => G.vis.add(a)); (sv.rocks || []).forEach(k => G.rocksDone[k] = 1);
+        (sv.got || []).forEach(k => G.got.add(k)); const omw = sv.mw || 240; (sv.broken || []).forEach(o => { o = Math.floor(o / omw) * MW + o % omw; if (MAP[o] === BRK) { MAP[o] = AIR; G.broken.add(o); } }); (sv.levers || []).forEach(openLever); (sv.amb || []).forEach(a => G.ambDone.add(a)); (sv.vis || []).forEach(a => G.vis.add(a)); (sv.rocks || []).forEach(k => G.rocksDone[k] = 1);
         const b = BENCH[sv.bench]; if (b) { G.bench = b; G.lastBench = sv.bench; P.x = b[0] * T + 1; P.y = (b[1] + 1) * T - 10; } }
       spawnEnemies(); G.mode = 'play'; G.camInit = true; G.deathT = 0; G.hazT = 0; G.bannerQ = true; }
     const solidAt = (px, py) => solidT(tile(Math.floor(px / T), Math.floor(py / T)));
@@ -10551,7 +11003,7 @@ const SUMMIT_LEVELS = [
       const wasOn = P.on, vyb = P.vy; moveBox(P, dt, true, inp.my > 0 && inp.jump && P.on && tile(Math.floor((P.x + 3) / T), Math.floor((P.y + P.h + 1) / T)) === ONE); if (P.on) { P.coy = 0.09; P.airDash = true; if (!wasOn && vyb > 150) { puff(P.x + 3, P.y + P.h, 6, AREAS[areaAt(G.P.x + 3, G.P.y + 5)].c.dust, 40, 0.35); sfx(150, 0.04, 0.04, 'square'); } }
       P.cling = 0; if (P.claw && !P.on && P.vy > -30 && P.dashT <= 0 && P.wjT <= 0 && !focusing) { const wl = solidAt(P.x - 0.6, P.y + 2) && solidAt(P.x - 0.6, P.y + P.h - 2), wr = solidAt(P.x + P.w + 0.6, P.y + 2) && solidAt(P.x + P.w + 0.6, P.y + P.h - 2); if (wl && inp.mx < 0) P.cling = -1; else if (wr && inp.mx > 0) P.cling = 1; if (P.cling) { P.airDash = true; P.face = -P.cling; if (P.vy > 50) P.vy = 50; if (Math.random() < 0.15) G.parts.push({ x: P.x + 3 + P.cling * 4, y: P.y + 2, vx: 0, vy: -10, l: 0, ml: 0.25, c: AREAS[areaAt(P.x + 3, P.y + 5)].c.dust, g: 0 }); } }
       P.x = clamp(P.x, 2, MW * T - 8); P.anim += Math.abs(P.vx) * dt;
-      const hz = hazardIn([P.x + 1, P.y + 2, P.x + P.w - 1, P.y + P.h]); if (hz && P.inv <= 0) { hurtP(1, null); if (G.deathT <= 0) { G.hazT = 0.45; puff(P.x + 3, P.y + 6, 12, hz === ACID ? HX('#9cff6a') : HX('#e8eef8'), 80, 0.4); } return; }
+      const hz = hazardIn([P.x + 1, P.y + 2, P.x + P.w - 1, P.y + P.h]); if (hz && P.inv <= 0) { hurtP(1, null); if (G.deathT <= 0) { G.hazT = 0.45; puff(P.x + 3, P.y + 6, 12, hz === ACID ? (AREAS[areaAt(P.x + 3, P.y + 8)].lava ? HX('#ffa03a') : HX('#9cff6a')) : HX('#e8eef8'), 80, 0.4); } return; }
       if (P.on && !hazardIn([P.x - 6, P.y, P.x + P.w + 6, P.y + P.h + 4]) && !solidAt(P.x + 3, P.y + P.h + 1) === false) P.safe = [P.x, P.y];
       // benches
       BENCH.forEach((b, i) => { const bx = b[0] * T + 4, by = (b[1] + 1) * T; if (Math.abs(P.x + 3 - bx) < 9 && Math.abs(P.y + P.h - by) < 3 && P.on) { if (G.lastBench !== i || P.hp < P.mhp) { G.bench = b; G.lastBench = i; P.hp = P.mhp; saveGame(); toast('RESTED AT BENCH', HX('#ffe9a8')); puff(bx, by - 6, 14, HX('#ffe9a8'), 40, 0.8, -30); sfx(523, 0.15, 0.05, 'triangle'); setTimeout(() => sfx(784, 0.2, 0.05, 'triangle'), 120); } } });
@@ -10692,7 +11144,7 @@ const SUMMIT_LEVELS = [
           else if (ai === 3) { for (let j = 0; j < 14; j++) PX(sx + 2 + ((j * 5 + h2) % Math.max(1, pw - 4)), y + j * 2, (Math.floor(t * 2 + j) % 7) ? BL(C.acc, C.mid, 0.55) : C.acc); }
           else if (ai === 4) { const wx = sx + (h2 & 1 ? -1 : pw); for (let j = 0; j < 60; j++) if (((j + Math.floor(t * 40)) % 7) < 4) PX(wx, y + j, BL(C.light, C.mid, 0.55)); }
           else { RF(sx - 2, y + 4, 3, 5, BL(C.acc, C.mid, 0.4)); RF(sx - 3, y + 6, 1, 3, BL(C.acc, C.mid, 0.4)); PX(sx - 2, y + 4, (Math.floor(t * 2 + k) % 4) ? C.rimHi : W_); } } } }
-    function drawBack(C, t) { const ai = Math.max(0, G.area); for (let y = 0; y < LH; y++) { const f = y / LH, row = y * LW, by = (y & 3) * 4; const c0 = BL(C.bg0, C.bg1, Math.floor(f * 6) / 6), c1 = BL(C.bg0, C.bg1, Math.min(1, Math.floor(f * 6 + 1) / 6)), fr = f * 6 - Math.floor(f * 6); for (let x = 0; x < LW; x++) B32[row + x] = fr > BAY[by + (x & 3)] ? c1 : c0; }
+    function drawBack(C, t) { const ar = Math.max(0, G.area), ai = AREAS[ar].st; for (let y = 0; y < LH; y++) { const f = y / LH, row = y * LW, by = (y & 3) * 4; const c0 = BL(C.bg0, C.bg1, Math.floor(f * 6) / 6), c1 = BL(C.bg0, C.bg1, Math.min(1, Math.floor(f * 6 + 1) / 6)), fr = f * 6 - Math.floor(f * 6); for (let x = 0; x < LW; x++) B32[row + x] = fr > BAY[by + (x & 3)] ? c1 : c0; }
       drawDeepCached(C, t, ai); drawRays(C, t);
       const offF = Math.floor(CX * 0.3), offM = Math.floor(CX * 0.55);
       for (let x = 0; x < LW; x++) { const u = x + offF, hT = 14 + 18 * tri(u / 41) + 9 * tri(u / 17 + 0.4) + 4 * tri(u / 7), hB = 10 + 14 * tri(u / 53 + 0.2) + 6 * tri(u / 19);
@@ -10700,7 +11152,7 @@ const SUMMIT_LEVELS = [
       for (let x = 0; x < LW; x++) { const u = x + offM, cw = 70, ci = Math.floor(u / cw), lo = u - ci * cw, hh = hs(ci, 21), pw = 8 + hh % 10, px0 = 20 + (hh >> 5) % 30; if (hh % 3 !== 0 && lo >= px0 && lo < px0 + pw) { const edge = lo === px0 || lo === px0 + pw - 1; for (let y = 0; y < LH; y++) { const wob = (hs(u, (y + Math.floor(CY * 0.55)) >> 3) & 3) === 0; B32[y * LW + x] = edge || wob ? BL(C.mid, C.far, 0.4) : (lo === px0 + 1 ? BL(C.mid, C.light, 0.12) : C.mid); } }
         else if (hh % 5 === 1 && lo === 8) { for (let y = 0; y < LH * 0.5 + (hh % 40); y++) if (((y + Math.floor(CY * 0.55)) & 3) !== 3) B32[y * LW + x] = C.mid; } }
       drawMidDeco(C, t, ai); drawFog(C, t); drawNear(C, t, ai);
-      if (AREAS[ai].moss) for (let y = 0; y < LH; y++) for (let x = 0; x < LW; x++) { const d = ((x + y + Math.floor(CX * 0.6)) % 90 + 90) % 90; if (d < 14 && ((x * 3 + y) & 3) === 0) B32[y * LW + x] = BL(B32[y * LW + x], C.light, 0.18); }
+      if (AREAS[ar].moss) for (let y = 0; y < LH; y++) for (let x = 0; x < LW; x++) { const d = ((x + y + Math.floor(CX * 0.6)) % 90 + 90) % 90; if (d < 14 && ((x * 3 + y) & 3) === 0) B32[y * LW + x] = BL(B32[y * LW + x], C.light, 0.18); }
     }
     // foreground: big dark silhouettes in front of everything, anchored to real floors/ceilings, moving 1.3x faster than the world
     function drawFore(C, t) { const S = 1.32, hx = LW / 2, hy = LH / 2, inv = (s, c, h) => (s - h) / S + h + c;
@@ -10718,11 +11170,12 @@ const SUMMIT_LEVELS = [
           if (A.moss) { for (let s = 0; s < 4; s++) { const L = H * (0.5 + ((h >> (s * 3)) % 5) / 8), ox = sx - 6 + s * 4; for (let k = 0; k < L; k++) { const xx = ox + Math.sin(k * 0.2 + t + s) * 1.2; PX(xx, sy + k, fc); if (k % 6 === 3) PX(xx + 1, sy + k, rc); } } }
           else { for (let k = 0; k < H; k++) { const w = Math.round(W2 * (1 - k / H)); RF(sx - w, sy + k, w * 2 + 1, 1, fc); PX(sx - w, sy + k, rc); } if (A.drip) { const ph = (t * 0.7 + (h % 97) / 97) % 1; PX(sx, sy + H + ph * ph * 90, Ck.light); } } } } }
     // ambient life: lumaflies, fireflies, leaves, embers, bubbles, sparkles, plus a few drifting GregSnap galaxies
-    function drawAmb(C, t, ai) { for (let i = 0; i < 34; i++) { const sx = (hs(i, 41) % 1000) / 1000, sy = (hs(i, 42) % 1000) / 1000, par = 0.6 + (i % 5) * 0.12, sp = 3 + (i % 6) * 2;
-        const rise = ai === 3 || ai === 4 || ai === 2, fall = ai === 1 && i % 3 === 0, vy = rise ? -sp * 1.6 : fall ? sp * 1.8 : Math.sin(t * 0.5 + i) * 3;
+    function drawAmb(C, t, ai) { const snow = G.mode !== 'title' && AREAS[Math.max(0, G.area)].snow; for (let i = 0; i < (snow ? 60 : 34); i++) { const sx = (hs(i, 41) % 1000) / 1000, sy = (hs(i, 42) % 1000) / 1000, par = 0.6 + (i % 5) * 0.12, sp = 3 + (i % 6) * 2;
+        const rise = !snow && (ai === 3 || ai === 4 || ai === 2), fall = snow || (ai === 1 && i % 3 === 0), vy = rise ? -sp * 1.6 : fall ? sp * 1.8 : Math.sin(t * 0.5 + i) * 3;
         const x = Math.floor((((sx * LW * 3 + Math.sin(t * 0.7 + i * 1.7) * 10 + (fall ? t * 6 : t * 2) - CX * par) % LW) + LW) % LW), y = Math.floor((((sy * LH * 3 + t * vy - CY * par) % LH) + LH) % LH);
         if (tile(Math.floor((x + CX) / T), Math.floor((y + CY) / T)) !== AIR) continue; const fl = 0.5 + 0.5 * Math.sin(t * (2 + i % 3) + i);
         if (i % 9 === 4) { sigil(x, y, 3, BL(C.bg1, GSP, 0.4), GSP, GSP2, t * 3, 0); glow(x, y, 9, GSP, 0.25 * fl + 0.1); continue; }
+        if (snow && i % 9 !== 4) { PX(x, y, i % 3 ? C.dust : W_); if (i % 4 === 0) { PX(x + 1, y, C.dust); PX(x, y + 1, C.dust); PX(x + 1, y + 1, BL(C.dust, C.bg1, 0.4)); } continue; }
         if (fall) { const k = Math.floor(t * 3 + i) & 3; PX(x, y, C.acc); PX(x + (k < 2 ? 1 : -1), y + (k & 1), BL(C.acc, C.rock, 0.4)); continue; }
         if (ai === 4) { if ((i & 1) === 0) { PX(x - 1, y, C.light); PX(x + 1, y, C.light); PX(x, y - 1, C.light); PX(x, y + 1, BL(C.light, C.bg1, 0.5)); } else PX(x, y, C.dust); continue; }
         if (ai === 5) { if (fl > 0.8) { PX(x, y, W_); PX(x - 1, y, C.acc); PX(x + 1, y, C.acc); PX(x, y - 1, C.acc); PX(x, y + 1, C.acc); } else if (fl > 0.4) PX(x, y, C.rimHi); continue; }
@@ -10753,7 +11206,7 @@ const SUMMIT_LEVELS = [
           if (A.drip && dn && hs(tx, ty) % 5 === 0) { const ph = (t * 0.6 + (hs(tx, 1) % 100) / 100) % 1, dy = Math.floor(ph * ph * 48); PX(X + 4, Y + T, C.light); if (ph > 0.25 && !solidT(tile(tx, ty + 1 + (dy >> 3)))) { PX(X + 4, Y + T + dy, C.light); PX(X + 4, Y + T + dy - 1, BL(C.light, C.rock, 0.5)); } } }
         else if (v === ONE) { for (let i = 0; i < T; i++) { PX(X + i, Y, C.rimHi); PX(X + i, Y + 1, C.rim); PX(X + i, Y + 2, BL(C.rim, C.rock, 0.6)); } if (tile(tx - 1, ty) !== ONE) for (let k = 3; k < 6; k++) PX(X + 1, Y + k, C.rim); if (tile(tx + 1, ty) !== ONE) for (let k = 3; k < 6; k++) PX(X + 6, Y + k, C.rim); }
         else if (v === SPK) { for (let s = 0; s < 2; s++) for (let i = 0; i < 4; i++) { const hgt = [2, 5, 4, 1][i]; for (let k = 0; k < hgt; k++) PX(X + s * 4 + i, Y + T - 1 - k, i < 2 ? HX('#e8eef8') : HX('#9aa6bb')); } }
-        else if (v === ACID) { for (let j = 0; j < T; j++) for (let i = 0; i < T; i++) { const wx = tx * T + i, surf = 2 + Math.round(Math.sin(wx * 0.5 + t * 4)); if (j < surf) continue; const c = j === surf ? HX('#d8ff9a') : ((hs(wx, j + Math.floor(t * 6)) % 23) === 0 ? HX('#c8ff80') : j < surf + 2 ? HX('#7ad03a') : HX('#4a9a28')); PX(X + i, Y + j, c); } } } }
+        else if (v === ACID) { const lv = A.lava; for (let j = 0; j < T; j++) for (let i = 0; i < T; i++) { const wx = tx * T + i, surf = 2 + Math.round(Math.sin(wx * (lv ? 0.3 : 0.5) + t * (lv ? 2 : 4))); if (j < surf) continue; const sp = (hs(wx, j + Math.floor(t * 6)) % 23) === 0; const c = lv ? (j === surf ? HX('#fff0a0') : sp ? HX('#ffd060') : j < surf + 2 ? HX('#ff8a1a') : HX('#c8380e')) : (j === surf ? HX('#d8ff9a') : sp ? HX('#c8ff80') : j < surf + 2 ? HX('#7ad03a') : HX('#4a9a28')); PX(X + i, Y + j, c); } if (lv && hs(tx, ty) % 3 === 0) DLT.push([X + 4, Y + 2, HX('#ff8a1a'), 12]); } } }
     function drawLights(C, t) { const lit = (cx, cy, R, col, k) => { for (let y = Math.max(0, Math.floor(cy - R)); y < Math.min(LH, cy + R); y++) for (let x = Math.max(0, Math.floor(cx - R)); x < Math.min(LW, cx + R); x++) { const d = Math.hypot(x - cx, y - cy) / R; if (d >= 1) continue; const a = (1 - d) * k; if (a > BAY[(y & 3) * 4 + (x & 3)] * 0.6) { const o = y * LW + x; B32[o] = BL(B32[o], col, Math.min(0.5, a)); } } };
       for (const [lx, ly] of LANT) { const X = lx * T + 4 - CX, Y = ly * T - CY; if (X < -40 || X > LW + 40 || Y < -60 || Y > LH + 40) continue; const C2 = AREAS[areaT(lx, ly)].c, len = 10 + (lx % 3) * 4; for (let k = 0; k < len; k += 2) PX(X, Y + k, C2.rim); const by = Y + len, fl = 0.85 + 0.15 * Math.sin(t * 5 + lx); lit(X, by + 4, 30, C2.light, 0.42 * fl);
         RF(X - 2, by, 5, 1, C2.rim); RF(X - 3, by + 1, 1, 6, C2.rim); RF(X + 3, by + 1, 1, 6, C2.rim); RF(X - 2, by + 7, 5, 1, C2.rim); RF(X - 1, by + 2, 3, 4, C2.light); PX(X, by + 3, HX('#ffffff')); }
@@ -10834,6 +11287,7 @@ const SUMMIT_LEVELS = [
       const m = Math.floor(G.time / 60), s = Math.floor(G.time % 60); PT('TIME ' + m + ':' + (s < 10 ? '0' : '') + s, GX + GW / 2, y + 48, 1, DIMC, null, 'c'); PT('GEO ' + P.geo + '   FOES ' + G.kills + '   DEATHS ' + G.deaths, GX + GW / 2, y + 58, 1, DIMC, null, 'c'); if (a > 3 && (Math.floor(t * 1.6) & 1)) PT(G.touch ? 'TAP TO RETURN' : 'PRESS ANY KEY', GX + GW / 2, y + 76, 1, W_, null, 'c'); }
 
     return Object.assign({
+      _dbg: { G, ROOMS, ITEMS, newRun, T, MW, MH },
       sk, hold: true, title: 'Hollow Path', how: 'Explore a big web of caverns. Find the Swift Cloak and the Thorn Claws, break hidden walls, collect mask shards, rest at benches and defeat the Hollow Guardian. M or the MAP button opens the map.',
       state: 'ready', score: 0, best: 0, dead: 0, shake: 0, flash: 0, floats: [],
       geom() { const dp = Math.min(window.devicePixelRatio || 1, 2), st = dp >= 2 ? 0.5 : 1; PSZ = Math.max(2, Math.round(Math.min(this.w || 300, (this.h || 500) * 0.62) / 190 / st) * st); GX = (this.ox || 0) / PSZ; GY = (this.oy || 0) / PSZ; GW = (this.w || 300) / PSZ; GH = (this.h || 500) / PSZ; },
@@ -10872,7 +11326,7 @@ const SUMMIT_LEVELS = [
       draw() { const c = this.ctx; this.geom(); if (!this.W || !this.H) return; ensureBuf(this.W, this.H, PSZ); const t = G.t;
         if (G.mode === 'title') drawTitle(t);
         else { const sh = G.shake > 0 ? Math.round((Math.random() - 0.5) * 6 * G.shake) : 0; CX = Math.round(G.cam.x) + sh; CY = Math.round(G.cam.y) + (G.shake > 0 ? Math.round((Math.random() - 0.5) * 6 * G.shake) : 0); const C = areaPal();
-          drawBack(C, t); drawTiles(t); drawLights(C, t); drawEntities(t); drawAmb(C, t, Math.max(0, G.area)); drawFore(C, t); drawDust(C, t); vignette(); if (G.flash > 0 && (Math.floor(t * 30) & 1)) DV(0, 0, LW, LH, HX('#ffffff'), 0); drawHUD(t); if (G.mapOpen && G.mode === 'play') drawMap(t); if (G.mode === 'win') drawWin(t); }
+          drawBack(C, t); drawTiles(t); drawLights(C, t); drawEntities(t); drawAmb(C, t, AREAS[Math.max(0, G.area)].st); drawFore(C, t); drawDust(C, t); vignette(); if (G.flash > 0 && (Math.floor(t * 30) & 1)) DV(0, 0, LW, LH, HX('#ffffff'), 0); drawHUD(t); if (G.mapOpen && G.mode === 'play') drawMap(t); if (G.mode === 'win') drawWin(t); }
         lx.putImageData(img, 0, 0); c.save(); c.imageSmoothingEnabled = false; c.drawImage(lc, -this.ox, -this.oy, LW * PSZ, LH * PSZ); c.restore(); }
     }, MIX);
   }
