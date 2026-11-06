@@ -1583,6 +1583,9 @@ html.fs .fsgp{display:block;position:fixed;left:0;right:0;bottom:6px;z-index:6;t
     pizza: ['finally hired the cashier and its so chill now', 'bigger arms was the best upgrade', 'the stack on his head is so funny', 'i just stand at the register lol', 'the cook guy is so cute', 'saved up for the neon sign', 'my shop is so busy now', 'customers want 4 pizzas at once now', 'scooping the cash pile is so satisfying', 'running shoes changed everything', 'hotter ovens should be first imo', 'opened my shop with $0 and now look'],
     amaze: ['level 23 had me rolling in circles', 'the paint trail is so smooth', 'figured out you have to go to the corners first', 'oddly satisfying', 'the purple level is my favourite', 'took me 31 rolls lol', 'perfect game for the bus', 'the ball squish when it hits a wall', 'so relaxing', 'missed one tile in the corner', 'these get big fast', 'my little brother beat me'],
     smash: ['the TNT chain reaction was insane', 'glass shattering sound is elite', 'stone blocks take forever', 'knocked the whole tower off in one throw', 'level 14 is so stacked', 'saved 3 balls on that one', 'the screen shake when it explodes', 'aim for the bottom always', 'this is my stress relief now', 'so satisfying watching it fall', 'one ball left and it worked', 'the little splinters flying everywhere'],
+    reversi: ['flipped 9 at once in the corner', 'hard mode is actually hard', 'corners are everything', 'the 70s colours are so pretty', 'beat my dad 41-23', 'thought i was winning then the whole board flipped', 'the little flip animation 😍', 'never take the square next to the corner', 'lost 2 to 62 on hard lol', 'played my sister online took forever', 'normal is perfect for me', 'had to pass 3 times in a row'],
+    groups: ['got it with 0 mistakes', 'one away... one away... one away...', 'the purple ones are evil', 'did not see the hidden animals at all', 'lime was a trap', 'streak of 9 lets go', 'i do this every morning now', 'tea or coffee ruined me', 'my brain hurts in a good way', 'shuffle actually helps', 'last one by elimination as usual', 'the snakes and coding one got me'],
+    jetlab: ['the missile warning sound gives me anxiety', '2400m first try??', 'flew straight into a spinning zapper', 'tap tap tap tap tap', 'the little scientist is so cute', 'got 900 coins', 'the city in the windows is a nice touch', 'stay low its safer', 'two missiles at once is not fair', 'my thumb is tired', 'new best 3100m', 'the zap sound when you die lol'],
     drop: ['called an airstrike on myself again', 'the reinforce code is burned into my brain', 'orbital laser deleted the whole bug breach', 'chargers from the back only', 'extraction with 2 seconds left', 'the sentry carried me', 'cinderfall bots are no joke', 'accidentals: 4 lol', 'resupply pod landed on my head', 'for democracy'],
     deep: ['first night the zombies got me instantly', 'found a life crystal in a cave', 'the torch lighting underground is so good', 'built a house out of planks', 'iron pickaxe changes everything', 'the watcher dashes so fast', 'chopping trees is weirdly satisfying', 'gold is so deep down', 'eyes keep dropping lenses for me', 'my world has the coolest cave'],
     hollow: ['the guardian hits so hard', 'pogoing off the spikes feels so good', 'the lantern glow in the dark is beautiful', 'lost all my geo and then got it back from my shade', 'mossgrave is my favourite area', 'phase two with the falling rocks is insane', 'focusing to heal mid fight is clutch', 'the pixel art is so clean', 'that acid pit got me 5 times', 'finally beat the guardian with 1 mask left', 'the map is so much bigger now', 'took me forever to find the thorn claws', 'glimmer deep is so pretty', 'who else missed the hidden wall in crossroads', 'that ambush in the thicket got me', 'used the lever shortcut and felt like a genius'],
@@ -26232,6 +26235,453 @@ function engine(){
   }
   skin('smashyard', { bg: ['#4a5262', '#1f232c'], pat: 'grid', patc: 'rgba(255,255,255,.035)', fg: '#ffffff', dim: '#aab2bf', panel: '#2a2f3a', pfg: '#ffffff', dark: true, line: '#ffd23f', lw: 0, r: 4, pal: ['#ffd23f', '#e8463c', '#9fdcff', '#c98a4b'], good: '#ffd23f', bad: '#e8463c', font: '"Anton","Oswald",sans-serif', fw: 400, fs: 1.05, mono: '"DM Mono",monospace', mw: 500, ms: 0.95, veil: 'rgba(31,35,44,.7)', vfg: '#ffffff', slide: '#1f232c', sbgc: '#1f232c', sfg: '#ffffff', sdim: '#aab2bf', stag: '#ffd23f', tsize: 30, tfw: 400, tls: '.03em', frame: '' });
   NEW_SLIDES.push(mk(makeSmashYard(SKINS.smashyard), 'Smash Yard', SKINS.smashyard, 'Towers of glass, wood and stone, and a pile of heavy balls. Aim, throw, and watch it all come down. Glass shatters, stone takes a beating, TNT takes out everything around it. Clear the platform to move on.', '#physics #destruction #satisfying #smash', 22.9e9, 3.3e9, 3.9e9, 'smash'));
+
+  /* ===== Easy batch (Nov 2026): Flip Side (Reversi, turnMP), Four Ways (word groups), Jet Lab (jetpack runner) ===== */
+
+  /* ----- Flip Side: reversi in a 70s board-game box. Vs the computer (3 levels) or a friend online (turnMP) ----- */
+  function makeReversi(sk) {
+    const KEY = 'flipside', D8 = [[-1, -1], [0, -1], [1, -1], [-1, 0], [1, 0], [-1, 1], [0, 1], [1, 1]];
+    const W8 = [100, -20, 10, 5, 5, 10, -20, 100, -20, -50, -2, -2, -2, -2, -50, -20, 10, -2, 1, 1, 1, 1, -2, 10, 5, -2, 1, 0, 0, 1, -2, 5, 5, -2, 1, 0, 0, 1, -2, 5, 10, -2, 1, 1, 1, 1, -2, 10, -20, -50, -2, -2, -2, -2, -50, -20, 100, -20, 10, 5, 5, 10, -20, 100];
+    const PC = [['#4a3326', '#2b1d16', '#120a06'], ['#fffaf0', '#f3e4c6', '#b9a27a']];
+    const flips = (b, i, s) => {
+      if (b[i] >= 0) return []; const out = [], x0 = i % 8, y0 = i >> 3;
+      for (const [dx, dy] of D8) {
+        const run = []; let x = x0 + dx, y = y0 + dy;
+        while (x >= 0 && x < 8 && y >= 0 && y < 8 && b[y * 8 + x] === 1 - s) { run.push(y * 8 + x); x += dx; y += dy; }
+        if (run.length && x >= 0 && x < 8 && y >= 0 && y < 8 && b[y * 8 + x] === s) out.push(...run);
+      }
+      return out;
+    };
+    const moves = (b, s) => { const m = []; for (let i = 0; i < 64; i++) if (b[i] < 0 && flips(b, i, s).length) m.push(i); return m; };
+    const apply = (b, i, s) => { const c = b.slice(); flips(b, i, s).forEach(k => c[k] = s); c[i] = s; return c; };
+    const count = (b, s) => { let n = 0; for (let i = 0; i < 64; i++) if (b[i] === s) n++; return n; };
+    /* score from the computer's (side 1) point of view */
+    const evalB = b => { let s = 0; for (let i = 0; i < 64; i++) if (b[i] === 1) s += W8[i]; else if (b[i] === 0) s -= W8[i]; return s + (moves(b, 1).length - moves(b, 0).length) * 6; };
+    const search = (b, s, d, al, be) => {
+      const ms = moves(b, s);
+      if (!ms.length) { if (!moves(b, 1 - s).length) return [(count(b, 1) - count(b, 0)) * 1000, -1]; return d ? [search(b, 1 - s, d - 1, al, be)[0], -1] : [evalB(b), -1]; }
+      if (!d) return [evalB(b), -1];
+      ms.sort((p, q) => W8[q] - W8[p]);
+      let best = s ? -1e9 : 1e9, bm = ms[0];
+      for (const m of ms) { const v = search(apply(b, m, s), 1 - s, d - 1, al, be)[0]; if (s ? v > best : v < best) { best = v; bm = m; } if (s) al = Math.max(al, v); else be = Math.min(be, v); if (al >= be) break; }
+      return [best, bm];
+    };
+    const LV = ['EASY', 'NORMAL', 'HARD'], sv = QG.load(KEY, { wins: 0, lvl: 1 });
+    function disc(c, x, y, r, s, sx) {
+      const C = PC[s]; c.save(); c.translate(x, y); c.scale(Math.max(0.06, sx), 1);
+      c.fillStyle = 'rgba(0,0,0,.28)'; c.beginPath(); c.arc(r * 0.08, r * 0.14, r, 0, TAU); c.fill();
+      const g = c.createRadialGradient(-r * 0.35, -r * 0.4, r * 0.1, 0, 0, r); g.addColorStop(0, C[0]); g.addColorStop(0.7, C[1]); g.addColorStop(1, C[2]);
+      c.fillStyle = g; c.beginPath(); c.arc(0, 0, r, 0, TAU); c.fill();
+      c.strokeStyle = s ? 'rgba(120,90,50,.35)' : 'rgba(255,255,255,.08)'; c.lineWidth = r * 0.09; c.beginPath(); c.arc(0, 0, r * 0.68, 0, TAU); c.stroke();
+      c.restore();
+    }
+    return Object.assign({
+      sk, hold: true, title: 'Flip Side', how: 'Place a disc so a line of the other colour is trapped between two of yours. They all flip. Most discs at the end wins.', fsAspect: 0.72,
+      state: 'ready', score: 0, best: 0, dead: 0, shake: 0, flash: 0, floats: [],
+      b: [], turn: 0, wait: 0, over: false, last: -1, ft: null, wins: sv.wins | 0, lvl: sv.lvl >= 0 && sv.lvl <= 2 ? sv.lvl | 0 : 1,
+      geom() { const top = 132, foot = 120; this.cs = Math.floor(Math.min((this.w - 36) / 8, (this.h - top - foot) / 8, 66)); this.bx = Math.round((this.w - this.cs * 8) / 2); this.by = Math.round(top + Math.max(0, (this.h - top - foot - this.cs * 8) * 0.35)); },
+      layout() { this.geom(); },
+      reset() { this.geom(); const b = new Array(64).fill(-1); b[27] = 1; b[36] = 1; b[28] = 0; b[35] = 0; this.b = b; this.turn = 0; this.wait = 0; this.over = false; this.last = -1; this.ft = new Float32Array(64).fill(9); this.state = 'ready'; },
+      enter() { if (this.net) return; if (this.state !== 'run') this.reset(); },
+      saveS() { QG.save(KEY, { wins: this.wins, lvl: this.lvl }); },
+      mySide() { return this.net ? this.net.side : 0; },
+      who(s) { const N = this.net; return !N ? (s === 0 ? 'You' : 'Computer') : N.side === s ? 'You' : String(N.names[s] || '?').slice(0, 10); },
+      cnt(s) { return count(this.b, s); },
+      play(i, side) {
+        if (this.over || side !== this.turn || i < 0 || i > 63 || (i | 0) !== i) return false;
+        const f = flips(this.b, i, side); if (!f.length) return false;
+        this.b[i] = side; this.ft[i] = 9; f.forEach(k => { this.b[k] = side; const dx = (k % 8) - (i % 8), dy = (k >> 3) - (i >> 3); this.ft[k] = -Math.max(Math.abs(dx), Math.abs(dy)) * 0.06; });
+        this.last = i; sfx(side ? 430 : 330, 0.05, 0.05, 'triangle'); buzz(8);
+        if (f.length >= 5) { this.shake = 0.25; sfx(680, 0.09, 0.04, 'sine'); this.floats.push({ t: '+' + f.length, x: this.bx + (i % 8 + 0.5) * this.cs, y: this.by + ((i >> 3) + 0.2) * this.cs, age: 0, c: 'good' }); }
+        const o = 1 - side;
+        if (moves(this.b, o).length) this.turn = o;
+        else if (moves(this.b, side).length) { this.turn = side; this.floats.push({ t: (o === this.mySide() ? 'No moves, you pass' : this.who(o) + ' passes'), x: this.w / 2, y: this.by + this.cs * 4, age: 0, c: 'bad' }); }
+        else { this.over = true; this.wait = 1.0; }
+        if (!this.over && !this.net && this.turn === 1) this.wait = 0.55;
+        return true;
+      },
+      ai() { const ms = moves(this.b, 1); if (!ms.length) return -1; if (this.lvl === 0 && Math.random() < 0.4) return pick(ms); const r = search(this.b, 1, [1, 3, 5][this.lvl], -1e9, 1e9); return r[1] >= 0 ? r[1] : pick(ms); },
+      end() {
+        const a = this.cnt(0), c = this.cnt(1);
+        if (this.net) { this.mpOver(a === c ? -1 : a > c ? 0 : 1, a === c ? 'Tie ' + a + '-' + c + '.' : Math.max(a, c) + '-' + Math.min(a, c)); return; }
+        this.state = 'dead'; this.dead = 0;
+        if (a > c) { this.wins++; this.msg = 'You win ' + a + '-' + c + '!'; JING('win'); } else { this.msg = a === c ? 'Tie ' + a + '-' + c + '.' : 'Computer wins ' + c + '-' + a + '.'; JING('over'); }
+        this.score = this.wins; this.saveS();
+      },
+      pill(k) { const pw = Math.min(88, (this.w - 50) / 3); return { x: this.w / 2 - pw * 1.5 + k * pw + 3, y: 76, w: pw - 6, h: 32 }; },
+      bind(cv) {
+        cv.addEventListener('pointerdown', e => {
+          const p = ptrPos(cv, e);
+          if (!this.net && (this.state === 'ready' || this.state === 'dead')) for (let k = 0; k < 3; k++) if (QG.hit(this.pill(k), p)) { this.lvl = k; this.saveS(); sfx(520, 0.03, 0.03, 'sine'); return; }
+          if (this.mpTap(cv, e)) return; if (this.state !== 'run') return;
+          const x = Math.floor((p[0] - this.bx) / this.cs), y = Math.floor((p[1] - this.by) / this.cs); if (x < 0 || x > 7 || y < 0 || y > 7) return;
+          const i = y * 8 + x;
+          if (this.net) { if (!this.mpLocal({ i })) sfx(160, 0.04, 0.03, 'square'); return; }
+          if (this.turn === 0 && !this.wait && !this.over) { if (!this.play(i, 0)) sfx(160, 0.04, 0.03, 'square'); }
+        });
+      },
+      tick(dt) {
+        this.decay(dt); if (this.ft) for (let i = 0; i < 64; i++) if (this.ft[i] < 9) this.ft[i] += dt;
+        if (this.state === 'dead') { this.dead += dt; return; } if (this.state !== 'run') return;
+        if (this.wait > 0) { this.wait -= dt; if (this.wait <= 0) { this.wait = 0; if (this.over) this.end(); else if (!this.net && this.turn === 1) { const m = this.ai(); if (m >= 0) this.play(m, 1); } } }
+      },
+      mpTurnSide() { return this.turn; },
+      mpDo(m, side) { return !!m && this.play(m.i | 0, side); },
+      draw() {
+        const c = this.ctx, w = this.w, h = this.h, cs = this.cs, bx = this.bx, by = this.by, N = this.net, me = this.mySide();
+        const SH = s => QG.F(s, 'Shrikhand,serif'), RG = s => QG.F(s, 'Righteous,sans-serif');
+        // sunburst rays behind everything
+        c.save(); c.globalAlpha = 0.12; c.fillStyle = '#fff1c9'; const ox = w / 2, oy = by + cs * 4;
+        for (let k = 0; k < 18; k++) { const a = k * TAU / 18 + this.dead * 0; c.beginPath(); c.moveTo(ox, oy); c.arc(ox, oy, Math.max(w, h) * 1.2, a, a + TAU / 36); c.closePath(); c.fill(); } c.restore();
+        c.save(); if (this.shake > 0) c.translate(rand(-1, 1) * this.shake * 6, rand(-1, 1) * this.shake * 6);
+        QG.T(c, 'Flip Side', w / 2 + 2, 42, SH(36), 'rgba(58,29,14,.35)'); QG.T(c, 'Flip Side', w / 2, 40, SH(36), '#fff4e0');
+        if (N || this.state === 'run') [0, 1].forEach(s => {
+          const x = w / 2 + (s ? 74 : -74), y = 92, act = this.state === 'run' && !this.over && this.turn === s;
+          QG.rr(c, x - 62, y - 22, 124, 44, 22); c.fillStyle = act ? '#fff4e0' : 'rgba(255,244,224,.35)'; c.fill();
+          if (act) { c.strokeStyle = '#3a1d0e'; c.lineWidth = 2.5; c.stroke(); }
+          disc(c, x - 40, y, 12, s, 1);
+          QG.T(c, String(this.b.length ? this.cnt(s) : 2), x - 12, y + 1, RG(22), '#3a1d0e', 'left');
+          QG.T(c, this.who(s), x + 34, y + 1, RG(11), 'rgba(58,29,14,.75)', 'center');
+        });
+        // wood rim + felt
+        const p = Math.max(8, cs * 0.22);
+        c.fillStyle = 'rgba(58,29,14,.35)'; QG.rr(c, bx - p + 4, by - p + 7, cs * 8 + p * 2, cs * 8 + p * 2, 16); c.fill();
+        let g = c.createLinearGradient(bx, by - p, bx + cs * 8, by + cs * 8 + p); g.addColorStop(0, '#a5622f'); g.addColorStop(0.5, '#7b4220'); g.addColorStop(1, '#5e3015'); c.fillStyle = g; QG.rr(c, bx - p, by - p, cs * 8 + p * 2, cs * 8 + p * 2, 16); c.fill();
+        c.strokeStyle = 'rgba(255,220,170,.25)'; c.lineWidth = 1.5; QG.rr(c, bx - p + 2, by - p + 2, cs * 8 + p * 2 - 4, cs * 8 + p * 2 - 4, 14); c.stroke();
+        g = c.createRadialGradient(bx + cs * 3, by + cs * 3, cs, bx + cs * 4, by + cs * 4, cs * 7); g.addColorStop(0, '#2c8a83'); g.addColorStop(1, '#1b5f5a'); c.fillStyle = g; c.fillRect(bx, by, cs * 8, cs * 8);
+        c.strokeStyle = 'rgba(8,40,38,.6)'; c.lineWidth = 1.5; c.beginPath(); for (let k = 0; k <= 8; k++) { c.moveTo(bx + k * cs, by); c.lineTo(bx + k * cs, by + cs * 8); c.moveTo(bx, by + k * cs); c.lineTo(bx + cs * 8, by + k * cs); } c.stroke();
+        c.fillStyle = 'rgba(8,40,38,.8)'; [[2, 2], [6, 2], [2, 6], [6, 6]].forEach(([x, y]) => { c.beginPath(); c.arc(bx + x * cs, by + y * cs, Math.max(2.5, cs * 0.06), 0, TAU); c.fill(); });
+        // legal-move hints for whoever is moving here
+        const myTurn = this.state === 'run' && !this.over && !this.wait && this.turn === me && (!N || N.side >= 0);
+        if (myTurn) { c.fillStyle = 'rgba(255,244,224,.28)'; moves(this.b, me).forEach(i => { c.beginPath(); c.arc(bx + (i % 8 + 0.5) * cs, by + ((i >> 3) + 0.5) * cs, cs * 0.14, 0, TAU); c.fill(); }); }
+        for (let i = 0; i < 64; i++) {
+          const s = this.b[i]; if (s < 0) continue; const t = this.ft[i], x = bx + (i % 8 + 0.5) * cs, y = by + ((i >> 3) + 0.5) * cs, r = cs * 0.4;
+          if (t >= 0.32) disc(c, x, y, r, s, 1); else if (t < 0) disc(c, x, y, r, 1 - s, 1);
+          else { const k = t / 0.32; disc(c, x, y - Math.sin(k * Math.PI) * cs * 0.18, r, k < 0.5 ? 1 - s : s, Math.abs(Math.cos(k * Math.PI))); }
+        }
+        if (this.last >= 0) { c.fillStyle = '#ff8a3d'; c.beginPath(); c.arc(bx + (this.last % 8 + 0.5) * cs, by + ((this.last >> 3) + 0.5) * cs, cs * 0.08, 0, TAU); c.fill(); }
+        const sy = by + cs * 8 + p + 28;
+        if (this.state === 'run' && !this.over) QG.T(c, N ? this.turnName() : this.turn === 0 ? 'your move' : 'thinking...', w / 2, sy, RG(17), '#fff4e0');
+        drawFloats(c, this); c.restore();
+        if (N) this.mpVeil(); else QG.veil1(this, 'Wins vs the computer: ' + this.wins); this.drawFbtn(c);
+        if (!N && (this.state === 'ready' || this.state === 'dead')) for (let k = 0; k < 3; k++) { const b = this.pill(k), on = this.lvl === k; QG.btn(c, b, LV[k], { fill: on ? '#3a1d0e' : 'rgba(255,244,224,.55)', fg: on ? '#fff4e0' : '#3a1d0e', font: RG(13), r: 16 }); }
+      }
+    }, MIX, turnMP('reversi', 'Flip Side'));
+  }
+  skin('flipside', { bg: ['#f2a03d', '#d9572b'], pat: 'speck', patc: 'rgba(90,40,10,.07)', fg: '#3a1d0e', dim: '#7a4424', panel: '#fff4e0', pfg: '#3a1d0e', line: '#3a1d0e', lw: 0, r: 18, pal: ['#1f6f6b', '#f6ead2', '#3a1d0e', '#ffd166'], good: '#fff4e0', bad: '#3a1d0e', font: 'Shrikhand,serif', fw: 400, fs: 1, mono: 'Righteous,sans-serif', mw: 400, ms: 1, veil: 'rgba(226,120,52,.78)', vfg: '#fff4e0', slide: '#d9572b', sbgc: '#d9572b', sfg: '#fff4e0', sdim: '#ffe0b8', stag: '#fff4e0', tsize: 32, tfw: 400, tls: '0', frame: '' });
+  NEW_SLIDES.push(mk(makeReversi(SKINS.flipside), 'Flip Side', SKINS.flipside, 'The classic flipping-disc board game in a groovy 70s box. Trap a line and watch it flip. Easy, normal or hard computer, or send a friend a lobby code.', '#reversi #boardgame #2player', 11.2e9, 2.6e9, 1.7e9, 'reversi'));
+
+  /* ----- Four Ways: sort 16 words into 4 hidden groups of 4 (inspired by daily word-group puzzles) ----- */
+  function makeGroups(sk) {
+    const KEY = 'fourways';
+    /* each puzzle: 4 groups, easiest first. Words in each group are unique across the puzzle. */
+    const PZ = [
+      [['Shades of blue', 'NAVY', 'TEAL', 'SKY', 'ROYAL'], ['Card games', 'SNAP', 'POKER', 'RUMMY', 'BRIDGE'], ['___ball', 'FOOT', 'BASKET', 'SNOW', 'EYE'], ['Hidden animals', 'BEARD', 'CATCH', 'PIGMENT', 'RATIO']],
+      [['Pizza toppings', 'PEPPERONI', 'ONION', 'OLIVE', 'HAM'], ['Planets', 'MARS', 'VENUS', 'EARTH', 'SATURN'], ['In a toolbox', 'HAMMER', 'WRENCH', 'PLIERS', 'LEVEL'], ['___ star', 'ROCK', 'SHOOTING', 'MOVIE', 'NORTH']],
+      [['Kitchen tools', 'WHISK', 'LADLE', 'GRATER', 'SPATULA'], ['Chess pieces', 'KING', 'QUEEN', 'BISHOP', 'ROOK'], ['Fish', 'SALMON', 'COD', 'TUNA', 'BASS'], ['___fly', 'BUTTER', 'DRAGON', 'FIRE', 'HORSE']],
+      [['Weather', 'HAIL', 'SNOW', 'FOG', 'SLEET'], ['Dog breeds', 'BOXER', 'POODLE', 'BEAGLE', 'PUG'], ['Shoes', 'BOOT', 'SANDAL', 'LOAFER', 'SNEAKER'], ['___coat', 'RAIN', 'TRENCH', 'PEA', 'OVER']],
+      [['Social media actions', 'LIKE', 'SHARE', 'FOLLOW', 'POST'], ['Shades of green', 'OLIVE', 'MINT', 'JADE', 'SAGE'], ['Citrus', 'LEMON', 'LIME', 'ORANGE', 'KUMQUAT'], ['Things with rings', 'SATURN', 'TREE', 'PHONE', 'CIRCUS']],
+      [['Breakfast', 'TOAST', 'CEREAL', 'WAFFLE', 'BAGEL'], ['Things you crack', 'EGG', 'JOKE', 'CODE', 'KNUCKLES'], ['Board games', 'RISK', 'CLUE', 'SORRY', 'LIFE'], ['___cake', 'PAN', 'CUP', 'CHEESE', 'SPONGE']],
+      [['Insects', 'ANT', 'BEETLE', 'WASP', 'MOTH'], ['Car parts', 'HOOD', 'TRUNK', 'BUMPER', 'MIRROR'], ['Sports', 'GOLF', 'RUGBY', 'CRICKET', 'SQUASH'], ['Shirts', 'TEE', 'TANK', 'POLO', 'HENLEY']],
+      [['In the sky', 'CLOUD', 'KITE', 'MOON', 'PLANE'], ['Trees', 'OAK', 'ASH', 'ELM', 'BIRCH'], ['Hand___', 'SHAKE', 'BAG', 'CUFF', 'BOOK'], ['___apple', 'PINE', 'CRAB', 'BIG', 'CANDY']],
+      [['Cheese', 'BRIE', 'FETA', 'GOUDA', 'CHEDDAR'], ['Coffee orders', 'LATTE', 'MOCHA', 'ESPRESSO', 'CORTADO'], ['Gym equipment', 'BENCH', 'ROWER', 'KETTLEBELL', 'TREADMILL'], ['In a courtroom', 'JUDGE', 'JURY', 'GAVEL', 'VERDICT']],
+      [['Game genres', 'SHOOTER', 'PUZZLE', 'RACING', 'PLATFORMER'], ['Controller parts', 'TRIGGER', 'BUMPER', 'STICK', 'D-PAD'], ['Mountain words', 'PEAK', 'RIDGE', 'SUMMIT', 'CLIFF'], ['___ boss', 'FINAL', 'MINI', 'CRIME', 'BIG']],
+      [['Bodies of water', 'LAKE', 'POND', 'LAGOON', 'OCEAN'], ['Dips', 'GUAC', 'HUMMUS', 'QUESO', 'RANCH'], ['Dances', 'TANGO', 'WALTZ', 'POLKA', 'SALSA'], ['Radio alphabet', 'ALPHA', 'BRAVO', 'ECHO', 'GOLF']],
+      [['Pasta', 'PENNE', 'ORZO', 'FUSILLI', 'RIGATONI'], ['Star signs', 'LEO', 'ARIES', 'LIBRA', 'VIRGO'], ['Has a shell', 'TURTLE', 'EGG', 'TACO', 'SNAIL'], ['Has scales', 'FISH', 'PIANO', 'MAP', 'DRAGON']],
+      [['On a bed', 'PILLOW', 'SHEET', 'DUVET', 'BLANKET'], ['Superpowers', 'FLIGHT', 'SPEED', 'STRENGTH', 'X-RAY'], ['At the airport', 'GATE', 'RUNWAY', 'TERMINAL', 'CUSTOMS'], ['Hidden body parts', 'CHARM', 'SHIPS', 'LEARN', 'CHINA']],
+      [['Units of time', 'SECOND', 'MINUTE', 'HOUR', 'DECADE'], ['Medals', 'GOLD', 'SILVER', 'BRONZE', 'PLATINUM'], ['Steak cuts', 'RIBEYE', 'SIRLOIN', 'FLANK', 'T-BONE'], ['Things that buzz', 'BEE', 'PHONE', 'ALARM', 'RAZOR']],
+      [['Shapes', 'CIRCLE', 'OVAL', 'HEXAGON', 'TRIANGLE'], ['Morning drinks', 'TEA', 'JUICE', 'SMOOTHIE', 'COCOA'], ['Ice cream flavours', 'VANILLA', 'PISTACHIO', 'STRAWBERRY', 'COFFEE'], ['___ dance', 'SQUARE', 'TAP', 'BREAK', 'LINE']],
+      [['In a wallet', 'CASH', 'CARD', 'RECEIPT', 'PHOTO'], ['Breads', 'RYE', 'NAAN', 'PITA', 'SOURDOUGH'], ['Camera words', 'LENS', 'SHUTTER', 'ZOOM', 'TRIPOD'], ['___light', 'FLASH', 'MOON', 'SPOT', 'TRAFFIC']],
+      [['Sea animals', 'SHARK', 'WHALE', 'OCTOPUS', 'SQUID'], ['Card suits', 'HEARTS', 'CLUBS', 'SPADES', 'DIAMONDS'], ['Garden tools', 'RAKE', 'HOE', 'SHEARS', 'TROWEL'], ['Golf words', 'TEE', 'PUTT', 'BIRDIE', 'EAGLE']],
+      [['In space', 'COMET', 'NEBULA', 'QUASAR', 'PULSAR'], ['Hairstyles', 'BOB', 'BUN', 'MULLET', 'BRAID'], ['Birds', 'ROBIN', 'FINCH', 'WREN', 'CROW'], ['Fast', 'QUICK', 'RAPID', 'SWIFT', 'BRISK']],
+      [['Has buttons', 'SHIRT', 'REMOTE', 'ELEVATOR', 'CONTROLLER'], ['Train things', 'TRACK', 'STATION', 'PLATFORM', 'CABOOSE'], ['Things you flip', 'COIN', 'PANCAKE', 'SWITCH', 'PAGE'], ['Snow___', 'MAN', 'BALL', 'FLAKE', 'BOARD']],
+      [['Teeth', 'MOLAR', 'CANINE', 'INCISOR', 'WISDOM'], ['Units', 'INCH', 'YARD', 'MILE', 'METER'], ['Has a tail', 'KITE', 'COMET', 'DOG', 'COIN'], ['___print', 'FOOT', 'FINGER', 'BLUE', 'FINE']],
+      [['Desserts', 'PIE', 'FLAN', 'CRUMBLE', 'MOUSSE'], ['Greek letters', 'PI', 'BETA', 'OMEGA', 'SIGMA'], ['Phone ___', 'CASE', 'CALL', 'BOOK', 'CHARGER'], ['Sour', 'TART', 'SHARP', 'ACIDIC', 'TANGY']],
+      [['Farm animals', 'GOAT', 'SHEEP', 'PIG', 'COW'], ['Shades of white', 'IVORY', 'PEARL', 'CREAM', 'LINEN'], ['Has a horn', 'RHINO', 'CAR', 'BULL', 'UNICORN'], ['___work', 'HOME', 'TEAM', 'NET', 'FIRE']],
+      [['Instruments', 'FLUTE', 'CELLO', 'HARP', 'TUBA'], ['In a deck of cards', 'ACE', 'JOKER', 'JACK', 'KING'], ['___box', 'LUNCH', 'JUKE', 'SAND', 'SHOE'], ['Things that roll', 'DICE', 'CREDITS', 'DRUM', 'THUNDER']],
+      [['Snakes', 'COBRA', 'VIPER', 'MAMBA', 'ADDER'], ['___ pie', 'APPLE', 'PUMPKIN', 'PECAN', 'MUD'], ['Fruit with a pit', 'PEACH', 'PLUM', 'CHERRY', 'AVOCADO'], ['Coding languages', 'PYTHON', 'JAVA', 'RUBY', 'SWIFT']],
+    ];
+    const GC = ['#ffd45e', '#93d67e', '#8ec3ff', '#d39bff'];
+    const F = (s, wt) => QG.F(s, '"Space Grotesk","Bricolage Grotesque",sans-serif', wt || 700);
+    const sv = QG.load(KEY, { n: 0, solved: 0, streak: 0 });
+    return Object.assign({
+      sk, noVeil: true, title: 'Four Ways', how: 'Find four groups of four.', fsAspect: 0.7,
+      state: 'ready', score: 0, best: 0, dead: 0, shake: 0, flash: 0, floats: [],
+      n: sv.n | 0, solved: sv.solved | 0, streak: sv.streak | 0, tiles: [], sel: [], found: [], left: 4, tried: [], toast: '', toastT: 0, jig: 0, reveal: 0, won: false, popT: 0, t: 0,
+      geom() {
+        const w = this.w, h = this.h, pad = 14, gap = 8;
+        this.tw = Math.floor((Math.min(w, 520) - pad * 2 - gap * 3) / 4); this.gap = gap;
+        this.th = Math.floor(Math.max(44, Math.min(this.tw * 0.78, (h - 280) / 4 - gap)));
+        this.gx = Math.round((w - this.tw * 4 - gap * 3) / 2); this.gy = Math.round(Math.max(96, (h - (this.th * 4 + gap * 3) - 150) * 0.45));
+        const by = this.gy + this.th * 4 + gap * 3 + 62, bw = Math.min(118, (Math.min(w, 520) - 40) / 3);
+        this.bShuf = { x: w / 2 - bw * 1.5 - 8, y: by, w: bw, h: 42 }; this.bClr = { x: w / 2 - bw / 2, y: by, w: bw, h: 42 }; this.bGo = { x: w / 2 + bw / 2 + 8, y: by, w: bw, h: 42 };
+        this.bPlay = { x: w / 2 - 100, y: h * 0.62, w: 200, h: 50 };
+      },
+      layout() { this.geom(); },
+      load() {
+        const P = PZ[this.n % PZ.length]; this.P = P; this.tiles = shuf(P.flatMap((g, gi) => g.slice(1).map(word => ({ word, g: gi })))); this.sel = []; this.found = []; this.left = 4; this.tried = []; this.toast = ''; this.won = false; this.reveal = 0;
+      },
+      reset() { this.geom(); this.load(); this.state = 'ready'; },
+      enter() { if (this.state !== 'run') this.reset(); },
+      save() { QG.save(KEY, { n: this.n, solved: this.solved, streak: this.streak }); },
+      cell(k) { const r = this.found.length + Math.floor(k / 4), q = k % 4; return { x: this.gx + q * (this.tw + this.gap), y: this.gy + r * (this.th + this.gap), w: this.tw, h: this.th }; },
+      rowBox(r) { return { x: this.gx, y: this.gy + r * (this.th + this.gap), w: this.tw * 4 + this.gap * 3, h: this.th }; },
+      say(s) { this.toast = s; this.toastT = 1.6; },
+      submit() {
+        if (this.sel.length !== 4 || this.state !== 'run') return;
+        const ws = this.sel.map(k => this.tiles[k].word).sort(), key = ws.join('|');
+        if (this.tried.includes(key)) { this.say('Already guessed!'); return; }
+        this.tried.push(key);
+        const gs = this.sel.map(k => this.tiles[k].g), cnt = {}; gs.forEach(g => cnt[g] = (cnt[g] || 0) + 1); const top = Math.max(...Object.values(cnt));
+        if (top === 4) {
+          const g = gs[0], rest = this.tiles.filter((t, k) => !this.sel.includes(k)); this.found.push(g); this.tiles = rest; this.sel = []; this.popT = 0.5;
+          sfx(520, 0.08, 0.05, 'sine'); setTimeout(() => sfx(780, 0.1, 0.05, 'sine'), 90); buzz(15);
+          if (this.found.length === 4) this.finishP(true);
+        } else {
+          this.left--; this.jig = 0.45; sfx(170, 0.12, 0.05, 'square'); buzz(40);
+          if (top === 3) this.say('One away...');
+          if (this.left <= 0) this.finishP(false);
+        }
+      },
+      finishP(won) {
+        this.won = won; this.sel = [];
+        if (won) { this.solved++; this.streak++; this.score = this.solved; JING('win'); this.say(['Nice!', 'Brilliant!', 'Got it!', 'Perfect!'][Math.min(3, this.left - 1)] || 'Nice!'); }
+        else { this.streak = 0; JING('over'); }
+        this.best = Math.max(this.best, this.score); this.n++; this.save();
+        this.reveal = 0; this.state = 'dead'; this.dead = 0;
+      },
+      tap(p) {
+        if (this.state === 'ready') { if (QG.hit(this.bPlay, p)) { this.state = 'run'; JING('start'); } return; }
+        if (this.state === 'dead') { if (this.dead > 0.8 && QG.hit(this.bPlay, p)) { this.load(); this.state = 'run'; JING('start'); } return; }
+        for (let k = 0; k < this.tiles.length; k++) if (QG.hit(this.cell(k), p)) { const i = this.sel.indexOf(k); if (i >= 0) this.sel.splice(i, 1); else if (this.sel.length < 4) this.sel.push(k); sfx(i >= 0 ? 380 : 460, 0.025, 0.03, 'triangle'); return; }
+        if (QG.hit(this.bShuf, p)) { const keep = this.sel.map(k => this.tiles[k]); this.tiles = shuf(this.tiles); this.sel = keep.map(t => this.tiles.indexOf(t)); sfx(300, 0.05, 0.03, 'triangle'); }
+        else if (QG.hit(this.bClr, p)) this.sel = [];
+        else if (QG.hit(this.bGo, p)) this.submit();
+      },
+      bind(cv) { cv.addEventListener('pointerdown', e => this.tap(ptrPos(cv, e))); },
+      key(e) {
+        if (e.type !== 'keydown') return false;
+        if (e.code === 'Enter' || e.code === 'Space') { if (this.state === 'run') this.submit(); else this.tap([this.bPlay.x + 5, this.bPlay.y + 5]); return true; }
+        return false;
+      },
+      tick(dt) {
+        this.t += dt; this.decay(dt); this.toastT = Math.max(0, this.toastT - dt); this.jig = Math.max(0, this.jig - dt); this.popT = Math.max(0, this.popT - dt);
+        if (this.state === 'dead') { this.dead += dt; this.reveal += dt; }
+      },
+      fitText(c, s, x, y, maxW, size, col) { let f = size; c.font = F(f); while (f > 8 && c.measureText(s).width > maxW) { f -= 1; c.font = F(f); } QG.T(c, s, x, y, F(f), col); },
+      drawRow(c, r, g, a) {
+        const b = this.rowBox(r), P = this.P[g]; c.globalAlpha = a; QG.rr(c, b.x, b.y, b.w, b.h, 12); c.fillStyle = GC[g]; c.fill();
+        this.fitText(c, P[0].toUpperCase(), b.x + b.w / 2, b.y + b.h * 0.36, b.w - 20, 16, '#1d1d1f');
+        c.font = F(13, 500); this.fitText(c, P.slice(1).join(', '), b.x + b.w / 2, b.y + b.h * 0.68, b.w - 20, 13, 'rgba(29,29,31,.8)'); c.globalAlpha = 1;
+      },
+      draw() {
+        const c = this.ctx, w = this.w, h = this.h;
+        c.fillStyle = '#fbf8f1'; c.fillRect(-this.ox, -this.oy, this.W, this.H);
+        c.strokeStyle = 'rgba(30,30,40,.05)'; c.lineWidth = 1; for (let y = (-this.oy % 24); y < h + 40; y += 24) { c.beginPath(); c.moveTo(-this.ox, y); c.lineTo(w + this.ox, y); c.stroke(); }
+        if (this.state === 'ready') {
+          const s = Math.min(44, this.tw * 0.45), x0 = w / 2 - s * 2 - 6, y0 = h * 0.2;
+          for (let k = 0; k < 16; k++) { const q = k % 4, r = Math.floor(k / 4), bob = Math.sin(this.t * 2 + k * 0.7) * 2; QG.rr(c, x0 + q * (s + 4), y0 + r * (s + 4) + bob, s, s, 7); c.fillStyle = GC[r]; c.fill(); }
+          QG.T(c, 'Four Ways', w / 2, y0 + s * 4 + 52, F(40), '#1d1d1f');
+          QG.T(c, 'Find four groups of four.', w / 2, y0 + s * 4 + 88, F(16, 500), '#55555c');
+          QG.T(c, 'Puzzle #' + (this.n % PZ.length + 1) + (this.n >= PZ.length ? ' (round ' + (Math.floor(this.n / PZ.length) + 1) + ')' : ''), w / 2, y0 + s * 4 + 114, F(13, 500), '#8a8a92');
+          QG.btn(c, this.bPlay, 'Play', { fill: '#1d1d1f', fg: '#fff', font: F(18), r: 25 });
+          if (this.solved) QG.T(c, 'Solved ' + this.solved + '  ·  Streak ' + this.streak, w / 2, this.bPlay.y + 76, F(13, 500), '#8a8a92');
+          return;
+        }
+        QG.T(c, 'Four Ways', w / 2, 34, F(22), '#1d1d1f'); QG.T(c, 'Puzzle #' + ((this.state === 'dead' ? this.n - 1 : this.n) % PZ.length + 1), w / 2, 58, F(12, 500), '#8a8a92');
+        // solved rows
+        this.found.forEach((g, r) => this.drawRow(c, r, g, r === this.found.length - 1 && this.popT > 0 ? 1 - this.popT : 1));
+        if (this.state === 'dead') {
+          const miss = [0, 1, 2, 3].filter(g => !this.found.includes(g));
+          miss.forEach((g, i) => { const a = Math.max(0, Math.min(1, (this.reveal - i * 0.35) * 3)); if (a > 0) this.drawRow(c, this.found.length + i, g, a); });
+          const y = this.rowBox(3).y + this.th + 34;
+          QG.T(c, this.won ? (this.left === 4 ? 'Perfect!' : 'Solved!') : 'Next time!', w / 2, y, F(26), '#1d1d1f');
+          QG.T(c, 'Solved ' + this.solved + '  ·  Streak ' + this.streak, w / 2, y + 28, F(13, 500), '#55555c');
+          this.bPlay = { x: w / 2 - 100, y: Math.min(h - 62, y + 50), w: 200, h: 50 };
+          if (this.dead > 0.8) QG.btn(c, this.bPlay, 'Next puzzle', { fill: '#1d1d1f', fg: '#fff', font: F(17), r: 25 });
+          return;
+        }
+        // tiles
+        const jx = this.jig > 0 ? Math.sin(this.jig * 60) * 5 * this.jig / 0.45 : 0;
+        this.tiles.forEach((t, k) => {
+          const b = this.cell(k), on = this.sel.includes(k), dx = on ? jx : 0;
+          QG.rr(c, b.x + dx, b.y, b.w, b.h, 10); c.fillStyle = on ? '#5a594e' : '#efeadc'; c.fill();
+          this.fitText(c, t.word, b.x + b.w / 2 + dx, b.y + b.h / 2 + 1, b.w - 10, Math.min(16, b.h * 0.34), on ? '#fff' : '#1d1d1f');
+        });
+        const ly = this.gy + this.th * 4 + this.gap * 3 + 26;
+        QG.T(c, 'Mistakes left:', w / 2 - 34, ly, F(13, 500), '#55555c');
+        for (let i = 0; i < 4; i++) { c.fillStyle = i < this.left ? '#5a594e' : 'rgba(90,89,78,.18)'; c.beginPath(); c.arc(w / 2 + 30 + i * 18, ly, 6, 0, TAU); c.fill(); }
+        const ok = this.sel.length === 4;
+        QG.btn(c, this.bShuf, 'Shuffle', { fill: '#fbf8f1', fg: '#1d1d1f', line: '#1d1d1f', lw: 1.5, font: F(14), r: 21 });
+        QG.btn(c, this.bClr, 'Deselect', { fill: '#fbf8f1', fg: this.sel.length ? '#1d1d1f' : '#aaa', line: this.sel.length ? '#1d1d1f' : '#ccc', lw: 1.5, font: F(14), r: 21 });
+        QG.btn(c, this.bGo, 'Submit', { fill: ok ? '#1d1d1f' : '#fbf8f1', fg: ok ? '#fff' : '#aaa', line: ok ? '#1d1d1f' : '#ccc', lw: 1.5, font: F(14), r: 21 });
+        if (this.toastT > 0) { const a = Math.min(1, this.toastT * 3); c.globalAlpha = a; c.font = F(15); const tw = c.measureText(this.toast).width + 32; QG.rr(c, w / 2 - tw / 2, this.gy - 46, tw, 34, 8); c.fillStyle = '#1d1d1f'; c.fill(); QG.T(c, this.toast, w / 2, this.gy - 29, F(15), '#fff'); c.globalAlpha = 1; }
+      }
+    }, MIX);
+  }
+  skin('fourways', { bg: ['#fbf8f1', '#f4efe2'], pat: 'none', patc: 'rgba(0,0,0,0)', fg: '#1d1d1f', dim: '#8a8a92', panel: '#ffffff', pfg: '#1d1d1f', line: '#1d1d1f', lw: 1.5, r: 10, pal: ['#1d1d1f', '#ffd45e', '#93d67e', '#d39bff'], good: '#4e9a3c', bad: '#d0453a', font: '"Space Grotesk",sans-serif', fw: 700, fs: 1, mono: '"Space Grotesk",sans-serif', mw: 500, ms: 1, veil: 'rgba(251,248,241,.85)', vfg: '#1d1d1f', slide: '#f4efe2', sbgc: '#f4efe2', sfg: '#1d1d1f', sdim: '#55555c', stag: '#7a5cc4', tsize: 30, tfw: 700, tls: '-.01em', frame: '' });
+  NEW_SLIDES.push(mk(makeGroups(SKINS.fourways), 'Four Ways', SKINS.fourways, '16 words, 4 hidden groups, 4 mistakes. Watch out, some words look like they fit two groups. 24 puzzles and a streak to keep alive.', '#wordgame #puzzle #dailypuzzle', 13.6e9, 4.1e9, 2.5e9, 'groups'));
+
+  /* ----- Jet Lab: hold to fly a jetpack down an endless lab hallway (inspired by jetpack runners) ----- */
+  function makeJetLab(sk) {
+    const KEY = 'jetlab', sv = QG.load(KEY, { best: 0, coins: 0 });
+    const FN = s => QG.F(s, 'Bungee,"Titan One",sans-serif', 400);
+    return Object.assign({
+      sk, hold: true, title: 'Jet Lab', how: 'Hold to fly up, let go to fall. Dodge the zappers and the missiles, grab the coins.', fsAspect: 0.75,
+      state: 'ready', score: 0, best: sv.best | 0, dead: 0, shake: 0, flash: 0, floats: [],
+      coins: sv.coins | 0, run: 0, held: false, t: 0, y: 0, vy: 0, spd: 0, dist: 0, gap: 0, zs: [], ms: [], cs: [], fx: [], dying: 0, slide: 0, scroll: 0,
+      geom() { const h = this.h; this.top = 70; this.floor = h - Math.max(46, h * 0.08); this.px = Math.max(70, this.w * 0.26); this.pr = clamp(h * 0.024, 11, 17); },
+      layout() { this.geom(); },
+      reset() { this.geom(); this.y = this.floor - this.pr * 1.4; this.vy = 0; this.spd = 270; this.dist = 0; this.gap = 380; this.zs = []; this.ms = []; this.cs = []; this.fx = []; this.dying = 0; this.slide = 0; this.run = 0; this.score = 0; this.held = false; this.floats = []; this.state = 'ready'; },
+      enter() { if (this.state !== 'run') this.reset(); },
+      bind(cv) {
+        cv.addEventListener('pointerdown', () => { if (this.kick()) { if (this.state === 'run') this.held = true; return; } this.held = true; });
+        const up = () => { this.held = false; };
+        cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', up); cv.addEventListener('pointerleave', up);
+      },
+      key(e) {
+        if (e.code !== 'Space' && e.code !== 'ArrowUp' && e.code !== 'KeyW') return false;
+        if (e.type === 'keydown') { if (!e.repeat && this.kick()) { if (this.state === 'run') this.held = true; return true; } this.held = true; } else if (e.type === 'keyup') this.held = false;
+        return true;
+      },
+      spawn() {
+        const lo = this.top + 30, hi = this.floor - 30, H = hi - lo, x = this.w + 60, d = this.dist, r = Math.random();
+        if (r < 0.42 || d < 200) {
+          const coinsY = lo + rand(0.1, 0.9) * H, rows = 2 + ((Math.random() * 3) | 0), cols = 5 + ((Math.random() * 6) | 0), wave = Math.random() < 0.4;
+          for (let i = 0; i < cols; i++) for (let j = 0; j < rows; j++) { const cy = coinsY + (j - rows / 2) * 24 + (wave ? Math.sin(i * 0.7) * 34 : 0); if (cy > lo && cy < hi) this.cs.push({ x: x + i * 26, y: cy }); }
+          this.gap = cols * 26 + rand(120, 220);
+          if (d > 200 && Math.random() < 0.5) this.zap(x + cols * 13, lo, H);
+        } else if (r < 0.82 || d < 500) { this.zap(x, lo, H); this.gap = rand(230, 360) * (300 / this.spd) * 1.15 + 120; }
+        else { this.ms.push({ warn: 1.35, y: this.y, x: this.w + 40 }); if (d > 1500 && Math.random() < 0.35) this.ms.push({ warn: 1.8, y: this.y, x: this.w + 40 }); this.gap = rand(180, 300); }
+      },
+      zap(x, lo, H) {
+        const L = rand(0.2, 0.36) * H, kind = pick(['h', 'v', 'v', 'd', 'd', 'spin']), a = kind === 'h' ? 0 : kind === 'v' ? Math.PI / 2 : kind === 'd' ? pick([Math.PI / 4, -Math.PI / 4]) : rand(0, Math.PI);
+        const cy = lo + L / 2 * Math.abs(Math.sin(a)) + rand(0, 1) * (H - L * Math.abs(Math.sin(a)));
+        this.zs.push({ x, y: cy, L, a, va: kind === 'spin' ? pick([-1, 1]) * rand(1.2, 2.2) : 0 });
+      },
+      ends(z) { const dx = Math.cos(z.a) * z.L / 2, dy = Math.sin(z.a) * z.L / 2; return [z.x - dx, z.y - dy, z.x + dx, z.y + dy]; },
+      die(why) {
+        if (this.dying) return; this.dying = 0.001; this.flash = 0.6; this.shake = 1; this.held = false; this.vy = Math.min(this.vy, -200); sfx(120, 0.4, 0.08, 'sawtooth'); sfx(60, 0.5, 0.06, 'square'); buzz(80);
+        for (let i = 0; i < 26; i++) { const a = rand(0, TAU), v = rand(80, 360); this.fx.push({ x: this.px, y: this.y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, t: 0, life: rand(0.3, 0.7), c: pick(['#fff6a8', '#7ff3ff', '#ffffff']), s: rand(2, 5) }); }
+        this.msg = why;
+      },
+      tick(dt) {
+        this.decay(dt); this.t += dt; dt = Math.min(dt, 0.04);
+        QG.stepParts(this.fx, dt, 600);
+        if (this.state === 'dead') { this.dead += dt; return; }
+        if (this.state !== 'run') { this.scroll += 60 * dt; this.y = this.floor - this.pr * 1.4 + Math.sin(this.t * 2) * 3; return; }
+        const pr = this.pr;
+        if (this.dying) {
+          this.dying += dt; this.vy += 1700 * dt; this.y += this.vy * dt; const fy = this.floor - pr;
+          if (this.y > fy) { this.y = fy; this.vy = -Math.abs(this.vy) * 0.35; if (Math.abs(this.vy) < 60) this.vy = 0; }
+          this.spd = Math.max(0, this.spd - 420 * dt); this.dist += this.spd * dt / 10; this.scroll += this.spd * dt;
+          this.zs.forEach(z => { z.x -= this.spd * dt; z.a += z.va * dt; }); this.cs.forEach(o => o.x -= this.spd * dt); this.ms.forEach(m => { if (m.warn <= 0) m.x -= (this.spd + 650) * dt; });
+          if (this.spd <= 0 && this.dying > 1) { this.score = Math.floor(this.dist); const m = this.msg; this.finish(); this.msg = m || this.msg; this.best = Math.max(this.best, this.score); QG.save(KEY, { best: this.best, coins: this.coins }); }
+          return;
+        }
+        this.run += dt; this.spd = Math.min(560, 270 + this.run * 6.5);
+        // fly
+        if (this.held) { this.vy -= 2900 * dt; if (Math.random() < 0.9) this.fx.push({ x: this.px - pr * 0.9, y: this.y + pr * 0.9, vx: rand(-90, -30) - this.spd * 0.3, vy: rand(160, 320), t: 0, life: rand(0.18, 0.32), c: pick(['#ffb347', '#ffd166', '#ff6a3d', '#fff2b0']), s: rand(3, 6) }); }
+        this.vy += 1500 * dt; this.vy = clamp(this.vy, -620, 760); this.y += this.vy * dt;
+        if (this.y < this.top + pr) { this.y = this.top + pr; this.vy = Math.max(0, this.vy); }
+        if (this.y > this.floor - pr) { this.y = this.floor - pr; this.vy = Math.min(0, this.vy); }
+        if (this.held && Math.floor(this.t * 14) !== Math.floor((this.t - dt) * 14)) sfx(rand(90, 130), 0.04, 0.015, 'sawtooth');
+        // world
+        const dx = this.spd * dt; this.dist += dx / 10; this.scroll += dx; this.score = Math.floor(this.dist);
+        this.gap -= dx; if (this.gap <= 0) this.spawn();
+        for (const z of this.zs) { z.x -= dx; z.a += z.va * dt; const [x0, y0, x1, y1] = this.ends(z), vx = x1 - x0, vy = y1 - y0, L2 = vx * vx + vy * vy, k = clamp(((this.px - x0) * vx + (this.y - y0) * vy) / L2, 0, 1), ex = x0 + vx * k - this.px, ey = y0 + vy * k - this.y; if (ex * ex + ey * ey < (pr * 0.82 + 5) ** 2) this.die('Zapped.'); }
+        for (const m of this.ms) {
+          if (m.warn > 0) { m.warn -= dt; if (m.warn > 0.45) m.y += (this.y - m.y) * Math.min(1, dt * 5); if (m.warn <= 0) sfx(300, 0.3, 0.04, 'sawtooth'); else if (Math.floor(m.warn * 6) !== Math.floor((m.warn + dt) * 6)) sfx(1200, 0.03, 0.02, 'square'); }
+          else { m.x -= (this.spd + 650) * dt; if (Math.random() < 0.8) this.fx.push({ x: m.x + 20, y: m.y + rand(-3, 3), vx: rand(40, 120), vy: rand(-30, 30), t: 0, life: 0.35, c: pick(['#ccc', '#999', '#ffb347']), s: rand(3, 7) }); if (Math.hypot(m.x - this.px, m.y - this.y) < pr + 9) { this.die('Missile.'); this.shake = 1.2; } }
+        }
+        for (let i = this.cs.length - 1; i >= 0; i--) { const o = this.cs[i]; o.x -= dx; if (Math.abs(o.x - this.px) < pr + 9 && Math.abs(o.y - this.y) < pr + 9) { this.cs.splice(i, 1); this.coins++; sfx(1320 + (this.coins % 4) * 90, 0.04, 0.025, 'square'); } }
+        this.zs = this.zs.filter(z => z.x > -z.L); this.ms = this.ms.filter(m => m.x > -60); this.cs = this.cs.filter(o => o.x > -20);
+      },
+      drawGuy(c, x, y, pr, tilt) {
+        c.save(); c.translate(x, y); c.rotate(tilt);
+        // jetpack
+        c.fillStyle = '#6b7383'; QG.rr(c, -pr * 1.25, -pr * 0.55, pr * 0.62, pr * 1.3, 4); c.fill();
+        c.fillStyle = '#c33d2e'; QG.rr(c, -pr * 1.18, -pr * 0.5, pr * 0.22, pr * 1.1, 3); c.fill();
+        c.fillStyle = '#3a404c'; c.fillRect(-pr * 1.2, pr * 0.72, pr * 0.5, pr * 0.22);
+        // legs
+        c.fillStyle = '#28324a'; QG.rr(c, -pr * 0.45, pr * 0.35, pr * 0.32, pr * 0.85, 3); c.fill(); QG.rr(c, pr * 0.02, pr * 0.35, pr * 0.32, pr * 0.85, 3); c.fill();
+        c.fillStyle = '#111'; c.fillRect(-pr * 0.5, pr * 1.12, pr * 0.42, pr * 0.16); c.fillRect(-0.02 * pr, pr * 1.12, pr * 0.42, pr * 0.16);
+        // lab coat
+        c.fillStyle = '#f2f4f7'; QG.rr(c, -pr * 0.62, -pr * 0.55, pr * 1.15, pr * 1.15, 6); c.fill();
+        c.fillStyle = '#d7dbe2'; c.fillRect(-pr * 0.05, -pr * 0.5, pr * 0.08, pr * 1.05);
+        c.fillStyle = '#4ac0b4'; c.fillRect(pr * 0.12, -pr * 0.25, pr * 0.26, pr * 0.2);
+        // arm
+        c.fillStyle = '#e8ebf0'; QG.rr(c, -pr * 0.15, -pr * 0.3, pr * 0.3, pr * 0.75, 4); c.fill(); c.fillStyle = '#f0c49a'; c.beginPath(); c.arc(0, pr * 0.5, pr * 0.16, 0, TAU); c.fill();
+        // head
+        c.fillStyle = '#f0c49a'; c.beginPath(); c.arc(pr * 0.02, -pr * 0.98, pr * 0.5, 0, TAU); c.fill();
+        c.fillStyle = '#3b2a1e'; c.beginPath(); c.arc(-pr * 0.05, -pr * 1.12, pr * 0.5, Math.PI * 0.95, Math.PI * 2.05); c.fill();
+        c.fillStyle = '#2a2a2a'; c.fillRect(pr * 0.1, -pr * 1.05, pr * 0.36, pr * 0.16); c.fillStyle = '#9fe7ff'; c.fillRect(pr * 0.14, -pr * 1.03, pr * 0.28, pr * 0.1);
+        c.restore();
+      },
+      draw() {
+        const c = this.ctx, w = this.w, h = this.h, top = this.top, fl = this.floor, s = this.scroll, pr = this.pr;
+        // back wall
+        let g = c.createLinearGradient(0, -this.oy, 0, h); g.addColorStop(0, '#16213a'); g.addColorStop(1, '#2a3a5c'); c.fillStyle = g; c.fillRect(-this.ox, -this.oy, this.W, this.H);
+        // far windows: night city
+        const ww = 260, o1 = -((s * 0.35) % ww);
+        for (let x = o1 - ww; x < w + ww; x += ww) {
+          const wy = top + (fl - top) * 0.16, wh = (fl - top) * 0.46;
+          c.fillStyle = '#0b1224'; QG.rr(c, x + 30, wy, ww - 60, wh, 8); c.fill();
+          const R = mulberry(Math.floor((x - o1) / ww) + Math.floor((s * 0.35) / ww) * 7 + 99);
+          for (let b = 0; b < 6; b++) { const bx = x + 34 + b * (ww - 68) / 6, bh = wh * (0.3 + R() * 0.6); c.fillStyle = '#1b2846'; c.fillRect(bx, wy + wh - bh, (ww - 68) / 6 - 3, bh); c.fillStyle = 'rgba(255,214,120,.55)'; for (let q = 0; q < 5; q++) if (R() < 0.5) c.fillRect(bx + 3 + R() * ((ww - 68) / 6 - 10), wy + wh - bh + 5 + R() * (bh - 10), 3, 3); }
+          c.strokeStyle = '#4a5c82'; c.lineWidth = 6; QG.rr(c, x + 30, wy, ww - 60, wh, 8); c.stroke(); c.beginPath(); c.moveTo(x + ww / 2, wy); c.lineTo(x + ww / 2, wy + wh); c.stroke();
+        }
+        // wall panels + pipes + signs (move at full speed)
+        const pw = 340, o2 = -(s % pw);
+        for (let x = o2 - pw; x < w + pw; x += pw) {
+          const id = Math.round((x - o2) / pw) + Math.floor(s / pw);
+          c.fillStyle = 'rgba(255,255,255,.04)'; c.fillRect(x, top, 3, fl - top);
+          c.fillStyle = '#ffcc33'; for (let k = 0; k < 6; k++) { c.beginPath(); c.moveTo(x + 20 + k * 24, fl - 26); c.lineTo(x + 32 + k * 24, fl - 26); c.lineTo(x + 20 + k * 24, fl - 14); c.lineTo(x + 8 + k * 24, fl - 14); c.closePath(); c.fill(); }
+          c.fillStyle = '#1c1c1c'; for (let k = 0; k < 6; k++) { c.beginPath(); c.moveTo(x + 32 + k * 24, fl - 26); c.lineTo(x + 44 + k * 24, fl - 26); c.lineTo(x + 32 + k * 24, fl - 14); c.lineTo(x + 20 + k * 24, fl - 14); c.closePath(); c.fill(); }
+          if (id % 3 === 0) { c.fillStyle = '#e8eef8'; QG.rr(c, x + 200, top + (fl - top) * 0.7, 90, 34, 4); c.fill(); QG.T(c, 'LAB ' + (((id * 7) % 40) + 1), x + 245, top + (fl - top) * 0.7 + 18, FN(15), '#c33d2e'); }
+          if (id % 4 === 2) { c.fillStyle = '#7ff3ff'; c.globalAlpha = 0.15 + 0.1 * Math.sin(this.t * 3 + id); c.beginPath(); c.arc(x + 260, top + (fl - top) * 0.78, 26, 0, TAU); c.fill(); c.globalAlpha = 1; c.fillStyle = '#3c4c70'; QG.rr(c, x + 238, top + (fl - top) * 0.68, 44, 70, 8); c.fill(); c.fillStyle = 'rgba(127,243,255,.5)'; QG.rr(c, x + 244, top + (fl - top) * 0.7, 32, 50, 6); c.fill(); }
+        }
+        // ceiling + floor
+        c.fillStyle = '#0d1426'; c.fillRect(-this.ox, -this.oy, this.W, top + this.oy);
+        c.fillStyle = '#56627d'; c.fillRect(-this.ox, top - 10, this.W, 10); c.fillStyle = '#7d8aa8'; for (let x = -(s % 60); x < w + 60; x += 60) c.fillRect(x, top - 14, 16, 6);
+        for (let x = -(s % 180) - 180; x < w + 180; x += 180) { c.fillStyle = 'rgba(255,248,200,.85)'; c.fillRect(x + 50, top, 70, 4); g = c.createLinearGradient(0, top, 0, top + 90); g.addColorStop(0, 'rgba(255,248,200,.12)'); g.addColorStop(1, 'rgba(255,248,200,0)'); c.fillStyle = g; c.beginPath(); c.moveTo(x + 50, top); c.lineTo(x + 120, top); c.lineTo(x + 150, top + 90); c.lineTo(x + 20, top + 90); c.closePath(); c.fill(); }
+        c.fillStyle = '#3a4560'; c.fillRect(-this.ox, fl, this.W, h - fl + this.oy + 400);
+        c.fillStyle = '#4d5a7a'; for (let x = -(s % 80); x < w + 80; x += 80) c.fillRect(x, fl, 40, 6);
+        c.fillStyle = 'rgba(0,0,0,.25)'; c.fillRect(-this.ox, fl + 6, this.W, 3);
+        // coins
+        for (const o of this.cs) { const sq = Math.abs(Math.cos(this.t * 5 + o.x * 0.03)); c.fillStyle = '#b98a12'; c.beginPath(); c.ellipse(o.x, o.y, 8 * Math.max(0.25, sq), 8, 0, 0, TAU); c.fill(); c.fillStyle = '#ffd34d'; c.beginPath(); c.ellipse(o.x, o.y, 6 * Math.max(0.2, sq), 6, 0, 0, TAU); c.fill(); }
+        // zappers
+        for (const z of this.zs) {
+          const [x0, y0, x1, y1] = this.ends(z), n = Math.max(6, Math.floor(z.L / 14)), nx = -(y1 - y0) / z.L, ny = (x1 - x0) / z.L;
+          [[16, 'rgba(120,240,255,.12)'], [8, 'rgba(160,250,255,.35)']].forEach(([lw, col]) => { c.strokeStyle = col; c.lineWidth = lw; c.lineCap = 'round'; c.beginPath(); c.moveTo(x0, y0); c.lineTo(x1, y1); c.stroke(); });
+          c.strokeStyle = '#f4ffff'; c.lineWidth = 2.5; c.beginPath(); c.moveTo(x0, y0); for (let i = 1; i < n; i++) { const k = i / n, j = rand(-5, 5); c.lineTo(x0 + (x1 - x0) * k + nx * j, y0 + (y1 - y0) * k + ny * j); } c.lineTo(x1, y1); c.stroke();
+          [[x0, y0], [x1, y1]].forEach(([x, y]) => { c.fillStyle = '#2d3445'; c.beginPath(); c.arc(x, y, 11, 0, TAU); c.fill(); c.fillStyle = '#ffcc33'; c.beginPath(); c.arc(x, y, 7.5, 0, TAU); c.fill(); c.fillStyle = '#fff6c2'; c.beginPath(); c.arc(x - 2, y - 2, 2.5, 0, TAU); c.fill(); });
+        }
+        // missiles
+        for (const m of this.ms) {
+          if (m.warn > 0) { const blink = Math.floor(m.warn * 8) % 2 === 0, x = w - 26; c.fillStyle = m.warn < 0.45 ? '#ff3b30' : blink ? '#ff9f0a' : 'rgba(255,159,10,.4)'; c.beginPath(); c.moveTo(x, m.y - 14); c.lineTo(x + 13, m.y + 10); c.lineTo(x - 13, m.y + 10); c.closePath(); c.fill(); QG.T(c, '!', x, m.y + 2, FN(14), '#1a1a1a'); }
+          else { c.save(); c.translate(m.x, m.y); c.fillStyle = '#d8dde6'; QG.rr(c, -14, -6, 34, 12, 6); c.fill(); c.fillStyle = '#c33d2e'; c.beginPath(); c.moveTo(-14, -6); c.lineTo(-24, 0); c.lineTo(-14, 6); c.closePath(); c.fill(); c.fillStyle = '#8a92a3'; c.beginPath(); c.moveTo(14, -6); c.lineTo(22, -12); c.lineTo(22, 12); c.lineTo(14, 6); c.closePath(); c.fill(); c.restore(); }
+        }
+        // player
+        const sh = this.shake; c.save(); if (sh > 0) c.translate(rand(-1, 1) * sh * 6, rand(-1, 1) * sh * 6);
+        QG.drawParts(c, this.fx);
+        c.fillStyle = 'rgba(0,0,0,.25)'; const shw = Math.max(4, pr * (1.2 - (fl - this.y) / (fl - top))); c.beginPath(); c.ellipse(this.px, fl + 3, shw, 3, 0, 0, TAU); c.fill();
+        const tilt = this.dying ? this.dying * 7 : clamp(this.vy / 2400, -0.25, 0.25);
+        if (this.held && !this.dying && this.state === 'run') { const fl2 = pr * (1.1 + Math.random() * 0.6); c.fillStyle = 'rgba(255,170,60,.85)'; c.beginPath(); c.moveTo(this.px - pr * 1.15, this.y + pr * 0.9); c.lineTo(this.px - pr * 0.75, this.y + pr * 0.9); c.lineTo(this.px - pr * 0.95, this.y + pr * 0.9 + fl2); c.closePath(); c.fill(); }
+        this.drawGuy(c, this.px, this.y, pr, tilt);
+        c.restore();
+        // HUD
+        QG.T(c, Math.floor(this.dist) + 'm', 16, top + 26, FN(26), '#ffffff', 'left');
+        QG.T(c, 'BEST ' + this.best + 'm', 16, top + 52, FN(12), 'rgba(255,255,255,.6)', 'left');
+        c.fillStyle = '#ffd34d'; c.beginPath(); c.arc(w - 20, top + 24, 7, 0, TAU); c.fill(); QG.T(c, String(this.coins), w - 34, top + 25, FN(16), '#ffd34d', 'right');
+        flashFx(c, this);
+        if (this.state === 'ready') veil(c, w, h, this.title, this.how);
+        else if (this.state === 'dead') veil(c, w, h, this.msg || 'Ouch.', this.score + 'm. ' + (this.score >= this.best && this.score > 0 ? 'New best! ' : 'Best ' + this.best + 'm. ') + 'Tap to fly again.');
+      }
+    }, MIX);
+  }
+  skin('jetlab', { bg: ['#16213a', '#2a3a5c'], pat: 'none', patc: 'rgba(0,0,0,0)', fg: '#ffffff', dim: '#9fb0d0', panel: '#16213a', pfg: '#ffffff', dark: true, line: '#ffcc33', lw: 0, r: 8, pal: ['#ffcc33', '#7ff3ff', '#c33d2e', '#f2f4f7'], good: '#7ff3ff', bad: '#ff3b30', font: 'Bungee,"Titan One",sans-serif', fw: 400, fs: 0.9, mono: '"Chakra Petch",sans-serif', mw: 600, ms: 1, veil: 'rgba(13,20,38,.72)', vfg: '#ffffff', slide: '#16213a', sbgc: '#16213a', sfg: '#ffffff', sdim: '#9fb0d0', stag: '#ffcc33', tsize: 28, tfw: 400, tls: '.02em', frame: '' });
+  NEW_SLIDES.push(mk(makeJetLab(SKINS.jetlab), 'Jet Lab', SKINS.jetlab, 'A scientist straps on the prototype jetpack and blasts down an endless lab hallway. Hold to fly, dodge the zappers, watch for the missile warning.', '#jetpack #endlessrunner #onetap', 15.8e9, 3.4e9, 2.8e9, 'jetlab'));
 
   /* ===== endless generator: same four game engines, but every game is dressed by a different "author" ===== */
   const PACKS = [
