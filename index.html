@@ -21232,7 +21232,7 @@ function engine(){
   /* ===== Gridlock: top-down hero lane brawler (inspired by Deadlock; original city, heroes, items and names) =====
      6v6 on a hand-made 1960s New York map: three lanes (Dockside = industrial docks, Neon Mile = billboards and marquees,
      Parkway = park, college and brownstones), four jungle districts, a sewer-gator mid-boss in the Grand Circle pit.
-     Each lane: Sentinel -> Colossus -> Gate, then two Shrines guard the team's Idol. Goons march every 25s, ziplines run
+     Each lane: Sentinel -> Colossus -> Gate, then two Shrines guard the team's Idol. Goon waves ride the ziplines in every 30s (Deadlock's trooper timing), ziplines run
      over every lane, souls buy items at the base or a newsstand. 8 heroes with 3 abilities + an ultimate.
      The map is a 50x90 grid of 100-unit cells built from one hand-drawn quadrant (QUAD), mirrored east-west and north-south,
      so every phone has the same map with no randomness. Multiplayer (GregNet, mpKind 'gridlock'): host simulates
@@ -21527,9 +21527,10 @@ function engine(){
     function heal(u, n) { if (!u.alive || CL()) return; const k = u.kind === 'hero' ? 1 + u.S.heal : 1; u.hp = Math.min(u.mhp, u.hp + n * k); }
     function hurt(t, amt, src, type, o) {
       if (!t || !t.alive || CL() || t.untargT > 0 || !(amt > 0)) return 0;
+      if (t.ride) for (const u of units) if (u.ride && u.alive && u.wv === t.wv && u.lane === t.lane && u.team === t.team) dropGoon(u);
       if (t.kind === 'struct') {
         if (t.inv) return 0;
-        const foes = near(t.x, t.y, 1000, []).some(u => u.kind === 'goon' && u.team !== t.team); if (!foes) amt *= .35;
+        const foes = near(t.x, t.y, 1000, []).some(u => u.kind === 'goon' && !u.ride && u.team !== t.team); if (!foes) amt *= .35;
         if (matchT > 660) amt *= Math.min(4, 1 + (matchT - 660) / 180);
       }
       if (t.kind === 'hero') { let r = type === 'gun' ? t.S.br : type === 'spi' ? t.S.sr : 0; if (t.resT > 0) r = 1 - (1 - r) * (1 - t.resK); amt *= 1 - Math.min(.8, r); }
@@ -21575,6 +21576,7 @@ function engine(){
         const share = (team, but) => { for (const h of heroes) if (h.alive && h.team === team && h !== but && dist(h.x, h.y, t.x, t.y) < 950) give(h, t.gt === 'brute' ? 34 : 22); };
         if (killer && killer.kind === 'hero') { give(killer, t.gt === 'brute' ? 95 : 58, 1); share(killer.team, killer); } else share(1 - t.team, null);
         burst(t.x, t.y, 10, t.team ? '#7fb6ff' : '#ffc66a', 160, .5, 3);
+        if (t.gt === 'medic') { for (const h of heroes) if (h.alive && h.team === 1 - t.team && dist(h.x, h.y, t.x, t.y) < 650) heal(h, (h.mhp - h.hp) * .1 + 75 + 2 * matchT / 60); fxRing(t.x, t.y, '#8affb0', .9); ev({ k: 'fx', t: 'ring', x: Math.round(t.x), y: Math.round(t.y), c: '#8affb0', s: .9 }); }
       } else if (t.kind === 'neut') {
         const T = NTYPE[t.nt]; if (t.camp >= 0) { const cp = CAMPS[t.camp]; cp.alive--; if (cp.alive <= 0) { cp.alive = 0; cp.timer = 90; } }
         if (killer && killer.kind === 'hero') { give(killer, T.souls, 1); for (const h of heroes) if (h.alive && h !== killer && h.team === killer.team && dist(h.x, h.y, t.x, t.y) < 900) give(h, T.souls * .4); }
@@ -21612,6 +21614,7 @@ function engine(){
       if (!u.alive || u.team === b.team || u.untargT > 0) return false;
       if (b.hits && b.hits.has(u.id)) return false;
       if (u.team === 2 && !b.hero) return false; /* goons and towers ignore neutrals */
+      if (u.ride && !b.hero) return false;
       if (b.team === 2 && u.kind !== 'hero' && u.kind !== 'sum') return false;
       if (u.kind === 'struct' && u.inv && !b.cos) return true;
       return true;
@@ -21672,19 +21675,32 @@ function engine(){
     }
 
     /* ---------- goons, waves, structures, haunts ---------- */
-    const GOON = { rifle: { hp: 230, r: 17, dmg: 15, rate: 1.05, range: 430, spd: 245 }, brute: { hp: 560, r: 23, dmg: 34, rate: .95, range: 80, spd: 235 } };
+    const GOON = { rifle: { hp: 230, r: 17, dmg: 15, rate: 1.05, range: 430, spd: 245 }, brute: { hp: 310, r: 23, dmg: 34, rate: .95, range: 80, spd: 235 }, medic: { hp: 270, r: 18, dmg: 8, rate: 1.3, range: 380, spd: 245 } };
+    /* waves follow Deadlock's trooper rules: a wave of 4 per lane every 30s (25s after 20:00, 20s after 35:00); 3 rifles + a medic,
+       a brute takes one rifle's place from 5:00. The wave rides its team's zipline out (first wave at a third of the speed) and drops
+       at the front: its furthest goon or tower, or earlier if enemy goons or towers are ahead. Shooting a riding wave knocks it down. */
+    const waveGap = () => matchT < 1200 ? 30 : matchT < 2100 ? 25 : 20;
+    function dropGoon(g) { if (!g.ride) return; g.ride = 0; g.tgT = 0; burst(g.x, g.y, 6, '#d8c8a8', 120, .35, 3); }
+    function rideGoon(g, dt) {
+      const L = LANES[g.lane], dir = g.team ? -1 : 1, stop = zipLimit(g.team, g.lane) - dir * (120 + g.slot * 50);
+      let land = dir > 0 ? g.s >= stop : g.s <= stop;
+      if (!land) { const p = laneAt(L, g.s + dir * 260); for (const st of STRUCTS) if (st.alive && st.team !== g.team && STYPE[st.st].range && dist(p[0], p[1], st.x, st.y) < STYPE[st.st].range * .85) { land = true; break; } }
+      if (!land) for (const u of near(g.x, g.y, 420, [])) if (u.kind === 'goon' && !u.ride && u.team === 1 - g.team) { land = true; break; }
+      if (land || g.s <= 0 && dir < 0 || g.s >= L.total && dir > 0) { dropGoon(g); return; }
+      g.s = clamp(g.s + dir * g.ride * dt, 0, L.total); const p = laneAt(L, g.s); g.x = p[0]; g.y = p[1]; g.ang = p[2] + (dir < 0 ? Math.PI : 0);
+    }
     function spawnWave() {
-      waveN++; const k = 1 + matchT / 600 * .6;
+      waveN++; const k = 1 + matchT / 600 * .6, rs = waveN === 1 ? 330 : 1000;
       for (let team = 0; team < 2; team++) for (let li = 0; li < 3; li++) {
-        const L = LANES[li], kinds = ['rifle', 'rifle', 'rifle']; if (matchT > 150) kinds.push('brute'); if (matchT > 420) kinds.push('rifle'); if (matchT > 660) kinds.push('brute');
+        const L = LANES[li], kinds = matchT < 300 ? ['rifle', 'rifle', 'rifle', 'medic'] : ['brute', 'rifle', 'rifle', 'medic'];
         const sup = STRUCTS.some(s => s.team !== team && s.st === 'gate' && s.lane === li && !s.alive) ? 1.5 : 1;
-        kinds.forEach((gt, j) => { const T = GOON[gt], s = team ? L.total - 60 - j * 55 : 60 + j * 55, p = laneAt(L, s); addUnit({ kind: 'goon', gt, team, lane: li, s, sup: sup > 1, x: p[0] + rand(-25, 25), y: p[1] + rand(-25, 25), r: T.r, hp: T.hp * k * sup, mhp: T.hp * k * sup, spd: T.spd, dmg: T.dmg * (1 + matchT / 900 * .5) * sup, range: T.range, rate: T.rate, cool: rand(0, .5), tgT: 0 }); });
+        kinds.forEach((gt, j) => { const T = GOON[gt], o = 60 + (kinds.length - 1 - j) * 48, s = team ? L.total - o : o, p = laneAt(L, s); addUnit({ kind: 'goon', gt, team, lane: li, s, sup: sup > 1, ride: rs, slot: j, wv: waveN, healT: 2, x: p[0], y: p[1], ang: p[2] + (team ? Math.PI : 0), r: T.r, hp: T.hp * k * sup, mhp: T.hp * k * sup, spd: T.spd, dmg: T.dmg * (1 + matchT / 900 * .5) * sup, range: T.range, rate: T.rate, cool: rand(0, .5), tgT: 0 }); });
       }
     }
     function goonTarget(g) {
       const R = Math.max(g.range + 60, 470); let best = null, bd = 1e9, bh = null, bhd = 1e9, bs = null, bsd = 1e9;
       for (const u of near(g.x, g.y, R, [])) {
-        if (!targetable(u, g.team) || u.team === 2) continue; const d = dist(g.x, g.y, u.x, u.y) - u.r;
+        if (!targetable(u, g.team) || u.team === 2 || u.ride) continue; const d = dist(g.x, g.y, u.x, u.y) - u.r;
         if (u.kind === 'goon' || u.kind === 'sum') { if (d < bd) { bd = d; best = u; } }
         else if (u.kind === 'struct') { if (!u.inv && d < bsd) { bsd = d; bs = u; } }
         else if (u.kind === 'hero' && u.invisT <= 0) { const w = d - (time - (u.aggroT || -9) < 2.5 ? 200 : 0); if (w < bhd) { bhd = w; bh = u; } }
@@ -21692,13 +21708,15 @@ function engine(){
       return best || bs || (bhd < R ? bh : null);
     }
     function updGoon(g, dt) {
+      if (g.ride) { rideGoon(g, dt); return; }
       if (g.stun > 0) return; g.cool -= dt; g.tgT -= dt;
+      if (g.gt === 'medic') { g.healT -= dt; if (g.healT <= 0) { g.healT = 3; let n = 0; for (const u of near(g.x, g.y, 340, [])) if (u.kind === 'goon' && u.team === g.team && !u.ride && u.hp < u.mhp) { heal(u, u.mhp * .12); n++; } if (n) { fxRing(g.x, g.y, '#8affb0', .45); ev({ k: 'fx', t: 'ring', x: Math.round(g.x), y: Math.round(g.y), c: '#8affb0', s: .45 }); } } }
       if (g.tgT <= 0) { g.tgT = .35; const t = goonTarget(g); g.tg = t ? t.id : 0; }
       const t = g.tg ? UBY.get(g.tg) : null, L = LANES[g.lane], dir = g.team ? -1 : 1;
       let mx = 0, my = 0;
       if (t && t.alive) {
         const d = dist(g.x, g.y, t.x, t.y) - t.r; g.ang = Math.atan2(t.y - g.y, t.x - g.x);
-        if (d <= g.range) { if (g.cool <= 0) { g.cool = g.rate; if (g.gt === 'rifle') { const a = g.ang + rand(-.05, .05); bullet({ x: g.x + Math.cos(a) * 20, y: g.y + Math.sin(a) * 20, vx: Math.cos(a) * 1300, vy: Math.sin(a) * 1300, team: g.team, own: g.id, dmg: g.dmg, range: g.range + 80, vis: 8, col: TCOL[g.team] }); MP.shots.push([g.id, Math.round(g.x), Math.round(g.y), Math.round(a * 1000), 8]); } else { hurt(t, g.dmg, g, 'gun'); g.swing = .3; } } }
+        if (d <= g.range) { if (g.cool <= 0) { g.cool = g.rate; if (g.gt !== 'brute') { const a = g.ang + rand(-.05, .05); bullet({ x: g.x + Math.cos(a) * 20, y: g.y + Math.sin(a) * 20, vx: Math.cos(a) * 1300, vy: Math.sin(a) * 1300, team: g.team, own: g.id, dmg: g.dmg, range: g.range + 80, vis: 8, col: TCOL[g.team] }); MP.shots.push([g.id, Math.round(g.x), Math.round(g.y), Math.round(a * 1000), 8]); } else { hurt(t, g.dmg, g, 'gun'); g.swing = .3; } } }
         else { mx = Math.cos(g.ang); my = Math.sin(g.ang); }
       } else {
         const p = laneAt(L, g.s + dir * 140); const d = dist(g.x, g.y, p[0], p[1]) || 1; mx = (p[0] - g.x) / d; my = (p[1] - g.y) / d; g.ang = Math.atan2(my, mx);
@@ -21708,7 +21726,7 @@ function engine(){
       if (g.swing > 0) g.swing -= dt;
     }
     /* light separation so a wave doesn't stack into one dot */
-    function separate() { for (const u of units) { if (!u.alive || (u.kind !== 'goon' && u.kind !== 'neut' && u.kind !== 'sum')) continue; for (const v of near(u.x, u.y, 50)) { if (v === u || v.kind === 'struct' || v.kind === 'hero') continue; const d = dist(u.x, u.y, v.x, v.y), m = (u.r + v.r) * .8; if (d < m && d > .01) { const p = (m - d) * .25; u.x += (u.x - v.x) / d * p; u.y += (u.y - v.y) / d * p; } } } }
+    function separate() { for (const u of units) { if (!u.alive || u.ride || (u.kind !== 'goon' && u.kind !== 'neut' && u.kind !== 'sum')) continue; for (const v of near(u.x, u.y, 50)) { if (v === u || v.kind === 'struct' || v.kind === 'hero' || v.ride) continue; const d = dist(u.x, u.y, v.x, v.y), m = (u.r + v.r) * .8; if (d < m && d > .01) { const p = (m - d) * .25; u.x += (u.x - v.x) / d * p; u.y += (u.y - v.y) / d * p; } } } }
 
     function updStruct(s, dt) {
       const T = STYPE[s.st]; if (!T.range) return; s.cool -= dt; s.stompCD -= dt;
@@ -21716,7 +21734,7 @@ function engine(){
       if (s.cool > 0) return;
       let best = null, pri = -1, bd = 1e9;
       for (const u of near(s.x, s.y, T.range + 40, [])) {
-        if (!targetable(u, s.team) || u.team === 2 || u.kind === 'struct') continue; if (u.kind === 'hero' && u.invisT > 0) continue;
+        if (!targetable(u, s.team) || u.team === 2 || u.kind === 'struct' || u.ride) continue; if (u.kind === 'hero' && u.invisT > 0) continue;
         const d = dist(s.x, s.y, u.x, u.y); if (d > T.range + u.r) continue;
         const p = u.kind === 'hero' ? (time - (u.aggroT || -9) < 2 ? 3 : 1) : 2;
         if (p > pri || (p === pri && d < bd)) { pri = p; bd = d; best = u; }
@@ -21759,7 +21777,7 @@ function engine(){
       s.life -= dt; if (s.life <= 0) { delUnit(s); burst(s.x, s.y, 8, '#c9b6ff', 120, .4, 3); ev({ k: 'fx', t: 'poof', x: Math.round(s.x), y: Math.round(s.y) }); return; }
       s.cool -= dt; if (s.stun > 0) return; const o = UBY.get(s.owner);
       let best = null, bd = s.su === 'coil' ? 540 : 520;
-      for (const u of near(s.x, s.y, bd, [])) { if (!targetable(u, s.team) || u.kind === 'struct' || (u.kind === 'hero' && u.invisT > 0)) continue; const d = dist(s.x, s.y, u.x, u.y); if (d < bd && los(s.x, s.y, u.x, u.y)) { bd = d; best = u; } }
+      for (const u of near(s.x, s.y, bd, [])) { if (!targetable(u, s.team) || u.kind === 'struct' || u.ride || (u.kind === 'hero' && u.invisT > 0)) continue; const d = dist(s.x, s.y, u.x, u.y); if (d < bd && los(s.x, s.y, u.x, u.y)) { bd = d; best = u; } }
       if (s.su === 'coil') { if (best && s.cool <= 0) { s.cool = .5; hurt(best, s.dmg, s, 'spi'); zap(s.x, s.y - 30, best.x, best.y); ev({ k: 'fx', t: 'zap', a: [Math.round(s.x), Math.round(s.y - 30), Math.round(best.x), Math.round(best.y)] }); } return; }
       if (best) { const d = dist(s.x, s.y, best.x, best.y) - best.r; s.ang = Math.atan2(best.y - s.y, best.x - s.x); if (d < 60) { if (s.cool <= 0) { s.cool = .8; hurt(best, s.dmg, s, 'spi'); s.swing = .3; } } else moveU(s, Math.cos(s.ang) * s.spd, Math.sin(s.ang) * s.spd, dt); }
       else if (o && o.alive) { const d = dist(s.x, s.y, o.x, o.y); if (d > 120) { s.ang = Math.atan2(o.y - s.y, o.x - s.x); moveU(s, Math.cos(s.ang) * s.spd, Math.sin(s.ang) * s.spd, dt); } }
@@ -21888,7 +21906,7 @@ function engine(){
     function zipLimit(team, li) {
       if (ZL.t !== time) { ZL.t = time; for (let t = 0; t < 2; t++) for (let l = 0; l < 3; l++) { const L = LANES[l], dir = t ? -1 : 1; let best = t ? L.total : 0;
         for (const s of STRUCTS) if (s.alive && s.team === t && s.lane === l) { const p = laneProj(L, s.x, s.y)[0]; if (dir > 0 ? p > best : p < best) best = p; }
-        for (const u of units) { if (!u.alive || u.kind !== 'goon' || u.team !== t) continue; const [p, d] = laneProj(L, u.x, u.y); if (d < 320 && (dir > 0 ? p > best : p < best)) best = p; }
+        for (const u of units) { if (!u.alive || u.kind !== 'goon' || u.team !== t || u.ride) continue; const [p, d] = laneProj(L, u.x, u.y); if (d < 320 && (dir > 0 ? p > best : p < best)) best = p; }
         ZL.v[t][l] = best + dir * 120; } }
       return ZL.v[team][li];
     }
@@ -21961,7 +21979,7 @@ function engine(){
     const AIM_ERR = [.17, .09, .045], REACT = [.55, .32, .18];
     function frontline(team, li) {
       const L = LANES[li], dir = team ? -1 : 1; let best = null;
-      for (const u of units) if (u.alive && u.kind === 'goon' && u.team === team && u.lane === li) { if (best == null || (dir > 0 ? u.s > best : u.s < best)) best = u.s; }
+      for (const u of units) if (u.alive && u.kind === 'goon' && !u.ride && u.team === team && u.lane === li) { if (best == null || (dir > 0 ? u.s > best : u.s < best)) best = u.s; }
       let tower = team ? L.total : 0; for (const s of STRUCTS) if (s.alive && s.team === team && s.lane === li) { const p = laneProj(L, s.x, s.y)[0]; if (dir > 0 ? p > tower : p < tower) tower = p; }
       if (best == null) return tower; return dir > 0 ? Math.max(best, tower - 200) : Math.min(best, tower + 200);
     }
@@ -22102,7 +22120,7 @@ function engine(){
       to(id, d) { if (this.role === 'host') NET.to(id, d); }, send(d, fast) { if (this.role === 'client') NET.send(d, fast); },
       reset() { this.live = false; this.evq = []; this.shots = []; this.dn = new Map(); this.hurt = new Set(); this.q = []; this.picks = {}; this.roster = null; this.ready = new Set(); } };
     const ev = e => { if (MP.role === 'host' && MP.live) MP.evq.push(e); };
-    const UCODE = { rifle: 1, brute: 2, rat: 3, ghoul: 4, wraith: 5, gator: 6, hound: 7, coil: 8 }, UDEC = ['', 'rifle', 'brute', 'rat', 'ghoul', 'wraith', 'gator', 'hound', 'coil'];
+    const UCODE = { rifle: 1, brute: 2, rat: 3, ghoul: 4, wraith: 5, gator: 6, hound: 7, coil: 8, medic: 9 }, UDEC = ['', 'rifle', 'brute', 'rat', 'ghoul', 'wraith', 'gator', 'hound', 'coil', 'medic'];
     const hFlags = e => (e.alive ? 1 : 0) | (e.stun > 0 ? 2 : 0) | (e.root > 0 ? 4 : 0) | (e.sil > 0 ? 8 : 0) | (e.invisT > 0 ? 16 : 0) | (e.slowT > 0 ? 32 : 0) | (e.zip ? 64 : 0) | (e.chan || e.chanL > 0 ? 128 : 0) | (e.ultSpin > 0 ? 256 : 0) | (e.untargT > 0 ? 512 : 0) | (e.revealT > 0 ? 1024 : 0) | (e.curseT > 0 || e.burnT > 0 ? 2048 : 0) | (e.fateT > 0 ? 4096 : 0) | (e.flash > 0 ? 8192 : 0) | (e.shV > 0 ? 16384 : 0) | (e.muralT > 0 || e.hasteT > 0 ? 32768 : 0) | (e.leap || e.leapFx > 0 ? 65536 : 0) | (e.ampT > 0 ? 131072 : 0);
     function hostFlush(dt) {
       if (!MP.live || !NET.s) { MP.shots.length = 0; return; }
@@ -22112,7 +22130,7 @@ function engine(){
       MP.snapT += dt;
       if (MP.snapT >= .1) { MP.snapT = 0;
         const h = heroes.map(e => [e.id, Math.round(e.x), Math.round(e.y), Math.round(e.ang * 100), Math.round(e.hp), e.mhp, hFlags(e), e.level, e.kills, e.deaths, e.assists, Math.round(e.rsp * 10), Math.round(speedOf(e)), Math.round(e.shV), e.items.length]);
-        const u = []; for (const o of units) { if (!o.alive || o.kind === 'hero' || o.kind === 'struct') continue; u.push([o.id, UCODE[o.gt || o.nt || o.su] * 3 + o.team, Math.round(o.x), Math.round(o.y), Math.max(1, Math.round(o.hp / o.mhp * 100)), Math.round(o.ang * 10), o.owner || 0]); }
+        const u = []; for (const o of units) { if (!o.alive || o.kind === 'hero' || o.kind === 'struct') continue; u.push([o.id, UCODE[o.gt || o.nt || o.su] * 3 + o.team, Math.round(o.x), Math.round(o.y), Math.max(1, Math.round(o.hp / o.mhp * 100)), Math.round(o.ang * 10), o.kind === 'goon' ? (o.ride ? 1 : 0) : o.owner || 0]); }
         NET.bcast({ k: 'S', T: Math.round(matchT * 10) / 10, h, u, s: STRUCTS.map(s => s.alive ? Math.ceil(s.hp) : 0), sh: MP.shots.splice(0), gb: gatorBuff.map(v => Math.round(v)), w: Math.round(waveT) }, true);
       } else if (MP.shots.length > 60) MP.shots.splice(0, MP.shots.length - 60);
       MP.meT += dt;
@@ -22171,7 +22189,8 @@ function engine(){
       for (const r of m.u) {
         seen.add(r[0]); let u = UBY.get(r[0]);
         const code = Math.floor(r[1] / 3), team = r[1] % 3, ty = UDEC[code];
-        if (!u) { const isG = ty === 'rifle' || ty === 'brute', isS = ty === 'hound' || ty === 'coil'; u = addUnit({ id: r[0], kind: isG ? 'goon' : isS ? 'sum' : 'neut', gt: isG ? ty : undefined, nt: !isG && !isS ? ty : undefined, su: isS ? ty : undefined, team, x: r[2], y: r[3], r: isG ? GOON[ty].r : isS ? (ty === 'coil' ? 22 : 18) : NTYPE[ty].r, hp: r[4], mhp: 100, owner: r[6] }); if (ty === 'gator') gatorU = u; }
+        if (!u) { const isG = ty === 'rifle' || ty === 'brute' || ty === 'medic', isS = ty === 'hound' || ty === 'coil'; u = addUnit({ id: r[0], kind: isG ? 'goon' : isS ? 'sum' : 'neut', gt: isG ? ty : undefined, nt: !isG && !isS ? ty : undefined, su: isS ? ty : undefined, team, x: r[2], y: r[3], r: isG ? GOON[ty].r : isS ? (ty === 'coil' ? 22 : 18) : NTYPE[ty].r, hp: r[4], mhp: 100, owner: isG ? 0 : r[6], ride: isG && r[6] === 1 ? 1 : 0 }); if (ty === 'gator') gatorU = u; }
+        if (u.kind === 'goon') { const rd = r[6] === 1 ? 1 : 0; if (u.ride && !rd) burst(u.x, u.y, 6, '#d8c8a8', 120, .35, 3); u.ride = rd; }
         u.hp = r[4]; u.mhp = 100; u.tx = r[2]; u.ty = r[3]; u.ta = r[5] / 10;
       }
       for (const u of units) if (u.alive && (u.kind === 'goon' || u.kind === 'neut' || u.kind === 'sum') && !seen.has(u.id)) { delUnit(u); burst(u.x, u.y, 10, u.kind === 'goon' ? (u.team ? '#7fb6ff' : '#ffc66a') : '#c9b6ff', 160, .5, 3); }
@@ -22213,7 +22232,7 @@ function engine(){
     }
     function resetWorld() {
       units = []; UBY.clear(); heroes = []; bullets = []; zones = []; parts = []; nums = []; feed = []; toasts = []; laters = [];
-      time = 0; matchT = 0; NID = 2000; waveT = 8; waveN = 0; gatorT = 240; gatorBuff = [0, 0]; winner = -1; overT = 0; gatorU = null; statsDone = false; banner = null; bigMsg = null; lastArea = ''; shake = 0; hurtFx = 0; planT = 30;
+      time = 0; matchT = 0; NID = 2000; waveT = 1; waveN = 0; gatorT = 240; gatorBuff = [0, 0]; winner = -1; overT = 0; gatorU = null; statsDone = false; banner = null; bigMsg = null; lastArea = ''; shake = 0; hurtFx = 0; planT = 30;
       makeStructs(); for (const c of CAMPS) { c.alive = 0; c.timer = 25 + c.tier * 12; } for (const p of PHONES) { p.hp = 120; p.timer = 0; }
     }
     let planT = 30;
@@ -22244,7 +22263,7 @@ function engine(){
       sgBuild();
       structT -= dt; if (structT <= 0) { structT = .4; structInv(); }
       if (host && winner < 0) {
-        waveT -= dt; if (waveT <= 0) { waveT = 23; spawnWave(); }
+        waveT -= dt; if (waveT <= 0) { waveT = waveGap(); spawnWave(); }
         for (let i = 0; i < CAMPS.length; i++) { const c = CAMPS[i]; if (c.alive > 0) continue; c.timer -= dt; if (c.timer <= 0) spawnCamp(i); }
         if (!gatorU || !gatorU.alive) { gatorT -= dt; if (gatorT <= 0) { gatorT = 1e9; spawnGator(); } }
         gatorBuff[0] = Math.max(0, gatorBuff[0] - dt); gatorBuff[1] = Math.max(0, gatorBuff[1] - dt);
@@ -22663,10 +22682,16 @@ function engine(){
       hat(x, H, s);
     }
     const GOONH = [{ look: 'fedora', hat: '#3a2a1a', band: '#f2b33d', coat: '#7a5a2a', skin: '#e0b48c', col: '#f2b33d' }, { look: 'fedora', hat: '#1a2436', band: '#5ab4ff', coat: '#2a3a5a', skin: '#d8a880', col: '#5ab4ff' }];
+    const MEDH = [{ look: 'cap', hat: '#f4efe2', band: '#f2b33d', coat: '#ece4d2', skin: '#e0b48c' }, { look: 'cap', hat: '#f4efe2', band: '#5ab4ff', coat: '#dfe4ea', skin: '#d8a880' }];
     const BRUTEH = [{ look: 'bowler', hat: '#2a1e14', band: '#f2b33d', coat: '#8a5a24', skin: '#d8a070' }, { look: 'bowler', hat: '#121a28', band: '#5ab4ff', coat: '#24324e', skin: '#c89070' }];
     function drawUnit(x, u) {
       const a = u.ang;
-      if (u.kind === 'goon') { x.save(); x.translate(u.x, u.y); x.rotate(a); const H = u.gt === 'brute' ? BRUTEH[u.team] : GOONH[u.team]; person(x, H, u.r / 22, { gun: u.gt === 'brute' ? -1 : 8, fists: u.gt === 'brute' && u.swing > 0 }); x.restore(); }
+      if (u.kind === 'goon') { x.save(); x.translate(u.x, u.y); x.rotate(a); const H = u.gt === 'brute' ? BRUTEH[u.team] : u.gt === 'medic' ? MEDH[u.team] : GOONH[u.team], tc = u.team ? '#5ab4ff' : '#f2b33d';
+        if (u.ride) { x.fillStyle = 'rgba(0,0,0,.28)'; x.beginPath(); x.ellipse(10, 14, 26, 18, 0, 0, TAU); x.fill(); x.fillStyle = '#c49a52'; x.strokeStyle = '#3a2a14'; x.lineWidth = 2.5; x.beginPath(); x.roundRect(-22, -17, 44, 34, 7); x.fill(); x.stroke(); x.fillStyle = tc; x.fillRect(-21, -5, 42, 10); x.fillStyle = '#f6e7b8'; x.fillRect(-17, -14, 6, 6); x.fillRect(11, -14, 6, 6); x.fillRect(-17, 8, 6, 6); x.fillRect(11, 8, 6, 6); x.strokeStyle = '#9a9a9a'; x.lineWidth = 3; x.beginPath(); x.moveTo(-26, 0); x.lineTo(26, 0); x.stroke(); }
+        if (u.gt === 'medic') { x.fillStyle = tc; x.fillRect(-21, -8, 9, 16); x.fillStyle = '#fff'; x.fillRect(-18, -6, 3, 12); x.fillRect(-21, -1.5, 9, 3); }
+        person(x, H, u.r / 22 * (u.ride ? .85 : 1), { gun: u.gt === 'brute' ? -1 : 8, fists: u.gt === 'brute' && u.swing > 0 });
+        if (u.gt === 'medic') { x.fillStyle = '#e0302a'; x.fillRect(-6, -1.5, 8, 3); x.fillRect(-3.5, -4, 3, 8); }
+        x.restore(); }
       else if (u.kind === 'neut') {
         x.save(); x.translate(u.x, u.y); x.rotate(a); const T = NTYPE[u.nt];
         if (u.nt === 'rat') { x.fillStyle = 'rgba(0,0,0,.3)'; x.beginPath(); x.ellipse(3, 4, 18, 10, 0, 0, TAU); x.fill(); x.strokeStyle = '#c99a8a'; x.lineWidth = 2.5; x.beginPath(); x.moveTo(-14, 0); x.quadraticCurveTo(-30, Math.sin(time * 8 + u.id) * 10, -38, 4); x.stroke(); x.fillStyle = '#6a5a4c'; x.beginPath(); x.ellipse(0, 0, 17, 10, 0, 0, TAU); x.fill(); x.fillStyle = '#7a6a5c'; x.beginPath(); x.ellipse(13, 0, 8, 6, 0, 0, TAU); x.fill(); x.fillStyle = '#c99a8a'; circ(x, 8, -7, 3.5); circ(x, 8, 7, 3.5); x.fillStyle = '#ff3a2a'; circ(x, 16, -3, 1.6); circ(x, 16, 3, 1.6); }
@@ -23294,7 +23319,7 @@ function engine(){
     font: '"Limelight","Playfair Display",Georgia,serif', fw: 400, fs: 1, mono: '"Oswald","Archivo",sans-serif', mw: 500, ms: 0.95,
     tsize: 28, tfw: 400, tls: '.04em', tcase: 'uppercase'
   });
-  NEW_SLIDES.push(mk(makeGridlock(SKINS.gridlock), 'Gridlock', SKINS.gridlock, 'A 6v6 hero brawler in 1960 New York, top-down. Three lanes (the Dockside piers, the Neon Mile, the Parkway), eight heroes from a tommy-gun torpedo to a Coney Island fortune teller, goons that march every 25 seconds, ziplines over every lane, a sewer gator in the Grand Circle and an Idol to knock down. Play vs bots or tap VS FRIENDS and squad up.', '#moba #heroshooter #6v6 #newyork #multiplayer #withfriends', 18.4e9, 5.2e9, 3.1e9, 'gridlock'));
+  NEW_SLIDES.push(mk(makeGridlock(SKINS.gridlock), 'Gridlock', SKINS.gridlock, 'A 6v6 hero brawler in 1960 New York, top-down. Three lanes (the Dockside piers, the Neon Mile, the Parkway), eight heroes from a tommy-gun torpedo to a Coney Island fortune teller, goon waves that ride the ziplines into every lane every 30 seconds, a sewer gator in the Grand Circle and an Idol to knock down. Play vs bots or tap VS FRIENDS and squad up.', '#moba #heroshooter #6v6 #newyork #multiplayer #withfriends', 18.4e9, 5.2e9, 3.1e9, 'gridlock'));
 
   /* ===== Quick games (Nov 2026 batch): short games, each with its own look. Shared helpers in QG. ===== */
   const QG = {
