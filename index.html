@@ -1592,6 +1592,7 @@ html.fs .fsgp{display:block;position:fixed;left:0;right:0;bottom:6px;z-index:6;t
     siege: ['the bucket snails are evil', 'chili pop saved my garden', 'level 5 boss snail is huge', 'pumpkins are underrated', 'the gnome ran up the lane and wiped everything', 'more dewblooms early is the move', 'forgot to collect dew again', 'frost mint is so good', 'twin spitter is broken', 'slugs are so fast', 'the beetles eat everything', 'beat level 8 with no gnomes used'],
     extract: ['extracted with a rare core lets go', 'got jumped at the hatch with a full bag', 'the stomper chased me across the whole map', 'tall grass camping is so real', 'lost my longneck to a scuttler', 'that bot named PIKE has beef with me', 'squad wiped by a warden', 'the sweep got me with 2 seconds left', 'the pixel art is so cozy', 'gnats are actually so annoying', '1800 credit run', 'friend shot me in free for all 💀', 'the burrow music goes hard', 'bandage while hiding in grass'],
     magic: ['the causeway at sunset 😍', 'stole an ice cream truck and outran 4 stars', 'the pager missions are so 90s', 'found 7 flamingos where is the last one', 'ocean drive neon at night is gorgeous', 'the buildings leaning like that is so retro', 'got arrested in my own repaint shop', 'helicopter would not leave me alone', 'drifting around little havana corners', 'sports car + causeway = best feeling', 'cops pulled me out of a taxi lol', 'the zoom out when you go fast', 'punched a tourist and got 1 star', 'star island mansions are so cute'],
+    gregillion: ['got gregillion on the dog one with komondor', 'said pizza for a breakfast food and it counted as nothing lol', 'everyone says california i went with delaware', '4,850 m today beat that', 'the anglerfish at the bottom scared me', 'typed cheddar like an npc', 'how is uranus only twilight', 'my streak is 6 days dont talk to me', 'nobody said cumulonimbus?? really??', 'the sub is so cute', 'ran out of time typing xoloitzcuintli', 'hit the trench floor once and i will never shut up about it'],
     drop: ['called an airstrike on myself again', 'the reinforce code is burned into my brain', 'orbital laser deleted the whole bug breach', 'chargers from the back only', 'extraction with 2 seconds left', 'the sentry carried me', 'cinderfall bots are no joke', 'accidentals: 4 lol', 'resupply pod landed on my head', 'for democracy'],
     deep: ['first night the zombies got me instantly', 'found a life crystal in a cave', 'the torch lighting underground is so good', 'built a house out of planks', 'iron pickaxe changes everything', 'the watcher dashes so fast', 'chopping trees is weirdly satisfying', 'gold is so deep down', 'eyes keep dropping lenses for me', 'my world has the coolest cave'],
     hollow: ['the guardian hits so hard', 'pogoing off the spikes feels so good', 'the lantern glow in the dark is beautiful', 'lost all my geo and then got it back from my shade', 'mossgrave is my favourite area', 'phase two with the falling rocks is insane', 'focusing to heal mid fight is clutch', 'the pixel art is so clean', 'that acid pit got me 5 times', 'finally beat the guardian with 1 mask left', 'the map is so much bigger now', 'took me forever to find the thorn claws', 'glimmer deep is so pretty', 'who else missed the hidden wall in crossroads', 'that ambush in the thicket got me', 'used the lever shortcut and felt like a genius'],
@@ -28903,6 +28904,417 @@ function engine(){
   }
   skin('magiccity', { bg: ['#ff7aa8', '#3a1a5a'], pat: 'none', patc: 'rgba(0,0,0,0)', fg: '#fff0d0', dim: '#ffc0e0', panel: '#2a0a30', pfg: '#fff0d0', dark: true, line: '#2ff0e0', lw: 0, r: 6, pal: ['#ff4fa0', '#2ff0e0', '#ffd23f', '#b36bff'], good: '#2ff0e0', bad: '#ff4040', font: '"Press Start 2P",monospace', fw: 400, fs: 0.62, mono: '"Silkscreen",monospace', mw: 400, ms: 1, veil: 'rgba(42,10,48,.75)', vfg: '#fff0d0', slide: '#2a0a30', sbgc: '#2a0a30', sfg: '#fff0d0', sdim: '#ffc0e0', stag: '#2ff0e0', tsize: 22, tfw: 400, tls: '0', frame: '' });
   NEW_SLIDES.push(mk(makeMiami(SKINS.magiccity), 'Magic City', SKINS.magiccity, 'A 90s-style top-down crime game set in Miami. Steal anything with wheels, answer ringing payphones for jobs, outrun five stars of cops across the causeways, and hunt the ten pink flamingos.', '#miami #topdown #retro #openworld', 24.6e9, 6.1e9, 4.8e9, 'magic'));
+  /* ===== Gregillion: daily rare-answer trivia dive (inspired by rare-answer daily trivia games). Pixel-art deep sea, Greg's yellow sub sinks deeper the rarer your answers are ===== */
+  function makeGregillion(sk) {
+    const KEY = 'gregillion';
+    const KF = {"A": "01110100011000111111100011000110001", "B": "11110100011000111110100011000111110", "C": "01110100011000010000100001000101110", "D": "11110100011000110001100011000111110", "E": "11111100001000011110100001000011111", "F": "11111100001000011110100001000010000", "G": "01110100011000010111100011000101111", "H": "10001100011000111111100011000110001", "I": "01110001000010000100001000010001110", "J": "00111000100001000010000101001001100", "K": "10001100101010011000101001001010001", "L": "10000100001000010000100001000011111", "M": "10001110111010110101100011000110001", "N": "10001100011100110101100111000110001", "O": "01110100011000110001100011000101110", "P": "11110100011000111110100001000010000", "Q": "01110100011000110001101011001001101", "R": "11110100011000111110101001001010001", "S": "01111100001000001110000010000111110", "T": "11111001000010000100001000010000100", "U": "10001100011000110001100011000101110", "V": "10001100011000110001100010101000100", "W": "10001100011000110101101011010101010", "X": "10001100010101000100010101000110001", "Y": "10001100010101000100001000010000100", "Z": "11111000010001000100010001000011111", "0": "01110100011001110101110011000101110", "1": "00100011000010000100001000010001110", "2": "01110100010000100010001000100011111", "3": "11111000100010000010000011000101110", "4": "00010001100101010010111110001000010", "5": "11111100001111000001000011000101110", "6": "00110010001000011110100011000101110", "7": "11111000010001000100010000100001000", "8": "01110100011000101110100011000101110", "9": "01110100011000101111000010001001100", ".": "00000000000000000000000000110001100", ":": "00000011000110000000011000110000000", "'": "00100001000100000000000000000000000", "\"": "01010010101010000000000000000000000", "-": "00000000000000011111000000000000000", "!": "00100001000010000100001000000000100", "?": "01110100010000100010001000000000100", "+": "00000001000010011111001000010000000", "/": "00001000010001000100010001000010000", "(": "00010001000100001000010000010000010", ")": "01000001000001000010000100010001000", "·": "00000000000000001100011000000000000", "<": "00001000110011101111001110001100001", ">": "10000110001110011110111001100010000", "{": "00000001000111011111000000000000000", "}": "00000000000000011111011100010000000", "#": "01010111110101001010010101111101010", "&": "01100100101010001000101011001001101", ",": "00000000000000000000011000010001000"};
+    /* prompts: 'PROMPT|strip words|tier1|tier2|tier3|tier4|tier5'. Answers are comma separated, aliases with '/'.
+       Tier 1 = what most divers say, tier 5 = almost nobody. Anything not on the chart scores nothing (you can try again). */
+    const BANK = [
+      'NAME A US STATE||california,texas,florida,new york|alaska,hawaii,ohio,washington,georgia,arizona,colorado,nevada,michigan,illinois|oregon,utah,montana,pennsylvania,virginia,north carolina,tennessee,louisiana,massachusetts,new jersey,minnesota,kentucky,alabama,oklahoma,kansas,idaho,maine,wisconsin,indiana,missouri,south carolina|iowa,nebraska,arkansas,mississippi,new mexico,connecticut,maryland,vermont,wyoming,west virginia,new hampshire,north dakota,south dakota|delaware,rhode island',
+      'NAME A COUNTRY IN AFRICA||egypt,south africa,nigeria,kenya|morocco,ethiopia,ghana,madagascar,algeria,somalia,sudan,libya,tunisia|uganda,tanzania,rwanda,zimbabwe,congo/republic of the congo/democratic republic of the congo/drc/dr congo,cameroon,senegal,angola,mali,namibia,botswana,zambia,ivory coast/cote divoire|niger,chad,mozambique,malawi,liberia,sierra leone,guinea,burkina faso,south sudan,mauritania,gabon,togo,benin,eritrea,lesotho,eswatini/swaziland,gambia,mauritius,seychelles|djibouti,burundi,central african republic,equatorial guinea,guinea bissau,cape verde/cabo verde,comoros,sao tome and principe/sao tome',
+      'NAME A PLANET OR DWARF PLANET||mars,earth,jupiter|saturn,venus,pluto|mercury,uranus|neptune|ceres,eris,haumea,makemake',
+      'NAME A FRUIT||apple,banana,orange,strawberry|grape,mango,pineapple,watermelon,peach,pear,cherry,blueberry,kiwi,lemon|raspberry,blackberry,plum,lime,coconut,papaya,cantaloupe,grapefruit,pomegranate,apricot,nectarine,fig,avocado,tomato,honeydew,cranberry,tangerine/clementine/mandarin|dragon fruit/pitaya,lychee/litchi,passion fruit,guava,persimmon,date,starfruit/carambola,gooseberry,kumquat,quince,elderberry,mulberry,boysenberry,plantain,jackfruit,olive|durian,rambutan,mangosteen,salak/snake fruit,cherimoya,soursop/guanabana,feijoa,longan,loquat,ugli fruit,pawpaw,medlar,tamarind,jabuticaba,miracle fruit,ackee,breadfruit,yuzu,huckleberry,lingonberry,cloudberry,acai',
+      'NAME A DOG BREED||golden retriever,labrador/lab/labrador retriever,german shepherd,poodle|husky/siberian husky,bulldog,beagle,chihuahua,pug,dachshund/wiener dog,corgi,pitbull/pit bull,rottweiler|boxer,great dane,shih tzu,yorkie/yorkshire terrier,border collie,doberman,dalmatian,pomeranian,french bulldog/frenchie,australian shepherd,maltese,cocker spaniel,saint bernard/st bernard,greyhound,bernese mountain dog|shiba inu/shiba,akita,samoyed,mastiff,bloodhound,basset hound,whippet,schnauzer,jack russell/jack russell terrier,newfoundland,collie,weimaraner,pointer,havanese,bichon frise/bichon,cavalier king charles spaniel/cavalier,papillon,chow chow,malamute/alaskan malamute,shar pei,boston terrier|basenji,komondor,puli,borzoi,saluki,xoloitzcuintli/xolo,affenpinscher,vizsla,leonberger,lagotto romagnolo,keeshond,briard,otterhound,kuvasz,tibetan mastiff,azawakh,schipperke,bedlington terrier,dandie dinmont terrier,norwegian lundehund,catahoula,rhodesian ridgeback,irish wolfhound,peruvian inca orchid',
+      'NAME A CHEMICAL ELEMENT||oxygen,hydrogen,carbon,gold,iron|helium,nitrogen,silver,sodium,copper,lead,calcium|uranium,aluminum/aluminium,neon,zinc,potassium,chlorine,mercury,platinum,lithium,sulfur/sulphur,magnesium,titanium,plutonium,silicon,tin,nickel|argon,fluorine,phosphorus,cobalt,chromium,iodine,radon,krypton,xenon,boron,manganese,tungsten,radium,cesium/caesium,bromine,arsenic,beryllium,palladium|scandium,vanadium,gallium,germanium,selenium,rubidium,strontium,yttrium,zirconium,niobium,molybdenum,technetium,ruthenium,rhodium,cadmium,indium,antimony,tellurium,barium,lanthanum,cerium,praseodymium,neodymium,promethium,samarium,europium,gadolinium,terbium,dysprosium,holmium,erbium,thulium,ytterbium,lutetium,hafnium,tantalum,rhenium,osmium,iridium,thallium,bismuth,polonium,astatine,francium,actinium,thorium,protactinium,neptunium,americium,curium,berkelium,californium,einsteinium,fermium,mendelevium,nobelium,lawrencium,rutherfordium,dubnium,seaborgium,bohrium,hassium,meitnerium,darmstadtium,roentgenium,copernicium,nihonium,flerovium,moscovium,livermorium,tennessine,oganesson',
+      'NAME A COLOR||red,blue,green,yellow,purple|orange,pink,black,white,brown|gray/grey,teal,turquoise,magenta,cyan,violet,indigo,maroon,navy,beige,gold,silver,lavender|crimson,scarlet,burgundy,coral,salmon,olive,lime,mint,peach,tan,ivory,cream,khaki,aqua,amber,emerald,ruby,lilac,mauve,fuchsia,periwinkle,chartreuse,ochre,mustard,plum,sage,jade|vermilion,cerulean,puce,taupe,sienna,umber,celadon,viridian,cobalt,ultramarine,carmine,cinnabar,heliotrope,aquamarine,sepia,mahogany,saffron,wenge,gamboge,eggplant/aubergine,alabaster,zaffre,glaucous,xanadu,amaranth,cerise,celeste',
+      'NAME A SEA CREATURE||shark,whale,dolphin,octopus,fish|jellyfish,starfish/sea star,crab,turtle/sea turtle,squid,seal,stingray/ray,clownfish,lobster|seahorse,eel,shrimp,manta ray/manta,orca/killer whale,sea lion,walrus,narwhal,coral,sea urchin/urchin,clam,oyster,swordfish,tuna,pufferfish/puffer/blowfish,anglerfish,barracuda|manatee,dugong,krill,plankton,anemone/sea anemone,sea cucumber,nautilus,cuttlefish,moray/moray eel,beluga,hammerhead,marlin,sailfish,grouper,lionfish,mussel,scallop,barnacle,sea otter/otter,penguin,blue whale,humpback|blobfish,frilled shark,goblin shark,vampire squid,gulper eel,sea pig,giant isopod/isopod,oarfish,sunfish/mola,coelacanth,siphonophore,sea butterfly,yeti crab,dumbo octopus,nudibranch,sea spider,hagfish,lamprey,wobbegong,triggerfish,cookiecutter shark,leafy seadragon/sea dragon,remora,parrotfish,sea slug,mantis shrimp,pistol shrimp,horseshoe crab,salp,comb jelly/ctenophore',
+      'NAME A US PRESIDENT||george washington/washington,abraham lincoln/lincoln,donald trump/trump,barack obama/obama|joe biden/biden,john f kennedy/jfk/kennedy/john kennedy,thomas jefferson/jefferson,ronald reagan/reagan,franklin roosevelt/fdr/franklin d roosevelt/roosevelt,theodore roosevelt/teddy roosevelt,bill clinton/clinton,george w bush/bush/george bush|jimmy carter/carter,richard nixon/nixon,john adams/adams,andrew jackson/jackson,dwight eisenhower/eisenhower,harry truman/truman,ulysses s grant/ulysses grant/grant,woodrow wilson/wilson,lyndon johnson/lbj/johnson,george h w bush/george hw bush,james madison/madison|gerald ford/ford,herbert hoover/hoover,james monroe/monroe,john quincy adams,calvin coolidge/coolidge,william mckinley/mckinley,william howard taft/taft,grover cleveland/cleveland,james k polk/james polk/polk,andrew johnson|martin van buren/van buren,william henry harrison/harrison,john tyler/tyler,zachary taylor/taylor,millard fillmore/fillmore,franklin pierce/pierce,james buchanan/buchanan,rutherford b hayes/hayes,james garfield/garfield,chester arthur/arthur,benjamin harrison,warren harding/harding',
+      'NAME A MUSICAL INSTRUMENT||guitar,piano,drums/drum,violin|flute,trumpet,saxophone/sax,bass/bass guitar,cello,harp,clarinet,ukulele|trombone,tuba,harmonica,banjo,accordion,keyboard,xylophone,tambourine,oboe,viola,triangle,french horn/horn,organ,bagpipes,recorder|bassoon,mandolin,harpsichord,piccolo,glockenspiel,marimba,cymbals/cymbal,bongos,sitar,didgeridoo,kazoo,synthesizer/synth,double bass/upright bass,timpani,maracas,cowbell,steel drum/steel pan,lute,euphonium,castanets,ocarina,bugle,cornet,flugelhorn|theremin,hurdy gurdy,erhu,koto,shamisen,balalaika,bouzouki,kalimba/thumb piano,djembe,tabla,dulcimer,zither,celesta,sousaphone,contrabassoon,shakuhachi,oud,guzheng,pipa,cajon,vibraphone,mbira,washboard,handpan,sackbut,crumhorn,shawm,lyre,pan flute/panpipes,melodica,gong,clavichord,bandoneon,concertina,vuvuzela',
+      'NAME A BONE IN THE HUMAN BODY|bone|femur,skull,ribs,spine|humerus,tibia,fibula,pelvis,jaw/jawbone,collarbone,kneecap|clavicle,patella,radius,ulna,sternum/breastbone,mandible,scapula/shoulder blade,vertebrae/vertebra,cranium,hip,tailbone,coccyx|sacrum,phalanges/phalanx,metacarpals,metatarsals,tarsals,carpals,maxilla,hyoid,stapes/stirrup,incus/anvil,malleus/hammer,calcaneus/heel,ilium,ischium,pubis,zygomatic/cheekbone,talus|scaphoid,lunate,triquetrum,pisiform,trapezium,trapezoid,capitate,hamate,navicular,cuboid,cuneiform,sphenoid,ethmoid,vomer,lacrimal,palatine,occipital,parietal,temporal,frontal,nasal,atlas,axis,manubrium,xiphoid,sesamoid',
+      'NAME A GREEK GOD OR GODDESS||zeus,poseidon,hades,athena|aphrodite,apollo,ares,hermes,hera|artemis,demeter,dionysus,hephaestus,persephone,kronos/cronus,nike,eros,gaia|hestia,helios,selene,eos,nyx,pan,hecate,iris,nemesis,tyche,morpheus,hypnos,thanatos,uranus,rhea,atlas,prometheus,hebe|asclepius,harmonia,eris,phobos,deimos,styx,tethys,oceanus,hyperion,theia,themis,mnemosyne,phoebe,coeus,crius,iapetus,metis,leto,dione,erebus,chaos,tartarus,pontus,boreas,zephyrus,notus,eurus,triton,proteus,nereus,priapus,aristaeus,hygieia,plutus,ananke,chronos',
+      'NAME A PROGRAMMING LANGUAGE||python,java,javascript/js,c|c++/cpp,html,c#/csharp,sql,scratch|ruby,swift,php,rust,go/golang,kotlin,typescript/ts,lua,r,css,assembly|perl,haskell,matlab,dart,scala,bash,visual basic/vb,fortran,cobol,pascal,lisp,objective c/objc,julia,elixir,groovy|erlang,clojure,ocaml,f#/fsharp,prolog,ada,smalltalk,zig,nim,crystal,racket,scheme,elm,apl,forth,brainfuck,d,haxe,vhdl,verilog,abap,simula,algol,basic,logo,hack,solidity,mojo,odin,gleam,coffeescript,powershell',
+      'NAME A VEGETABLE||carrot,broccoli,potato,lettuce|tomato,cucumber,onion,spinach,corn,celery,peas,bell pepper/pepper,cabbage|cauliflower,zucchini/courgette,asparagus,green beans,sweet potato,eggplant/aubergine,kale,garlic,mushroom,beet/beetroot,radish,pumpkin,squash,brussels sprouts,artichoke|leek,turnip,parsnip,okra,bok choy,arugula/rocket,chard/swiss chard,yam,shallot,watercress,collard greens/collards,endive,fennel,rutabaga/swede,jalapeno,butternut squash,edamame,bean sprouts,scallion/green onion/spring onion,ginger|kohlrabi,jicama,celeriac,salsify,romanesco,daikon,taro,cassava/yuca,lotus root,bamboo shoots,fiddlehead,sunchoke/jerusalem artichoke,burdock,rapini/broccoli rabe,radicchio,frisee,mizuna,tatsoi,chinese broccoli/gai lan,water chestnut,chayote,tomatillo,purslane,sorrel,nopales,samphire,malanga',
+      'NAME A CAPITAL CITY IN EUROPE||paris,london,rome,berlin|madrid,moscow,athens,amsterdam,dublin,vienna|lisbon,prague,brussels,stockholm,oslo,copenhagen,warsaw,budapest,helsinki,bern,kyiv/kiev,edinburgh|reykjavik,bucharest,belgrade,sofia,zagreb,bratislava,ljubljana,tallinn,riga,vilnius,minsk,luxembourg,monaco,valletta,cardiff,belfast|tirana,skopje,podgorica,sarajevo,chisinau,andorra la vella,san marino,vaduz,vatican city/vatican,nicosia,pristina',
+      'NAME A BIRD||eagle,robin,crow,parrot,pigeon|owl,penguin,flamingo,hawk,duck,chicken,cardinal,blue jay,seagull/gull,ostrich,hummingbird,swan|sparrow,falcon,peacock,toucan,pelican,woodpecker,raven,goose,turkey,vulture,stork,heron,canary,finch,parakeet/budgie,dove,emu,crane|kingfisher,magpie,starling,albatross,puffin,condor,kiwi,cockatoo,macaw,oriole,wren,warbler,mockingbird,roadrunner,quail,pheasant,egret,ibis,loon,osprey,kestrel,lark,nightingale,swallow,cuckoo,grouse,partridge|shoebill,hoatzin,kakapo,cassowary,lyrebird,potoo,frigatebird,booby/blue footed booby,secretary bird,bowerbird,quetzal,hornbill,tanager,grackle,nuthatch,chickadee,titmouse,bobolink,killdeer,sandpiper,plover,cormorant,gannet,petrel,shearwater,ptarmigan,bittern,spoonbill,avocet,whippoorwill,nighthawk,kookaburra,lorikeet,rhea,takahe,dodo',
+      'NAME A CAR BRAND||toyota,ford,honda,tesla,bmw|chevrolet/chevy,mercedes/mercedes benz,audi,ferrari,lamborghini,nissan,porsche|hyundai,kia,volkswagen/vw,jeep,subaru,mazda,lexus,dodge,cadillac,volvo,bugatti,jaguar,mclaren,rolls royce,bentley|buick,gmc,lincoln,chrysler,acura,infiniti,mitsubishi,land rover/range rover,aston martin,maserati,alfa romeo,fiat,mini,ram,genesis,peugeot,renault,rivian,lucid|koenigsegg,pagani,lotus,citroen,skoda,seat,opel,saab,suzuki,polestar,byd,geely,tata,mahindra,lada,dacia,smart,pontiac,oldsmobile,plymouth,hummer,saturn,scion,datsun,isuzu,delorean,rimac,cupra,holden,vauxhall,nio,xpeng,proton,alpine',
+      'NAME A ZODIAC SIGN||leo,scorpio,aries|gemini,virgo,pisces,taurus|cancer,libra,sagittarius|capricorn,aquarius|ophiuchus',
+      'NAME A CHEESE|cheese|cheddar,mozzarella,swiss,parmesan|american,brie,gouda,feta,provolone,pepper jack/pepperjack,monterey jack/jack|blue cheese,colby,ricotta,cream cheese,cottage cheese,goat cheese/chevre,camembert,havarti,muenster,gruyere,string cheese,mascarpone|manchego,halloumi,roquefort,gorgonzola,stilton,emmental,asiago,pecorino/pecorino romano,burrata,edam,fontina,paneer,queso fresco,romano,limburger,jarlsberg,boursin|taleggio,epoisses,reblochon,comte,raclette,appenzeller,red leicester/leicester,wensleydale,cotija,oaxaca,stracchino,scamorza,caciocavallo,vacherin,mimolette,cambozola,casu marzu,brunost/gjetost,manouri,labneh,quark,tilsit,port salut,idiazabal,mahon,morbier',
+      'NAME A PASTA SHAPE||spaghetti,penne,macaroni,lasagna/lasagne|fettuccine/fettuccini,ravioli,rigatoni,linguine,bow tie/farfalle,tortellini,rotini|fusilli,orzo,angel hair/capellini,ziti,shells/conchiglie,gnocchi,tagliatelle,elbow|pappardelle,orecchiette,cavatappi,manicotti,cannelloni,bucatini,vermicelli,ditalini,gemelli,campanelle,radiatori,stelline,acini di pepe,rotelle/wagon wheels,tortelloni|casarecce,trofie,strozzapreti,paccheri,mafaldine,calamarata,cappelletti,agnolotti,garganelli,lumache,fregola,pici,busiate,corzetti,lorighittas,scialatielli,tagliolini,sedanini,mezzelune,anelli,cavatelli,malloreddus,canestri,quadrefiore',
+      'NAME A DINOSAUR||t rex/tyrannosaurus/tyrannosaurus rex,triceratops,velociraptor/raptor|stegosaurus,brontosaurus,brachiosaurus,pterodactyl,spinosaurus|diplodocus,ankylosaurus,allosaurus,pteranodon,parasaurolophus,iguanodon,dilophosaurus,apatosaurus|pachycephalosaurus,carnotaurus,giganotosaurus,gallimimus,compsognathus,deinonychus,archaeopteryx,therizinosaurus,mosasaurus,plesiosaurus/plesiosaur,argentinosaurus,baryonyx,ceratosaurus,utahraptor,oviraptor,maiasaura,protoceratops,styracosaurus|microraptor,troodon,coelophysis,herrerasaurus,eoraptor,dreadnoughtus,amargasaurus,kentrosaurus,edmontosaurus,corythosaurus,lambeosaurus,suchomimus,irritator,nigersaurus,sinosauropteryx,yutyrannus,quetzalcoatlus,carcharodontosaurus,mamenchisaurus,pentaceratops,euoplocephalus,minmi,psittacosaurus,hadrosaurus,albertosaurus,daspletosaurus,majungasaurus,deinocheirus,cryolophosaurus,stygimoloch,dracorex,nodosaurus,sauropelta,plateosaurus',
+      'NAME A GEMSTONE||diamond,ruby,emerald|sapphire,amethyst,pearl,opal,topaz|jade,garnet,aquamarine,onyx,quartz,turquoise,peridot|citrine,tanzanite,moonstone,lapis lazuli/lapis,tourmaline,obsidian,amber,jasper,agate,zircon,tigers eye/tiger eye,bloodstone,alexandrite,morganite,malachite,rose quartz,coral|spinel,iolite,kunzite,chrysoberyl,benitoite,painite,taaffeite,jadeite,carnelian,chalcedony,labradorite,sunstone,beryl,kyanite,sodalite,rhodochrosite,larimar,sugilite,charoite,chrysoprase,hematite,pyrite,fluorite,apatite,heliodor,red beryl/bixbite,demantoid,tsavorite,spessartite,ammolite,jet,moissanite',
+      'NAME AN OLYMPIC SPORT||swimming,gymnastics,basketball,soccer/football,track/track and field/athletics/running|tennis,volleyball,skiing,figure skating,boxing,diving,hockey/ice hockey|wrestling,fencing,archery,rowing,cycling,snowboarding,surfing,skateboarding,weightlifting,judo,golf,rugby,curling,speed skating,beach volleyball,water polo|taekwondo,sailing,canoe/canoeing/kayak/kayaking,handball,badminton,table tennis/ping pong,triathlon,equestrian/horse riding,bobsled/bobsleigh,luge,biathlon,ski jumping,sport climbing/climbing,field hockey,softball,baseball,shooting,karate,breaking/breakdancing,marathon|modern pentathlon/pentathlon,skeleton,nordic combined,artistic swimming/synchronized swimming,trampoline,bmx,dressage,mountain biking,freestyle skiing,moguls,decathlon,heptathlon,steeplechase,hammer throw,javelin,shot put,discus,pole vault,race walking/racewalking,ski mountaineering,short track,keirin,rhythmic gymnastics,lacrosse,cricket,flag football,squash',
+      'NAME A SHAKESPEARE PLAY||romeo and juliet,hamlet,macbeth|othello,a midsummer nights dream/midsummer nights dream,king lear,julius caesar|tempest,much ado about nothing,twelfth night,merchant of venice,taming of the shrew,as you like it,richard iii/richard the third/richard 3,henry v/henry the fifth/henry 5|antony and cleopatra,comedy of errors,winters tale,measure for measure,richard ii/richard 2,henry iv/henry 4,titus andronicus,coriolanus,merry wives of windsor,alls well that ends well,loves labours lost|cymbeline,pericles,timon of athens,troilus and cressida,two gentlemen of verona,henry vi/henry 6,henry viii/henry 8,king john,two noble kinsmen,edward iii/edward 3',
+      'NAME A LANGUAGE||english,spanish,french,chinese/mandarin|german,japanese,italian,russian,arabic,portuguese,korean,hindi|dutch,greek,swedish,turkish,hebrew,polish,latin,vietnamese,cantonese,tagalog/filipino,bengali/bangla,urdu,persian/farsi|swahili,thai,norwegian,danish,finnish,ukrainian,czech,hungarian,romanian,punjabi,indonesian,malay,tamil,telugu,gujarati,marathi,irish/gaelic,welsh,yiddish,sign language/asl,esperanto,navajo,hawaiian,cherokee|basque,catalan,icelandic,estonian,latvian,lithuanian,albanian,armenian,georgian,amharic,yoruba,igbo,hausa,zulu,xhosa,afrikaans,somali,khmer,lao,burmese,mongolian,kazakh,uzbek,pashto,kurdish,nepali,sinhala,maori,samoan,quechua,guarani,inuktitut,tibetan,klingon,sanskrit,maltese,faroese,breton,cornish,tok pisin,haitian creole/creole,wolof,malagasy,sami',
+      'NAME A TREE|tree|oak,pine,maple,palm|birch,willow,apple,redwood,christmas tree,cherry/cherry blossom,spruce,elm|sequoia,cedar,fir,ash,aspen,cypress,magnolia,dogwood,beech,poplar,walnut,bamboo,coconut,banyan,baobab,eucalyptus|sycamore,hickory,chestnut,juniper,hemlock,larch,yew,mahogany,teak,alder,linden,olive,acacia,jacaranda,ginkgo,cottonwood,mangrove,joshua tree,douglas fir,sassafras,hawthorn,holly,peach|tamarack,catalpa,hornbeam,buckeye,sweetgum,tupelo,sumac,mesquite,dragon blood tree,kapok,sandalwood,ebony,rowan,boxelder,ironwood,pecan,persimmon,locust,honey locust,bristlecone pine,monkey puzzle tree,wollemi pine,banksia,frangipani,neem,tulip tree,paulownia,osage orange,serviceberry,camphor',
+      'NAME A BOARD OR CARD GAME||monopoly,chess,uno,poker|checkers,scrabble,clue/cluedo,candy land,sorry,life/game of life,risk,go fish|battleship,connect four/connect 4,jenga,catan/settlers of catan,trivial pursuit,yahtzee,blackjack,solitaire,backgammon,mancala,apples to apples,cards against humanity,exploding kittens,operation,guess who,mouse trap,twister,dominoes,go|pictionary,boggle,taboo,codenames,ticket to ride,pandemic,stratego,othello/reversi,chutes and ladders/snakes and ladders,parcheesi/ludo,hungry hungry hippos,bingo,rummy,hearts,spades,crazy eights,war,old maid,euchre,cribbage,bridge,mahjong,carcassonne,dixit,azul,splendor,wingspan,mastermind|gloomhaven,terraforming mars,twilight imperium,agricola,puerto rico,dominion,root,scythe,brass,power grid,7 wonders/seven wonders,sushi go,love letter,coup,resistance,bohnanza,hanabi,patchwork,king of tokyo,tsuro,quoridor,blokus,hive,shogi,xiangqi,mille bornes,pinochle,canasta,gin rummy,baccarat,skat,durak,rook,phase 10,skip bo,set,cranium,balderdash,kerplunk,perfection',
+      'NAME A SPICE OR HERB||salt,pepper,cinnamon,basil,garlic|oregano,paprika,cumin,thyme,rosemary,parsley,ginger,chili powder|nutmeg,turmeric,cilantro/coriander,mint,dill,sage,bay leaf/bay leaves,cayenne,cloves,curry/curry powder,vanilla,saffron,chives|cardamom,allspice,fennel,tarragon,marjoram,star anise/anise,mustard seed/mustard,fenugreek,garam masala,smoked paprika,red pepper flakes,lemongrass,sesame,poppy seed,celery seed,lavender,caraway,onion powder|sumac,asafoetida/hing,mace,zaatar,grains of paradise,annatto,galangal,epazote,lovage,chervil,sorrel,juniper,amchur,nigella/black seed,ajwain,long pepper,sichuan pepper/szechuan pepper,mahlab,shiso,culantro,savory,borage,hyssop,ras el hanout,berbere,five spice,herbes de provence,pink peppercorn,wasabi,horseradish',
+      'NAME AN ORGAN IN THE HUMAN BODY||heart,brain,lungs,liver|stomach,kidneys,skin,intestines/small intestine/large intestine|pancreas,appendix,bladder,gallbladder,spleen,colon,eyes,esophagus,tongue|thyroid,uterus,ovaries,prostate,adrenal glands/adrenals,trachea/windpipe,larynx/voice box,pituitary gland/pituitary,thymus,diaphragm,rectum,cornea,tonsils|pineal gland/pineal,hypothalamus,cerebellum,duodenum,jejunum,ileum,cecum,epiglottis,pharynx,hippocampus,amygdala,parathyroid,mesentery,interstitium,lymph nodes,bone marrow,placenta,cochlea,retina',
+      'NAME A FAST FOOD CHAIN||mcdonalds,burger king,wendys,taco bell,kfc|subway,chick fil a,in n out/in and out,popeyes,chipotle,dominos,pizza hut,five guys,starbucks|arbys,sonic,jack in the box,carls jr,panda express,dairy queen,shake shack,jersey mikes,wingstop,little caesars,panera,dunkin/dunkin donuts,whataburger,raising canes/canes,del taco,culvers|white castle,hardees,jimmy johns,firehouse subs,qdoba,el pollo loco,papa johns,checkers,rallys,zaxbys,bojangles,krispy kreme,long john silvers,churchs chicken/churchs,a&w,tim hortons,steak n shake,smashburger,potbelly,moes,wienerschnitzel,crumbl,sweetgreen,cava,habit,portillos|jollibee,nandos,pret/pret a manger,greggs,wahlburgers,fatburger,krystal,cook out,biscuitville,runza,taco johns,golden chick,freddys,roy rogers,arctic circle,mos burger,lotteria,pollo campero,nathans,zippys,tropical smoothie,blimpie,quiznos,schlotzskys,baja fresh,rubios,daves hot chicken',
+      'NAME A CONSTELLATION||orion,big dipper,little dipper|ursa major,ursa minor,cassiopeia,scorpius/scorpio|leo,gemini,taurus,aries,pisces,cancer,virgo,libra,sagittarius,capricornus/capricorn,aquarius,cygnus,andromeda,draco,pegasus|perseus,hercules,lyra,aquila,canis major,canis minor,centaurus,crux/southern cross,cepheus,bootes,auriga,corona borealis,ophiuchus,hydra,phoenix,lupus,pleiades,summer triangle|monoceros,camelopardalis,lynx,vulpecula,sagitta,delphinus,equuleus,triangulum,lacerta,sculptor,fornax,caelum,horologium,reticulum,pictor,dorado,volans,carina,puppis,vela,pyxis,antlia,sextans,crater,corvus,norma,circinus,telescopium,indus,pavo,tucana,grus,octans,mensa,chamaeleon,musca,apus,ara,microscopium,piscis austrinus,eridanus,cetus,columba,lepus,serpens,scutum,coma berenices,canes venatici,leo minor,corona australis,triangulum australe',
+      'NAME A TYPE OF CLOUD|cloud clouds|cumulus,cirrus,stratus|nimbus,cumulonimbus,storm cloud/thunder cloud/thunderhead|stratocumulus,altocumulus,altostratus,nimbostratus,cirrostratus,cirrocumulus|mammatus,lenticular,shelf cloud,wall cloud,fog,contrail|noctilucent,nacreous,pileus,arcus,asperitas,kelvin helmholtz,roll cloud,pyrocumulus,virga,fractus,undulatus,castellanus,funnel cloud,morning glory cloud',
+      'NAME A SHAPE||circle,square,triangle|rectangle,star,heart,oval,diamond|pentagon,hexagon,octagon,trapezoid,rhombus,cube,sphere,cylinder,pyramid,cone,parallelogram|heptagon,nonagon,decagon,dodecagon,ellipse,crescent,kite,prism,cuboid,torus,semicircle,arrow,cross,spiral,polygon,dodecahedron,icosahedron,octahedron,tetrahedron|hendecagon,trapezium,deltoid,annulus,lune,reuleaux triangle,rhombicosidodecahedron,frustum,ellipsoid,paraboloid,hyperboloid,mobius strip,klein bottle,gnomon,octagram,pentagram,hexagram,decagram,squircle,tesseract,simplex,cardioid,lemniscate,astroid',
+      'NAME A BREAKFAST FOOD||pancakes,eggs,bacon,cereal,waffles|toast,french toast,oatmeal,bagel,sausage,yogurt,omelette/omelet,hash browns|muffin,croissant,donut/doughnut,biscuits and gravy/biscuits,breakfast burrito,granola,smoothie,avocado toast,scrambled eggs,grits,cinnamon roll,crepes,eggs benedict|shakshuka,huevos rancheros,chilaquiles,quiche,frittata,porridge,danish,scone,breakfast sandwich,english muffin,corned beef hash,pop tarts,acai bowl,chia pudding,congee,parfait,overnight oats|kedgeree,kippers,full english,black pudding,natto,tamagoyaki,menemen,arepa,gallo pinto,khichdi,idli,dosa,poha,paratha,kaya toast,bubble and squeak,pain au chocolat,muesli,crumpet,shrimp and grits,migas,beignet,kolache,johnnycake,scrapple,toad in the hole,dutch baby',
+      'NAME AN ANIMAL THAT LIVES IN AFRICA||lion,elephant,giraffe,zebra|hippo/hippopotamus,rhino/rhinoceros,cheetah,gorilla,leopard,hyena,crocodile|chimpanzee/chimp,baboon,meerkat,warthog,antelope,gazelle,ostrich,wildebeest/gnu,buffalo/cape buffalo,flamingo,camel,lemur,jackal,mongoose|okapi,impala,kudu,springbok,eland,oryx,bonobo,mandrill,aardvark,pangolin,serval,caracal,african wild dog/wild dog/painted dog,honey badger,dik dik,fennec fox/fennec,secretary bird,vulture,python,black mamba/mamba,chameleon,tortoise,hornbill,shoebill|bongo,gerenuk,klipspringer,sable antelope,hartebeest,topi,duiker,aardwolf,bushbaby/galago,rock hyrax/hyrax,fossa,aye aye,naked mole rat,colobus,gelada,potto,civet,genet,zorilla,addax,sitatunga,lechwe,nyala,steenbok,blesbok,bontebok,gemsbok,suni,bat eared fox,jerboa,tenrec',
+      'NAME A FLOWER||rose,tulip,sunflower,daisy|lily,orchid,daffodil,lavender,carnation,dandelion,lotus|hibiscus,iris,peony,marigold,poppy,violet,magnolia,jasmine,lilac,chrysanthemum,hydrangea,cherry blossom,gardenia,petunia,pansy,begonia|dahlia,zinnia,geranium,azalea,camellia,snapdragon,foxglove,lily of the valley,morning glory,forget me not,bluebell,buttercup,aster,gladiolus,hyacinth,crocus,amaryllis,bird of paradise,plumeria/frangipani,lupine,freesia,cosmos,gerbera,ranunculus,anemone,calla lily,wisteria,clover|protea,edelweiss,hellebore,larkspur,delphinium,columbine,yarrow,heather,primrose,nasturtium,verbena,salvia,alstroemeria,lisianthus,stephanotis,tuberose,corpse flower/rafflesia/titan arum,ixora,bougainvillea,oleander,trillium,bleeding heart,monkshood,hollyhock,sweet pea,statice,babys breath/gypsophila,anthurium,bromeliad,coneflower/echinacea,black eyed susan,bottlebrush,passionflower,waratah,fuchsia,lantana,impatiens,cyclamen,scabiosa,celosia,allium,sweet william',
+      'NAME A CITY IN CALIFORNIA||los angeles/la,san francisco/sf,san diego,sacramento|san jose,oakland,fresno,long beach,anaheim,hollywood,malibu,beverly hills,santa monica|irvine,palo alto,berkeley,pasadena,santa barbara,bakersfield,riverside,santa cruz,palm springs,burbank,napa,huntington beach,stockton,santa clara,cupertino,newport beach,san bernardino|glendale,torrance,modesto,oxnard,santa ana,chula vista,fremont,ventura,monterey,carmel,mountain view,sunnyvale,redding,eureka,south lake tahoe,san luis obispo/slo,davis,salinas,thousand oaks,el cajon,escondido,oceanside,carlsbad,laguna beach,compton,inglewood,menlo park,sausalito,temecula,visalia,chico,merced,lancaster,palmdale,simi valley,san mateo,walnut creek,ontario,pomona,whittier,downey,norwalk,fullerton,orange,costa mesa,el segundo,manhattan beach,redondo beach,culver city,west hollywood|needles,bishop,alturas,yreka,crescent city,arcata,ukiah,lone pine,barstow,blythe,calexico,el centro,brawley,ojai,solvang,lompoc,paso robles,atascadero,morro bay,pismo beach,half moon bay,bolinas,mendocino,fort bragg,weed,truckee,mammoth lakes,big bear lake,julian,borrego springs,coachella,indio,twentynine palms,hesperia,victorville,tehachapi,taft,delano,hanford,lodi,turlock,tracy,manteca,gilroy,hollister,watsonville,capitola,los gatos,saratoga,woodside,atherton,tiburon,petaluma,sonoma,healdsburg,calistoga,vallejo,benicia,martinez,antioch,emeryville,alameda,san leandro,hayward,livermore,pleasanton',
+      'NAME AN ICE CREAM FLAVOR||vanilla,chocolate,strawberry,cookies and cream|mint chocolate chip/mint chip,cookie dough,rocky road,neapolitan,butter pecan,pistachio,coffee|salted caramel/caramel,birthday cake,cotton candy,rainbow sherbet/sherbet,moose tracks,chocolate chip,mango,matcha/green tea,coconut,peanut butter,banana,black cherry,french vanilla,mint|rum raisin,spumoni,tutti frutti,lavender,honey,maple walnut,dulce de leche,stracciatella,cheesecake,red velvet,raspberry,lemon,pumpkin,peach,blueberry,cinnamon,ube,black sesame,taro,horchata,cake batter,bubblegum,smores,mocha,butterscotch,toasted marshmallow|olive oil,sweet corn,avocado,durian,lychee,rose,earl grey,miso,goat cheese,black pepper,basil,bacon,ginger,jalapeno,licorice/black licorice,kulfi,saffron,cardamom,garlic,tomato,beet,cereal milk,fig,sour cherry,grape nuts,blue moon,superman,moon mist,tiger tail,sea salt,chai',
+      'NAME A WORD THAT RHYMES WITH CAT||hat,bat,rat,mat,sat|fat,pat,flat,that,chat,vat|brat,splat,spat,gnat,tat,scat,slat,drat|combat,format,acrobat,diplomat,habitat,thermostat,democrat,doormat,aristocrat,bureaucrat,wombat,cravat,muskrat,copycat,laundromat,tomcat,bobcat,meerkat,polecat,nonfat,cowpat,wildcat,hardhat,top hat,chitchat,begat,ziggurat|plutocrat,technocrat,autocrat,rheostat,hydrostat,photostat,aerostat,cryostat,heliostat,thereat,whereat,ratatat,dingbat,numbat',
+      'NAME A KITCHEN TOOL||spoon,fork,knife,spatula|whisk,ladle,tongs,peeler,can opener,grater,rolling pin,cutting board|colander,measuring cup,strainer,blender,mixer,pan,pot,skillet/frying pan,wok,toaster,microwave,oven mitt,timer,funnel,sieve|mandoline/mandolin,zester,garlic press,potato masher/masher,pastry brush,mortar and pestle,thermometer,baster,cleaver,pizza cutter,ice cream scoop,salad spinner,dutch oven,food processor,slotted spoon,melon baller,nutcracker,sifter,apple corer/corer,egg slicer,kitchen scale/scale,ramekin,sheet pan,muffin tin|microplane,spider,spurtle,chinois,tamis,bench scraper,dough scraper,mezzaluna,fish spatula,offset spatula,poultry shears,trussing needle,pastry blender,pie weights,bain marie,double boiler,tagine,potato ricer/ricer,butter curler,cherry pitter,tortilla press,molcajete,suribachi,banneton,dough whisk,lemon reamer/reamer,jar opener,egg separator,piping bag,cake tester,immersion blender,sous vide,pressure cooker,instant pot,rice cooker,air fryer,slow cooker/crock pot,waffle iron,panini press,springform pan,bundt pan',
+      'NAME A DESSERT||cake,ice cream,cookies,pie,brownies|cheesecake,cupcake,donut/doughnut,pudding,apple pie,tiramisu|creme brulee,cannoli,flan,macarons/macaron,churros,mousse,cobbler,sundae,banana split,fudge,eclair,baklava,gelato,popsicle,jello,smores|panna cotta,trifle,souffle,profiteroles,tres leches,mochi,pavlova,key lime pie,bread pudding,crumble,strudel,tart,parfait,sorbet,meringue,carrot cake,red velvet cake,black forest cake,lava cake,bundt cake,whoopie pie,rice pudding,funnel cake,beignets,mille feuille/napoleon,sticky toffee pudding|kulfi,gulab jamun,jalebi,halva,knafeh/kunafa,basbousa,pastel de nata/egg tart,clafoutis,financier,madeleine,canele,kouign amann,semifreddo,zabaglione,affogato,sfogliatella,rum baba/baba au rhum,charlotte,croquembouche,opera cake,dacquoise,sachertorte,linzer torte,kaiserschmarrn,dango,daifuku,taiyaki,halo halo,bingsu,brigadeiro,alfajores,cendol,mango sticky rice,eton mess,banoffee pie,lamington,trdelnik,tarte tatin,baked alaska,bananas foster,cherries jubilee,nanaimo bar,butter tart',
+      'NAME AN OCEAN OR SEA|ocean sea of|pacific ocean,atlantic ocean,indian ocean|arctic ocean,mediterranean sea,caribbean sea,dead sea,red sea|southern ocean,black sea,caspian sea,north sea,baltic sea,arabian sea,south china sea,gulf of mexico/gulf of america,coral sea,sea of japan|adriatic sea,aegean sea,tasman sea,bering sea,sargasso sea,ionian sea,yellow sea,east china sea,philippine sea,andaman sea,barents sea,norwegian sea,irish sea,celtic sea,ross sea,weddell sea,salton sea,sea of galilee,aral sea,sea of okhotsk,labrador sea,beaufort sea,persian gulf,bay of bengal|tyrrhenian sea,ligurian sea,alboran sea,balearic sea,sea of marmara,sea of azov,white sea,kara sea,laptev sea,east siberian sea,chukchi sea,greenland sea,sulu sea,celebes sea,banda sea,java sea,timor sea,arafura sea,solomon sea,bismarck sea,amundsen sea,bellingshausen sea,scotia sea,wadden sea,sea of crete,levantine sea,sea of hebrides,bohai sea',
+      'NAME A US NATIONAL PARK|national park parks|yellowstone,yosemite,grand canyon|zion,glacier,grand teton,great smoky mountains/smoky mountains/smokies,arches,joshua tree,everglades,acadia|rocky mountain,olympic,mount rainier/rainier,sequoia,death valley,bryce canyon/bryce,redwood,denali,shenandoah,badlands,mammoth cave,canyonlands,crater lake|big bend,capitol reef,carlsbad caverns,hot springs,kings canyon,petrified forest,saguaro,white sands,mesa verde,channel islands,haleakala,hawaii volcanoes,great sand dunes,wind cave,voyageurs,isle royale,biscayne,dry tortugas,lassen volcanic/lassen,pinnacles,north cascades,glacier bay,katmai,kenai fjords,wrangell st elias,cuyahoga valley,indiana dunes,new river gorge,theodore roosevelt,great basin,black canyon of the gunnison,guadalupe mountains,congaree,gateway arch|gates of the arctic,kobuk valley,lake clark,american samoa,virgin islands',
+      'NAME A COUNTRY IN SOUTH AMERICA||brazil,argentina,colombia|peru,chile,venezuela|ecuador,bolivia|uruguay,paraguay|guyana,suriname,french guiana,falkland islands/falklands',
+      'NAME A SUPERPOWER||flight/flying,super strength/strength,invisibility,super speed/speed|teleportation,telekinesis,mind reading/telepathy,time travel,laser eyes/heat vision,x ray vision,shapeshifting,healing|freeze time/time stop/time control,immortality,force field,regeneration,stretching/elasticity,shrinking,growing,fire/pyrokinesis,ice/cryokinesis,electricity,weather control,invulnerability,super intelligence,wall crawling/wall climbing,water breathing,night vision,precognition/seeing the future,mind control,duplication/cloning|intangibility/phasing,sonic scream,magnetism,technopathy,talking to animals/animal communication,power absorption,power mimicry,energy blasts,density control,gravity control,portals,illusions,geokinesis/earth control,plant control,hydrokinesis/water control,aerokinesis/wind control,super hearing,danger sense,luck manipulation,sound manipulation,light manipulation,shadow manipulation|probability manipulation,reality warping,omnipotence,omniscience,chronokinesis,biokinesis,photosynthesis,echolocation,dimensional travel,astral projection,possession,necromancy,clairvoyance,psychometry,empathy,dream walking,memory manipulation,sand manipulation,metal manipulation',
+      'NAME A NUT|nut nuts|peanut,almond,cashew,walnut|pistachio,pecan,macadamia,hazelnut|brazil nut,pine nut,chestnut,coconut,acorn|hickory nut,beechnut,filbert,butternut,candlenut,kola nut,tiger nut,betel nut,pili nut|baru nut,kukui nut,mongongo,marula,ginkgo nut,shea nut,sacha inchi,bunya nut,heartnut,yellowhorn',
+      'NAME A SANDWICH|sandwich|grilled cheese,blt,pbj/peanut butter and jelly,ham and cheese,club|turkey,sub/submarine,philly cheesesteak/cheesesteak,reuben,tuna,egg salad,chicken salad|cuban,banh mi,po boy,french dip,panini,meatball sub,sloppy joe,monte cristo,patty melt,gyro,muffuletta,cucumber,croque monsieur,italian,hoagie,hero,pulled pork,chicken parm|tuna melt,lobster roll,falafel,shawarma,doner,torta,katsu sando,fluffernutter,elvis,bologna,dagwood,croque madame,pambazo,arepa,beef on weck,hot brown,italian beef|bauru,chivito,francesinha,smorrebrod,tramezzino,bocadillo,chacarero,choripan,vada pav,bunny chow,chip butty,bacon butty,jambon beurre,pan bagnat,mitraillette,zapiekanka,leberkasesemmel,fischbrotchen,loose meat/tavern,horseshoe,gerber,spiedie,cudighi,pepperoni roll,runza,toastie,tamago sando,fruit sando',
+      'NAME A PIECE OF FURNITURE||chair,table,couch/sofa,bed|desk,dresser,bookshelf/bookcase,stool,nightstand,cabinet,lamp|recliner,ottoman,bench,futon,armchair,coffee table,wardrobe,bunk bed,crib,rocking chair,mirror,shelf,tv stand,loveseat,hammock|chaise lounge/chaise,armoire,credenza,hutch,vanity,bean bag,chest of drawers,headboard,sideboard,buffet,china cabinet,end table,console table,daybed,sectional,footstool,hope chest,filing cabinet,bar stool,murphy bed,cot,trundle bed|chesterfield,davenport,divan,settee,chiffonier,secretary desk,escritoire,etagere,tallboy,highboy,lowboy,whatnot,canterbury,torchiere,pouf,tuffet,fainting couch,hall tree,coat rack,umbrella stand,washstand,commode,tatami,kotatsu,curio cabinet,lazy susan,hat stand,taboret,pew,throne,banquette',
+      'NAME A CURRENCY||dollar,euro,pound,yen|peso,rupee,yuan,bitcoin,franc|ruble,won,real,krona,krone,lira,dinar,rand,shekel,dirham,renminbi|baht,dong,ringgit,rupiah,zloty,forint,koruna,lev,leu,hryvnia,riyal,rial,taka,naira,cedi,shilling,kwacha,sol,bolivar,colon,quetzal,lempira,cordoba,guarani,boliviano,drachma,deutsche mark/mark,escudo,peseta,guilder,doubloon,ducat|tenge,som,manat,lari,dram,afghani,kyat,kip,riel,tugrik,ngultrum,rufiyaa,ouguiya,ariary,dalasi,leone,loti,lilangeni,pula,kwanza,birr,nakfa,dobra,pataca,paanga,vatu,tala,kina,denar,florin,gourde,balboa,sestertius,denarius',
+      'NAME A MOUNTAIN|mount mt|mount everest,mount kilimanjaro,mount fuji|k2,mount rushmore,matterhorn,mont blanc,denali/mckinley,mount st helens/saint helens,mount rainier,mount whitney,mount olympus|vesuvius,etna,pikes peak,mount kenya,aconcagua,kangchenjunga,mount sinai,mount hood,mount shasta,ben nevis,table mountain,mauna kea,mauna loa,annapurna,elbrus,mount cook/aoraki,half dome,el capitan,sugarloaf|lhotse,makalu,cho oyu,nanga parbat,dhaulagiri,manaslu,vinson/vinson massif,puncak jaya/carstensz pyramid,mount ararat,mount kosciuszko,chimborazo,cotopaxi,popocatepetl,iztaccihuatl,mount logan,mount elbert,longs peak,grand teton,mount baker,mount washington,mount mitchell,eiger,jungfrau,zugspitze,ama dablam,uluru,stone mountain,mount katahdin|gasherbrum,broad peak,shishapangma,mount erebus,ojos del salado,huascaran,illimani,pico de orizaba/citlaltepetl,mount meru,mount stanley,ras dashen,mount cameroon,toubkal,olympus mons,mount tambora,krakatoa,pinatubo,mount kinabalu,mount apo,mount elgon,pico duarte,mount robson,mount assiniboine,monte rosa,gran paradiso,triglav,musala,mount athos,mount ida,mount parnassus,mount tabor,mount hermon,siula grande,fitz roy,cerro torre',
+      'NAME A BUG OR INSECT|bug|ant,bee,butterfly,ladybug,spider|fly,mosquito,cockroach/roach,beetle,grasshopper,dragonfly,wasp,moth,caterpillar,cricket,firefly|termite,flea,tick,praying mantis/mantis,centipede,millipede,scorpion,stink bug,hornet,lice/louse,bed bug,gnat,cicada,worm,ladybird,yellow jacket|earwig,weevil,aphid,locust,katydid,walking stick/stick bug/stick insect,silverfish,dung beetle,horsefly,water strider,june bug,pill bug/roly poly,lightning bug,boll weevil,leafhopper,mayfly,damselfly,crane fly,fruit fly,assassin bug,hercules beetle,stag beetle,tarantula,daddy long legs,monarch,bumblebee,carpenter ant,fire ant,bullet ant|tardigrade,springtail,lacewing,antlion,doodlebug,thrips,scale insect,mealybug,whitefly,caddisfly,stonefly,dobsonfly,hellgrammite,snakefly,scorpionfly,cockchafer,goliath beetle,atlas moth,luna moth,orchid mantis,velvet ant,cicada killer,tarantula hawk,botfly,tsetse fly,sawfly,gall wasp,firebrat,bristletail,webspinner,mole cricket,camel cricket/cave cricket,wheel bug,kissing bug,giant water bug,whirligig beetle,bombardier beetle,jewel beetle,titan beetle',
+    ];
+    const TIERS = [
+      { n: 'SHALLOWS', p: 10, c: '#7fd6ff', d: 'LOTS OF DIVERS SAID THAT' },
+      { n: 'REEF', p: 30, c: '#5fe08a', d: 'A FAIR FEW SAID THAT' },
+      { n: 'TWILIGHT', p: 60, c: '#b48cff', d: 'NOT MANY SAID THAT' },
+      { n: 'MIDNIGHT', p: 85, c: '#ff6fae', d: 'HARDLY ANYONE SAID THAT' },
+      { n: 'GREGILLION', p: 100, c: '#ffd23f', d: 'ONE IN A GREGILLION' },
+    ];
+    const MAXD = 7000, NQ = 7, QT = 25;
+    /* ---- answer matching ---- */
+    const sing = s => s.length > 3 && s.endsWith('s') ? s.slice(0, -1) : s;
+    const norm = (s, strip) => {
+      s = String(s).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/\+/g, ' plus ').replace(/#/g, ' sharp ').replace(/&/g, ' and ').replace(/['’]/g, '').replace(/[^a-z0-9]+/g, ' ').trim();
+      let w = s.split(' ').filter(Boolean);
+      while (w.length > 1 && (w[0] === 'the' || w[0] === 'a' || w[0] === 'an')) w.shift();
+      if (strip && w.length > 1) { const k = w.filter(x => !strip.includes(x) && !strip.includes(sing(x))); if (k.length) w = k; }
+      return w.join('');
+    };
+    const lev = (a, b, cap) => {
+      if (Math.abs(a.length - b.length) > cap) return cap + 1;
+      /* edit distance where swapping two neighbouring letters counts as one typo */
+      let pp = null, p = []; for (let j = 0; j <= b.length; j++) p[j] = j;
+      for (let i = 1; i <= a.length; i++) { const q = [i]; let lo = i; for (let j = 1; j <= b.length; j++) { let v = Math.min(p[j] + 1, q[j - 1] + 1, p[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1)); if (pp && i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) v = Math.min(v, pp[j - 2] + 1); q[j] = v; if (v < lo) lo = v; } if (lo > cap) return cap + 1; pp = p; p = q; }
+      return p[b.length];
+    };
+    const PCACHE = [];
+    function prompt(i) {
+      if (PCACHE[i]) return PCACHE[i];
+      const parts = BANK[i].split('|'), strip = parts[1] ? parts[1].split(' ') : null, ans = [];
+      for (let t = 0; t < 5; t++) for (const e of parts[t + 2].split(',')) { const names = e.split('/'); ans.push({ disp: names[0].toUpperCase(), tier: t, keys: names.map(n => norm(n, strip)).filter(Boolean) }); }
+      return (PCACHE[i] = { i, q: parts[0], strip, ans });
+    }
+    function judge(P, input) {
+      const u = norm(input, P.strip); if (!u) return null;
+      const us = sing(u); let best = null, bd = 9;
+      for (const a of P.ans) for (const k of a.keys) {
+        if (k === u || sing(k) === us) return a;
+        const L = Math.min(k.length, u.length), cap = L >= 9 ? 2 : L >= 4 ? 1 : 0;
+        if (!cap || k[0] !== u[0]) continue;
+        const d = lev(us, sing(k), cap); if (d <= cap && d < bd) { bd = d; best = a; }
+      }
+      return best;
+    }
+    /* ---- daily order: every 51 days each prompt comes up once, in a fresh seeded order per cycle ---- */
+    const rng = seed => () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+    const today = () => { const d = new Date(); return Math.floor((d.getTime() - d.getTimezoneOffset() * 6e4) / 864e5); };
+    function dailySet(day) {
+      const N = BANK.length, out = [];
+      for (let k = day * NQ; out.length < NQ; k++) {
+        const cyc = Math.floor(k / N), r = rng(cyc * 7919 + 17), perm = BANK.map((_, i) => i);
+        for (let i = N - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [perm[i], perm[j]] = [perm[j], perm[i]]; }
+        const v = perm[k % N]; if (!out.includes(v)) out.push(v);
+      }
+      return out;
+    }
+    const SV = Object.assign({ day: -1, res: [], depth: 0, best: 0, streak: 0, dives: 0, fbest: 0 }, QG.load(KEY, {}) || {});
+    const save = () => QG.save(KEY, SV);
+    /* ---- pixel helpers ---- */
+    const twid = s => { let w = 0; for (const ch of String(s)) w += (ch === ' ' || !KF[ch]) ? 4 : 6; return Math.max(0, w - 1); };
+    const TC = new Map();
+    function txt(b, str, x, y, col, sc, al, sh) {
+      str = String(str).toUpperCase(); sc = sc || 1; const key = str + '|' + col + '|' + sc + '|' + (sh || '');
+      let o = TC.get(key);
+      if (!o) {
+        if (TC.size > 500) TC.clear();
+        o = document.createElement('canvas'); o.width = Math.max(1, twid(str) * sc + (sh ? sc : 0)); o.height = 7 * sc + (sh ? sc : 0);
+        const c = o.getContext('2d');
+        const dr = (ox, oy, cl) => { c.fillStyle = cl; let cx = 0; for (const ch of str) { const g = KF[ch]; if (ch === ' ' || !g) { cx += 4; continue; } for (let i = 0; i < 35; i++) if (g[i] === '1') c.fillRect(ox + (cx + i % 5) * sc, oy + ((i / 5) | 0) * sc, sc, sc); cx += 6; } };
+        if (sh) dr(sc, sc, sh); dr(0, 0, col); TC.set(key, o);
+      }
+      const w = twid(str) * sc; const px = al === 'c' ? x - (w >> 1) : al === 'r' ? x - w : x;
+      b.drawImage(o, Math.round(px), Math.round(y));
+    }
+    function wrap(str, maxW) { const out = []; let line = ''; for (const w of str.split(' ')) { const t = line ? line + ' ' + w : w; if (twid(t) > maxW && line) { out.push(line); line = w; } else line = t; } if (line) out.push(line); return out; }
+    function win(b, x, y, w, h, fill, edge) { x = Math.round(x); y = Math.round(y); w = Math.round(w); h = Math.round(h); b.fillStyle = '#050a14'; b.fillRect(x + 1, y, w - 2, h); b.fillRect(x, y + 1, w, h - 2); b.fillStyle = edge || '#3fa9c9'; b.fillRect(x + 1, y + 1, w - 2, h - 2); b.fillStyle = '#050a14'; b.fillRect(x + 2, y + 2, w - 4, h - 4); b.fillStyle = fill || '#0d2240'; b.fillRect(x + 3, y + 3, w - 6, h - 6); }
+    const hx = c => [parseInt(c.slice(1, 3), 16), parseInt(c.slice(3, 5), 16), parseInt(c.slice(5, 7), 16)];
+    const mixc = (a, b, t) => { const A = hx(a), B = hx(b); return 'rgb(' + A.map((v, i) => Math.round(v + (B[i] - v) * t)).join(',') + ')'; };
+    const H = (a, b) => { let h = (a * 374761393 + b * 668265263) | 0; h = Math.imul(h ^ (h >>> 13), 1274126177); return ((h ^ (h >>> 16)) >>> 0) / 4294967296; };
+    const WATER = [[0, '#2f9fe0'], [300, '#1a6fb8'], [1000, '#123f86'], [2500, '#14205a'], [4000, '#0c0f33'], [6000, '#05061a'], [7600, '#020208']];
+    function water(m) { if (m <= 0) return WATER[0][1]; for (let i = 1; i < WATER.length; i++) if (m < WATER[i][0]) { const [a, ca] = WATER[i - 1], [b, cb] = WATER[i]; return mixc(ca, cb, (m - a) / (b - a)); } return WATER[WATER.length - 1][1]; }
+    /* sprites: Greg's sub (faces right) */
+    const SUB = ['..........pp..........', '..........p...........', '........yyyyy.........', '.......yhhhhYy........', '...yyyyyyyyyyyyyyy....', '..yhhhhhhhhhhhhhhYy...', '..yYYYoooYYYoooYYYYy..', '..yYYogggoYogggoYYYYy.', '..yYYogggoYogggoYYYYYy', '..yYYYoooYYYoooYYYYYy.', '..ydddddddddddddddyy..', '...yyyyyyyyyyyyyyy....'];
+    const SUBC = { y: '#9a6408', Y: '#ffd23f', h: '#fff3a8', d: '#d19a12', o: '#5a3b12', g: '#7fe7ff', p: '#8a6a2a' };
+    const FISH = ['..ooo.o', '.oeooo.', 'oooooo.', '..ooo.o'];
+    function spr(b, rows, pal, x, y, flip) { const w = rows[0].length; for (let r = 0; r < rows.length; r++) for (let q = 0; q < w; q++) { const ch = rows[r][q]; if (ch === '.') continue; b.fillStyle = pal[ch]; b.fillRect(Math.round(x + (flip ? w - 1 - q : q)), Math.round(y + r), 1, 1); } }
+    const KB = ['QWERTYUIOP', 'ASDFGHJKL', 'ZXCVBNM<'];
+    return Object.assign({
+      sk, noVeil: true, title: 'Gregillion', how: 'Name the answer nobody else would. Rare answers sink you deeper.', fsAspect: 0.62,
+      state: 'ready', score: 0, best: SV.best | 0, dead: 0, shake: 0, flash: 0, floats: [],
+      _dbg: { judge: (i, s) => judge(prompt(i), s), prompt, dailySet, BANK, norm },
+      mode: 'title', t: 0, cam: 0, camT: 0, depth: 0, qi: 0, set: [], res: [], input: '', tleft: QT, msg: '', msgT: 0, wrong: 0, daily: true, num: false, last: null, revT: 0, bubbles: [], snow: [], pressed: null, pT: 0,
+      layout() {
+        const w = this.w, h = this.h;
+        const s = Math.max(2, Math.floor(Math.min(w / 200, h / 330)));
+        this.ps = s; this.BW = Math.ceil(w / s); this.BH = Math.ceil(h / s);
+        if (!this.buf) { this.buf = document.createElement('canvas'); }
+        this.buf.width = this.BW; this.buf.height = this.BH; this.bx = this.buf.getContext('2d');
+        const touch = matchMedia('(pointer: coarse)').matches;
+        this.rail = 0; /* the play area already stops before the like/comment rail */
+        this.CW = Math.min(this.BW - this.rail - 8, 230); this.CX = ((this.BW - this.rail) >> 1);
+        this.snow = []; for (let i = 0; i < 46; i++) this.snow.push({ x: Math.random() * this.BW, y: Math.random() * this.BH, v: 2 + Math.random() * 5, k: Math.random() });
+        this.geom();
+      },
+      geom() {
+        const BH = this.BH, CW = this.CW, x0 = this.CX - (CW >> 1);
+        const kh = Math.max(14, Math.min(22, Math.floor(BH * 0.075))), gap = 2, kw = Math.floor((CW - gap * 9) / 10);
+        this.keys = []; const top = BH - 6 - (kh + gap) * 4;
+        KB.forEach((row, ri) => {
+          const r = (ri === 0 && this.num) ? '1234567890' : row;
+          const n = r.length, rowW = r.includes('<') ? (n - 1) * (kw + gap) + kw * 1.6 : n * (kw + gap) - gap; let x = this.CX - rowW / 2;
+          for (const k of r) { const ww = k === '<' ? Math.round(kw * 1.6) : kw; this.keys.push({ k, x: Math.round(x), y: top + ri * (kh + gap), w: ww, h: kh }); x += ww + gap; }
+        });
+        const y4 = top + 3 * (kh + gap), w1 = Math.round(kw * 1.8), w3 = Math.round(kw * 2.6), w2 = CW - w1 - w3 - gap * 2;
+        this.keys.push({ k: '#', x: x0, y: y4, w: w1, h: kh }, { k: ' ', x: x0 + w1 + gap, y: y4, w: w2, h: kh }, { k: '>', x: x0 + w1 + w2 + gap * 2, y: y4, w: w3, h: kh });
+        this.kTop = top;
+        this.subY = Math.round(Math.min(46, BH * 0.15));
+        this.how = ['7 PROMPTS, 25 SEC EACH', 'SAY WHAT NOBODY ELSE WOULD', 'RARE ANSWERS SINK YOU DEEP', 'TRENCH FLOOR: 7,000 M'].flatMap((l, i) => wrap(l, CW - 14).map(x => [x, i]));
+        this.ty = Math.round(Math.max(this.subY + 22, Math.min(BH * 0.24, BH - 150 - this.how.length * 10)));
+        this.bDaily = { x: x0 + 6, y: this.ty + 34 + 12 + this.how.length * 10 + 10, w: CW - 12, h: 24 }; this.bFree = { x: x0 + 6, y: this.bDaily.y + 30, w: CW - 12, h: 20 };
+        this.bNext = { x: x0 + 6, y: BH - 34, w: CW - 12, h: 22 };
+        this.bA = { x: x0 + 6, y: BH - 58, w: CW - 12, h: 20 }; this.bB = { x: x0 + 6, y: BH - 32, w: CW - 12, h: 20 };
+      },
+      reset() { this.mode = 'title'; this.state = 'ready'; this.camT = 0; },
+      enter() { if (this.mode === 'title' || this.mode === 'end') { this.mode = 'title'; this.state = 'ready'; this.camT = 0; } },
+      start(daily) {
+        const day = today();
+        if (daily && SV.day === day) return;
+        this.daily = daily; this.set = daily ? dailySet(day) : shuf(BANK.map((_, i) => i)).slice(0, NQ);
+        this.res = []; this.qi = 0; this.depth = 0; this.score = 0; this.camT = 0; this.state = 'run'; this.mode = 'q'; this.newQ(); JING('start');
+      },
+      newQ() { this.P = prompt(this.set[this.qi]); this.input = ''; this.tleft = QT; this.wrong = 0; this.msg = ''; this.mode = 'q'; this.last = null; },
+      submit() {
+        if (this.mode !== 'q') return;
+        const a = judge(this.P, this.input);
+        if (!a) { if (norm(this.input)) { this.msg = 'NOT ON OUR CHARTS!'; this.msgT = 1.8; this.wrong = 0.4; sfx(150, 0.12, 0.05, 'square'); buzz(30); } return; }
+        this.answer(a);
+      },
+      answer(a) {
+        const t = a ? a.tier : -1, pts = a ? TIERS[t].p : 0;
+        this.res.push(t); this.last = { a, t, pts, typed: this.input };
+        this.from = this.depth; this.depth += pts * 10; this.score = this.depth; this.camT = this.depth; this.revT = 0; this.mode = 'rev';
+        if (a) { [330, 440, 520, 660, 880].slice(0, t + 2).forEach((f, i) => setTimeout(() => sfx(f, 0.14, 0.045, 'sine'), i * 90)); buzz(t >= 3 ? 40 : 12); for (let i = 0; i < 6 + t * 4; i++) this.bubbles.push({ x: this.CX + rand(-10, 10), y: this.subY + 6, v: rand(10, 30), t: 0 }); }
+        else { sfx(200, 0.3, 0.05, 'triangle'); }
+        /* picks to show: two common ones and two deep ones */
+        const pool = tt => this.P.ans.filter(x => x.tier === tt && x !== a);
+        this.top = pool(0).slice(0, 3).map(x => x.disp);
+        const deep = shuf(pool(4).concat(pool(3))).slice(0, 2); this.deep = deep.map(x => x.disp);
+      },
+      next() {
+        if (this.mode !== 'rev' || this.revT < 0.5) return;
+        this.qi++;
+        if (this.qi < NQ) { this.newQ(); return; }
+        this.mode = 'end'; this.state = 'dead'; this.dead = 0;
+        if (this.daily) { const day = today(); SV.streak = (SV.day === day - 1) ? SV.streak + 1 : 1; SV.day = day; SV.res = this.res.slice(); SV.depth = this.depth; }
+        else SV.fbest = Math.max(SV.fbest | 0, this.depth);
+        SV.best = Math.max(SV.best | 0, this.depth); SV.dives = (SV.dives | 0) + 1; this.best = SV.best; save();
+        JING(this.depth >= 3000 ? 'win' : 'over');
+      },
+      press(k) {
+        if (this.mode !== 'q') return;
+        if (k === '<') this.input = this.input.slice(0, -1);
+        else if (k === '>') { this.submit(); return; }
+        else if (k === '#') { this.num = !this.num; this.geom(); }
+        else if (this.input.length < 24) { if (k === ' ' && (!this.input || this.input.endsWith(' '))) return; this.input += k; }
+        sfx(k === '<' ? 300 : 520 + Math.random() * 80, 0.025, 0.025, 'square');
+      },
+      tap(p) {
+        const s = this.ps, x = p[0] / s, y = p[1] / s, P = [x, y];
+        if (this.mode === 'title') {
+          if (QG.hit(this.bDaily, P)) { if (SV.day !== today()) this.start(true); else { this.msg = 'COME BACK TOMORROW!'; this.msgT = 1.5; sfx(180, 0.08, 0.04, 'square'); } }
+          else if (QG.hit(this.bFree, P)) this.start(false);
+          return;
+        }
+        if (this.mode === 'q') { for (const k of this.keys) if (x >= k.x - 1 && x <= k.x + k.w + 1 && y >= k.y - 1 && y <= k.y + k.h + 1) { this.pressed = k; this.pT = 0.12; this.press(k.k); return; } return; }
+        if (this.mode === 'rev') { if (QG.hit(this.bNext, P)) this.next(); return; }
+        if (this.mode === 'end' && this.dead > 0.6) { if (QG.hit(this.bA, P)) this.start(false); else if (QG.hit(this.bB, P)) { this.mode = 'title'; this.state = 'ready'; this.camT = 0; } }
+      },
+      bind(cv) { cv.addEventListener('pointerdown', e => this.tap(ptrPos(cv, e))); },
+      key(e) {
+        if (e.type !== 'keydown') return false;
+        const k = e.key;
+        if (this.mode === 'q') {
+          if (k === 'Enter') { this.submit(); return true; }
+          if (k === 'Backspace') { this.press('<'); return true; }
+          if (k === ' ') { this.press(' '); return true; }
+          if (k && k.length === 1 && /[a-z0-9'\-&+#]/i.test(k)) { if (this.input.length < 24) { this.input += k.toUpperCase(); sfx(560, 0.02, 0.02, 'square'); } return true; }
+          return false;
+        }
+        if (k === 'Enter') {
+          if (this.mode === 'title') { if (SV.day !== today()) this.start(true); else this.start(false); }
+          else if (this.mode === 'rev') this.next();
+          else if (this.mode === 'end' && this.dead > 0.6) this.start(false);
+          return true;
+        }
+        return false;
+      },
+      tick(dt) {
+        this.t += dt; if (this.msgT > 0) this.msgT -= dt; if (this.wrong > 0) this.wrong -= dt; if (this.pT > 0) this.pT -= dt; else this.pressed = null;
+        if (this.mode === 'q') { this.tleft -= dt; if (this.tleft <= 0) { this.tleft = 0; const a = judge(this.P, this.input); this.answer(a); if (!a) this.last.timeout = true; } }
+        if (this.mode === 'rev') this.revT += dt;
+        if (this.mode === 'end') this.dead += dt;
+        const prev = this.cam; this.cam += (this.camT - this.cam) * Math.min(1, dt * (this.mode === 'rev' ? 1.6 : 3));
+        if (Math.abs(this.camT - this.cam) < 0.5) this.cam = this.camT;
+        const dv = (this.cam - prev) / 4; /* buffer px the world moved up */
+        for (const f of this.snow) { f.y -= dv + f.v * dt * 0.4; f.x += Math.sin(this.t + f.k * 9) * dt * 2; if (f.y < -2) { f.y += this.BH + 4; f.x = Math.random() * this.BW; } if (f.y > this.BH + 2) f.y -= this.BH + 4; }
+        for (const b of this.bubbles) { b.t += dt; b.y -= b.v * dt + dv; b.x += Math.sin(b.t * 6 + b.v) * dt * 6; }
+        this.bubbles = this.bubbles.filter(b => b.t < 2.5 && b.y > -4);
+        if (Math.random() < dt * 1.5) this.bubbles.push({ x: this.CX - 11 + rand(-2, 2), y: this.subY + 8, v: rand(8, 16), t: 0 });
+      },
+      /* ---- the sea ---- */
+      scene(b) {
+        const BW = this.BW, BH = this.BH, cam = this.cam, sy = this.subY, M = 4; /* metres per buffer pixel */
+        const mAt = y => cam + (y - sy) * M;
+        for (let y = 0; y < BH; y += 2) {
+          const m = mAt(y);
+          if (m < 0) { const t = Math.min(1, -m / 160); b.fillStyle = mixc('#bfe8ff', '#5ab4f0', t); }
+          else b.fillStyle = water(Math.floor(m / 40) * 40 + ((y >> 1) & 1) * 20);
+          b.fillRect(0, y, BW, 2);
+        }
+        /* surface waves + sun */
+        const sY = sy - cam / M;
+        if (sY > -40 && sY < BH + 4) {
+          b.fillStyle = '#fff6c9'; b.fillRect(BW - 40, Math.round(sY - 34), 12, 12); b.fillStyle = '#ffe58a'; b.fillRect(BW - 42, Math.round(sY - 32), 16, 8); b.fillRect(BW - 38, Math.round(sY - 36), 8, 16);
+          for (let x = 0; x < BW; x++) { const wv = Math.round(Math.sin(x * 0.18 + this.t * 2) * 1.5 + Math.sin(x * 0.07 - this.t) * 1.2); b.fillStyle = '#e8fbff'; b.fillRect(x, Math.round(sY + wv - 1), 1, 1); b.fillStyle = '#7fd0f5'; b.fillRect(x, Math.round(sY + wv), 1, 2); }
+          b.globalAlpha = 0.12; b.fillStyle = '#ffffff'; for (let i = 0; i < 5; i++) { const x = ((i * 53 + this.t * 6) % (BW + 40)) - 20; b.beginPath(); b.moveTo(x, sY); b.lineTo(x + 10, sY); b.lineTo(x + 34, sY + 120); b.lineTo(x + 18, sY + 120); b.fill(); } b.globalAlpha = 1;
+        }
+        /* trench walls: rock edge from hashed noise, decor by depth */
+        const wallW = (wy, side) => { const a = Math.floor(wy / 16), f = (wy / 16) - a, n0 = H(a, side), n1 = H(a + 1, side); const n = n0 + (n1 - n0) * (f * f * (3 - 2 * f)); const open = Math.min(1, Math.max(0, (wy - 30) / 120)); return Math.round((6 + n * 16 + H(wy >> 2, side + 9) * 2) * open); };
+        for (let y = 0; y < BH; y++) {
+          const m = mAt(y); if (m < 100) continue; const wy = Math.floor(m / M);
+          const dk = Math.min(1, m / 6000), rock = mixc('#3a5a6e', '#0b0d16', dk), edge = mixc('#5f8494', '#1c2030', dk);
+          const L = wallW(wy, 1), R = wallW(wy, 2);
+          b.fillStyle = rock; b.fillRect(0, y, L, 1); b.fillRect(BW - R, y, R, 1);
+          b.fillStyle = edge; b.fillRect(L, y, 1, 1); b.fillRect(BW - R - 1, y, 1, 1);
+        }
+        for (let wy = Math.floor(mAt(-8) / M / 22) * 22; wy < mAt(BH + 8) / M; wy += 22) {
+          const m = wy * M; if (m < 130) continue; const y = sy + (m - cam) / M;
+          for (const side of [1, 2]) {
+            const hv = H(wy, side + 30); if (hv < 0.35) continue;
+            const ww = wallW(wy, side), x = side === 1 ? ww : BW - ww - 1, dir = side === 1 ? 1 : -1;
+            if (m < 900) { /* kelp */ b.fillStyle = m < 400 ? '#3fae5a' : '#2c7a4a'; const len = 8 + Math.floor(hv * 14); for (let i = 0; i < len; i++) { const sx = x + dir * (1 + Math.round(Math.sin(this.t * 1.6 + i * 0.5 + wy) * 1.5)); b.fillRect(sx, Math.round(y - i), 1, 1); if (i % 3 === 0) b.fillRect(sx + dir, Math.round(y - i), 1, 1); } }
+            else if (m < 2600) { /* coral fans */ const col = ['#ff7a8a', '#ff9f43', '#c86bff', '#ffd23f'][Math.floor(hv * 40) % 4]; b.fillStyle = mixc(col, '#14205a', Math.min(0.75, (m - 900) / 2600)); for (let i = 0; i < 6; i++) { b.fillRect(x + dir * i, Math.round(y - (i % 3)), 1, 1 + (i & 1)); b.fillRect(x + dir * i, Math.round(y - 3 - (i >> 1)), 1, 1); } }
+            else if (m < 5200) { /* glowing tube worms */ for (let i = 0; i < 3; i++) { b.fillStyle = '#2a2f4a'; b.fillRect(x + dir * (1 + i * 2), Math.round(y - 4 - i), 1, 4 + i); b.fillStyle = (Math.sin(this.t * 3 + wy + i) > 0) ? '#ff4f6d' : '#b02a48'; b.fillRect(x + dir * (1 + i * 2), Math.round(y - 5 - i), 1, 1); } }
+            else { /* glowing crystals */ b.fillStyle = 'rgba(120,255,240,.25)'; b.fillRect(x + dir * 1 - 1, Math.round(y - 6), 4, 7); b.fillStyle = '#7ffff0'; b.fillRect(x + dir * 1, Math.round(y - 5), 1, 5); b.fillRect(x + dir * 2, Math.round(y - 3), 1, 3); }
+          }
+        }
+        /* creatures: one per 70-pixel band, kind by depth */
+        for (let band = Math.floor(mAt(-20) / M / 70); band <= mAt(BH + 20) / M / 70; band++) {
+          if (band < 0) continue; const m = band * 70 * M + 120, y0 = sy + (m - cam) / M, hv = H(band, 77), dir = hv < 0.5 ? 1 : -1;
+          const span = BW + 60, x = ((hv * span + dir * this.t * (8 + hv * 10)) % span + span) % span - 30;
+          if (m < 1200) { const fc = ['#ffb347', '#ff6f61', '#ffe066', '#9be7ff'][band % 4], pal = { o: mixc(fc, '#123f86', Math.min(0.7, m / 1700)), e: '#102030' }; for (let i = 0; i < 3 + band % 3; i++) spr(b, FISH, pal, x + i * 9 * -dir + (i & 1) * 3, y0 + (i % 2) * 6 - i, dir > 0); }
+          else if (m < 4200) { const yy = y0 + Math.sin(this.t * 1.3 + band) * 6, pu = Math.sin(this.t * 3 + band) > 0 ? 1 : 0, jc = band & 1 ? '#ff8fe0' : '#8fd8ff'; b.globalAlpha = 0.85; b.fillStyle = jc; b.fillRect(x - 3 - pu, yy, 7 + pu * 2, 2); b.fillRect(x - 2, yy - 2, 5, 2); b.fillRect(x - 1, yy - 3, 3, 1); b.globalAlpha = 0.6; for (let i = -2; i <= 2; i += 2) for (let j = 0; j < 6; j++) b.fillRect(Math.round(x + i + Math.sin(this.t * 4 + j + i) * 0.8), Math.round(yy + 2 + j), 1, 1); b.globalAlpha = 1; }
+          else if (m < MAXD) { /* anglerfish: a dark body you mostly see by its lure */ const yy = y0 + Math.sin(this.t + band) * 3, f = dir > 0; b.fillStyle = '#171a2c'; b.fillRect(x - 6, yy - 3, 12, 7); b.fillRect(x + (f ? 5 : -8), yy - 1, 3, 3); b.fillStyle = '#e6e6f0'; for (let i = 0; i < 5; i++) b.fillRect(x + (f ? 1 + i : -5 + i), yy + 2, 1, 1 + (i & 1)); b.fillStyle = '#2a3050'; b.fillRect(x + (f ? 2 : -3), yy - 5, 1, 2); b.fillRect(x + (f ? 3 : -4), yy - 6, 2, 1); const gl = 0.6 + Math.sin(this.t * 5 + band) * 0.4; b.globalAlpha = 0.25 * gl; b.fillStyle = '#c8ff6a'; b.fillRect(x + (f ? 4 : -7), yy - 8, 5, 5); b.globalAlpha = 1; b.fillStyle = '#eaff9a'; b.fillRect(x + (f ? 5 : -6), yy - 7, 2, 2); }
+        }
+        /* trench floor at 7000 m */
+        const fY = sy + (MAXD + 60 - cam) / M;
+        if (fY < BH + 4) { for (let x = 0; x < BW; x++) { const hh = Math.round(H(x >> 2, 5) * 3); b.fillStyle = '#2b2a3a'; b.fillRect(x, Math.round(fY - hh), 1, BH); b.fillStyle = '#4a4560'; b.fillRect(x, Math.round(fY - hh), 1, 1); } b.fillStyle = '#7a6a50'; b.fillRect(this.CX + 30, Math.round(fY - 12), 1, 12); b.fillStyle = '#ffd23f'; b.fillRect(this.CX + 31, Math.round(fY - 12), 6, 4); txt(b, 'G', this.CX + 32, Math.round(fY - 12), '#050a14', 1); }
+        /* marine snow */
+        b.fillStyle = cam > 300 ? 'rgba(220,235,255,.55)' : 'rgba(255,255,255,.35)';
+        for (const f of this.snow) if (mAt(f.y) > 10) b.fillRect(Math.round(f.x), Math.round(f.y), 1, 1);
+        /* the sub */
+        const bob = Math.round(Math.sin(this.t * 2.2) * 1.5), sx = this.CX - 11, syy = this.subY - 6 + bob;
+        if (cam > 900) { const k = Math.min(1, (cam - 900) / 2500); b.fillStyle = '#fff3b0'; for (let dx = 0; dx < 46; dx++) { const hh = 1 + dx * 0.32, a = k * 0.32 * (1 - dx / 46); if (a <= 0.01) continue; b.globalAlpha = a; for (let dy = -Math.round(hh); dy <= Math.round(hh * 1.2); dy++) if (((dx + dy) & 1) === 0) b.fillRect(sx + 21 + dx, syy + 7 + dy, 1, 1); } b.globalAlpha = 1; }
+        spr(b, SUB, SUBC, sx, syy);
+        b.fillStyle = '#9aa3b5'; const pf = Math.floor(this.t * 14) & 1; b.fillRect(sx, syy + 6 + pf, 2, 3 - pf); b.fillRect(sx + 1, syy + 5 + (1 - pf) * 4, 1, 1);
+        b.fillStyle = 'rgba(200,240,255,.7)'; for (const u of this.bubbles) b.fillRect(Math.round(u.x), Math.round(u.y), 1 + (u.v > 22 ? 1 : 0), 1 + (u.v > 22 ? 1 : 0));
+      },
+      depthHud(b) {
+        const d = Math.round(this.cam);
+        txt(b, d.toLocaleString('en-US') + ' M', 6, 5, '#ffffff', 1, 'l', '#050a14');
+        if (this.mode === 'q' || this.mode === 'rev') txt(b, (this.qi + 1) + '/' + NQ, this.BW - this.rail - 6, 5, '#ffffff', 1, 'r', '#050a14');
+        /* depth gauge down the left */
+        const gx = 3, gy = 16, gh = Math.max(40, this.kTop - 30 - gy);
+        b.fillStyle = 'rgba(5,10,20,.55)'; b.fillRect(gx, gy, 3, gh);
+        for (let i = 0; i < 5; i++) { const yy = gy + Math.round(gh * [100, 400, 1000, 2500, 4000][i] / MAXD); b.fillStyle = TIERS[i].c; b.fillRect(gx + 3, yy, 2, 1); }
+        b.fillStyle = '#ffd23f'; b.fillRect(gx - 1, gy + Math.round(gh * Math.min(1, this.cam / MAXD)) - 1, 5, 3);
+      },
+      draw() {
+        const c = this.ctx, b = this.bx; if (!b) return;
+        b.imageSmoothingEnabled = false; this.scene(b);
+        const BW = this.BW, BH = this.BH, CW = this.CW, CX = this.CX, x0 = CX - (CW >> 1);
+        if (this.mode === 'title') {
+          const ty = this.ty;
+          txt(b, 'GREGILLION', CX, ty, '#ffd23f', twid('GREGILLION') * 2 + 8 < CW ? 2 : 1, 'c', '#7a4a00');
+          txt(b, 'ONE IN A GREGILLION', CX, ty + 20, '#e8fbff', 1, 'c', '#050a14');
+          const how = this.how;
+          win(b, x0 + 2, ty + 34, CW - 4, 12 + how.length * 10);
+          how.forEach(([l, i], j) => txt(b, l, CX, ty + 41 + j * 10, i === 3 ? '#ffd23f' : '#cfe9ff', 1, 'c'));
+          const done = SV.day === today(), bd = this.bDaily;
+          win(b, bd.x, bd.y, bd.w, bd.h, done ? '#1a2a40' : '#ffd23f', done ? '#3a5a7a' : '#fff3a8');
+          if (!done) txt(b, (Math.floor(this.t * 2) & 1 ? '> ' : '  ') + 'DAILY DIVE', CX, bd.y + 9, '#3a2400', 1, 'c');
+          else { const d = new Date(), m = (24 * 60) - (d.getHours() * 60 + d.getMinutes()); txt(b, 'TODAY: ' + SV.depth.toLocaleString('en-US') + ' M', CX, bd.y + 5, '#ffd23f', 1, 'c'); txt(b, 'NEXT DIVE IN ' + Math.floor(m / 60) + 'H ' + (m % 60) + 'M', CX, bd.y + 14, '#8fb0d0', 1, 'c'); }
+          const bf = this.bFree; win(b, bf.x, bf.y, bf.w, bf.h); txt(b, 'FREE DIVE', CX, bf.y + 7, '#e8fbff', 1, 'c');
+          let sy2 = bf.y + bf.h + 8;
+          if (SV.streak && SV.day >= today() - 1) { txt(b, 'STREAK ' + SV.streak + ' DAY' + (SV.streak > 1 ? 'S' : ''), CX, sy2, '#ff9f43', 1, 'c', '#050a14'); sy2 += 10; }
+          if (SV.best) txt(b, 'DEEPEST ' + SV.best.toLocaleString('en-US') + ' M', CX, sy2, '#9fdcff', 1, 'c', '#050a14');
+          if (this.msgT > 0) txt(b, this.msg, CX, bd.y - 10, '#ffffff', 1, 'c', '#050a14');
+        } else if (this.mode === 'q') {
+          this.depthHud(b);
+          const lines = wrap(this.P.q, CW - 16), wy = this.subY + 14, wh = 12 + lines.length * 10;
+          /* timer bar */
+          const tf = this.tleft / QT; b.fillStyle = '#050a14'; b.fillRect(x0 + 2, wy - 6, CW - 4, 4); b.fillStyle = tf > 0.4 ? '#5fe08a' : tf > 0.2 ? '#ffd23f' : (Math.floor(this.t * 6) & 1 ? '#ff4f6d' : '#ff8f9f'); b.fillRect(x0 + 3, wy - 5, Math.round((CW - 6) * tf), 2);
+          win(b, x0, wy, CW, wh); lines.forEach((l, i) => txt(b, l, CX, wy + 7 + i * 10, '#ffffff', 1, 'c'));
+          txt(b, Math.ceil(this.tleft) + 'S', x0 + CW - 4, wy - 15, tf > 0.2 ? '#cfe9ff' : '#ff8f9f', 1, 'r', '#050a14');
+          const ay = wy + wh + 6, sh = this.wrong > 0 ? Math.round(Math.sin(this.wrong * 60) * 2) : 0;
+          win(b, x0 + 4 + sh, ay, CW - 8, 19, '#e8fbff', this.wrong > 0 ? '#ff4f6d' : '#3fa9c9');
+          let shown = this.input; while (twid(shown) > CW - 26 && shown.length) shown = shown.slice(1);
+          txt(b, shown, x0 + 10 + sh, ay + 6, '#0d2240', 1, 'l');
+          if (Math.floor(this.t * 2.5) & 1) { b.fillStyle = '#0d2240'; b.fillRect(x0 + 11 + sh + twid(shown) + (shown ? 1 : 0), ay + 5, 1, 9); }
+          if (!this.input) txt(b, 'TYPE AN ANSWER', x0 + 14 + sh, ay + 6, '#8fb0d0', 1, 'l');
+          if (this.msgT > 0) txt(b, this.msg, CX, ay + 24, '#ffb0bc', 1, 'c', '#050a14');
+          /* keyboard */
+          for (const k of this.keys) {
+            const dn = this.pressed === k, lbl = k.k === '<' ? 'DEL' : k.k === ' ' ? 'SPACE' : k.k === '>' ? 'DIVE' : k.k === '#' ? (this.num ? 'ABC' : '123') : k.k;
+            const fill = k.k === '>' ? '#ffd23f' : dn ? '#3fa9c9' : '#14305a', fg = k.k === '>' ? '#3a2400' : '#e8fbff';
+            b.fillStyle = '#050a14'; b.fillRect(k.x, k.y + 1, k.w, k.h); b.fillStyle = fill; b.fillRect(k.x, k.y + (dn ? 1 : 0), k.w, k.h - 1);
+            b.fillStyle = 'rgba(255,255,255,.18)'; b.fillRect(k.x, k.y + (dn ? 1 : 0), k.w, 1);
+            txt(b, lbl, k.x + k.w / 2, k.y + ((k.h - 7) >> 1) + (dn ? 1 : 0), fg, 1, 'c');
+          }
+        } else if (this.mode === 'rev') {
+          this.depthHud(b);
+          const L = this.last, wy = this.subY + 16, col = L.a ? TIERS[L.t].c : '#8fb0d0';
+          let h = 0; const rows = [];
+          const ad = (s, cl, gap) => { wrap(s, CW - 12).slice(0, 2).forEach((ln, i) => { const g = i ? 0 : (gap || 0); rows.push([ln, cl, g]); h += 10 + g; }); };
+          ad(L.a ? '"' + L.a.disp + '"' : (L.timeout ? "TIME'S UP!" : 'NO ANSWER'), '#ffffff');
+          if (L.a) { ad(TIERS[L.t].n, col, 2); ad(TIERS[L.t].d, '#cfe9ff'); ad('+' + L.pts + ' PTS   +' + (L.pts * 10).toLocaleString('en-US') + ' M', '#ffd23f', 2); }
+          ad('MOST DIVERS SAID', '#8fb0d0', 6); for (const s of this.top) ad(s, '#7fd6ff');
+          if (this.deep.length) { ad('DEEP PICKS', '#8fb0d0', 4); for (const s of this.deep) ad(s, '#ff9fd0'); }
+          const wh = h + 12, pop = Math.min(1, this.revT * 4);
+          win(b, x0, wy, CW, Math.round(wh * pop), '#0d2240', col);
+          if (pop >= 1) { let yy = wy + 7; for (const [s, cl, g] of rows) { yy += g; txt(b, s, CX, yy, cl, 1, 'c'); yy += 10; } }
+          const bn = this.bNext; if (this.revT > 0.5) { win(b, bn.x, bn.y, bn.w, bn.h, '#ffd23f', '#fff3a8'); txt(b, this.qi + 1 < NQ ? 'NEXT PROMPT' : 'SURFACE RESULTS', CX, bn.y + 8, '#3a2400', 1, 'c'); }
+        } else if (this.mode === 'end') {
+          this.depthHud(b);
+          const d = this.depth, zone = d >= MAXD ? 'TRENCH FLOOR!' : d >= 5000 ? 'THE ABYSS' : d >= 3500 ? 'MIDNIGHT ZONE' : d >= 1800 ? 'TWILIGHT ZONE' : d >= 700 ? 'THE REEF' : 'THE SHALLOWS';
+          const wy = this.subY + 18, wh = 102; win(b, x0, wy, CW, wh);
+          txt(b, this.daily ? 'DAILY DIVE' : 'FREE DIVE', CX, wy + 7, '#8fb0d0', 1, 'c');
+          txt(b, d.toLocaleString('en-US') + ' M', CX, wy + 19, '#ffd23f', 2, 'c', '#7a4a00');
+          txt(b, zone, CX, wy + 38, '#ffffff', 1, 'c');
+          const sq = 11, gx = CX - (NQ * (sq + 3) - 3) / 2;
+          this.res.forEach((t, i) => { b.fillStyle = '#050a14'; b.fillRect(gx + i * (sq + 3) - 1, wy + 51, sq + 2, sq + 2); b.fillStyle = t < 0 ? '#2a3a55' : TIERS[t].c; b.fillRect(gx + i * (sq + 3), wy + 52, sq, sq); if (t === 4) { b.fillStyle = '#fff8d0'; b.fillRect(gx + i * (sq + 3) + 2, wy + 54, 2, 2); } });
+          txt(b, 'DEEPEST EVER ' + SV.best.toLocaleString('en-US') + ' M', CX, wy + 70, '#9fdcff', 1, 'c');
+          if (this.daily) txt(b, 'STREAK ' + SV.streak + (CW > 180 ? '  NEW DIVE TOMORROW' : ''), CX, wy + 82, '#ff9f43', 1, 'c');
+          else txt(b, d >= 4000 ? 'THAT IS A DEEP BRAIN.' : d >= 2000 ? 'NOT BAD AT ALL.' : 'TRY SAYING WEIRDER STUFF.', CX, wy + 82, '#cfe9ff', 1, 'c');
+          if (this.dead > 0.6) { const a = this.bA, bb = this.bB; win(b, a.x, a.y, a.w, a.h, '#ffd23f', '#fff3a8'); txt(b, 'FREE DIVE', CX, a.y + 7, '#3a2400', 1, 'c'); win(b, bb.x, bb.y, bb.w, bb.h); txt(b, 'MENU', CX, bb.y + 7, '#e8fbff', 1, 'c'); }
+        }
+        c.imageSmoothingEnabled = false; c.drawImage(this.buf, 0, 0, this.BW * this.ps, this.BH * this.ps);
+      },
+    }, MIX);
+  }
+  skin('gregillion', { bg: ['#0d2240', '#050a14'], pat: 'none', patc: 'rgba(0,0,0,0)', fg: '#e8fbff', dim: '#8fb0d0', panel: '#0d2240', pfg: '#e8fbff', line: '#3fa9c9', lw: 2, r: 0, pal: ['#ffd23f', '#7fd6ff', '#5fe08a', '#b48cff', '#ff6fae'], good: '#5fe08a', bad: '#ff4f6d', font: '"Press Start 2P","Courier New",monospace', fw: 400, fs: 0.62, mono: '"VT323","Courier New",monospace', mw: 400, ms: 1.25, case: 'upper', dcase: 'upper', veil: 'rgba(5,10,20,.85)', vfg: '#e8fbff', slide: '#050a14', sbgc: '#050a14', sfg: '#e8fbff', sdim: '#8fb0d0', stag: '#ffd23f', tsize: 20, tfw: 400, tls: '0', frame: '' });
+  NEW_SLIDES.push(mk(makeGregillion(SKINS.gregillion), 'Gregillion', SKINS.gregillion, 'Daily dive: 7 prompts, 25 seconds each. Say what nobody else would. Obvious answers keep you in the shallows, rare ones sink Greg\'s sub toward the trench floor at 7,000 m.', '#dailygame #trivia #oneinagregillion', 14.2e9, 4.4e9, 2.9e9, 'gregillion'));
+
   /* ===== endless generator: same four game engines, but every game is dressed by a different "author" ===== */
   const PACKS = [
     { adj: ['Cosmic', 'Orbit', 'Nova', 'Galaxy', 'Astro'], goods: ['STAR', 'MOON', 'ORB'], bads: ['ROCK', 'JUNK', 'VOID'], tags: ['#space #stars', '#astronomy #cosmic'] },
