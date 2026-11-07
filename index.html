@@ -19615,7 +19615,7 @@ function engine(){
       tick() {}, draw() {}
     }, MIX);
   }
-  const ESSAY = mk(makeEssay(ESK), 'The GregSnap Essay', ESK, 'An essay about GregSnap, on GregSnap. Scroll inside to read.', '#longread #essay #satire', 2.3e9, 640e6, 410e6, 'essay');
+  const ESSAY = mk(makeEssay(ESK), 'The GregSnap Essay', ESK, 'yay', '', 2.3e9, 640e6, 410e6, 'essay');
   ESSAY.quiet = true; ESSAY.handle = 'fazegregpaul'; ESSAY.music = 'no music, just reading';
   ESSAY.cm = ESSAY_CM.map(t => [rname(), t, Math.floor(Math.pow(10, rand(0, 4.1)))]).sort((a, b) => b[2] - a[2]);
 
@@ -29304,7 +29304,7 @@ function engine(){
     while (SLIDES.length <= k) {
       const recent = SLIDES.slice(-GAP).map(famOf);
       const fresh = TEMPLATES.filter(T => recent.indexOf(T.fam || T.kind) < 0);
-      const s = SLIDES.indexOf(ESSAY) < 0 && Math.random() < 0.005 ? ESSAY : genSlide(pick(fresh.length ? fresh : TEMPLATES));
+      const s = SLIDES.indexOf(ESSAY) < 0 && Math.random() < 0.002 ? ESSAY : genSlide(pick(fresh.length ? fresh : TEMPLATES));
       SLIDES.push(s); buildSlide(s, SLIDES.length - 1);
     }
   }
@@ -29363,7 +29363,7 @@ function engine(){
      so e.g. a "Cosmic Slither" is as likely to show up near the top as Glow Worm */
   TEMPLATES.forEach(T => SLIDES.push(genSlide(T)));
   { const rnd = Math.random; for (let i = SLIDES.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); const tmp = SLIDES[i]; SLIDES[i] = SLIDES[j]; SLIDES[j] = tmp; } }
-  for (let i = 1; i <= SLIDES.length; i++) if (Math.random() < 0.005) { SLIDES.splice(i, 0, ESSAY); break; } /* 0.5% per post */
+  for (let i = 1; i <= SLIDES.length; i++) if (Math.random() < 0.002) { SLIDES.splice(i, 0, ESSAY); break; } /* 0.2% per post */
 
   /* game links: fazegregpaul.com/chess opens Chess first. GitHub Pages has no /chess file, so 404.html
      sends the browser to /?g=chess and we put the nice path back in the address bar. */
@@ -29900,7 +29900,7 @@ function engine(){
     const inp = ov.querySelector('#sin'), list = ov.querySelector('#sl');
     const render = () => {
       const q = inp.value.trim().toLowerCase(), toks = q.split(/\s+/).filter(Boolean), rows = [];
-      SLIDES.forEach((s, i) => { const hay = (s.title + ' ' + s.tags + ' ' + s.desc + ' ' + s.handle).toLowerCase(); if (toks.every(t => hay.indexOf(t) >= 0)) rows.push([i, s, s.title.toLowerCase().indexOf(q) === 0 ? 0 : s.title.toLowerCase().indexOf(q) > 0 ? 1 : 2]); });
+      SLIDES.forEach((s, i) => { if (s === ESSAY) return; /* the essay is never in search */ const hay = (s.title + ' ' + s.tags + ' ' + s.desc + ' ' + s.handle).toLowerCase(); if (toks.every(t => hay.indexOf(t) >= 0)) rows.push([i, s, s.title.toLowerCase().indexOf(q) === 0 ? 0 : s.title.toLowerCase().indexOf(q) > 0 ? 1 : 2]); });
       rows.sort((a, b) => a[2] - b[2] || (a[1].title < b[1].title ? -1 : 1));
       list.innerHTML = '';
       if (!rows.length) { const p = document.createElement('p'); p.textContent = 'No games match "' + inp.value.trim() + '". Try a different word.'; list.appendChild(p); return; }
