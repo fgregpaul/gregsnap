@@ -6,7 +6,7 @@ Read this first. It is the memory for this project, so a fresh chat can pick up 
 ## What this is
 
 - A prop for the owner's parody movie of *The Social Network*. In the movie, Greg Paul builds **GregSnap**, "TikTok for games": a vertical feed where every post is a playable mini-game.
-- Live at **https://fazegregpaul.com** (GitHub Pages from `main`, custom domain in `CNAME`). Merging to `main` is deploying.
+- Live at **https://gregsnap.com** (GitHub Pages from `main`, custom domain in `CNAME`). Merging to `main` is deploying.
 - Almost everything is in **one file: `index.html`** (~1.7 MB, ~12.5k lines, vanilla JS + canvas, no build step, no libraries except Google Fonts).
 - `dev/sigserver.js` is a tiny local signaling server for testing multiplayer offline (see `GregNet`).
 - Other files: `cpu.html` (CPU Platformer Quiz), `emt.html` (Morpheme Works), `404.html` (redirects game links like `/chess` into the app, see `game links:`), `style.css` (404 page only), `cranberry.mp3`. Leave them alone unless asked.
