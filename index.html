@@ -6195,10 +6195,10 @@ html.fs .fsgp{display:block;position:fixed;left:0;right:0;bottom:6px;z-index:6;t
     return Object.assign({
       sk, hold: true, title: 'Pinball', how: 'Tap the left or right side to flip. Keep the ball alive.',
       state: 'ready', score: 0, best: 0, balls: 3, dead: 0, shake: 0, flash: 0, floats: [], ball: null, fl: [0, 0], fin: [false, false], bump: [], mult: 1, tl: 0, stuck: 0, t: 0, ptrs: {}, hitT: [0, 0, 0, 0],
-      geom() { const w = this.w, h = this.h; this.fy = h - 96; this.fl_ = [{ x: w * 0.3, y: this.fy, dir: 1 }, { x: w * 0.7, y: this.fy, dir: -1 }]; this.FL = w * 0.2; this.bump = [{ x: w * 0.3, y: h * 0.3, r: 26 }, { x: w * 0.7, y: h * 0.3, r: 26 }, { x: w * 0.5, y: h * 0.18, r: 26 }, { x: w * 0.5, y: h * 0.42, r: 22 }]; },
+      geom() { const w = this.w, h = this.h; this.fy = h - 96; this.fl_ = [{ x: w * 0.3, y: this.fy, dir: 1 }, { x: w * 0.7, y: this.fy, dir: -1 }]; this.FL = w * 0.17; this.bump = [{ x: w * 0.3, y: h * 0.3, r: 26 }, { x: w * 0.7, y: h * 0.3, r: 26 }, { x: w * 0.5, y: h * 0.18, r: 26 }, { x: w * 0.5, y: h * 0.42, r: 22 }]; },
       layout() { this.geom(); },
       launch() { this.ball = { x: this.w * rand(0.4, 0.6), y: 40, vx: rand(-80, 80), vy: 120 }; },
-      reset() { this.geom(); this.balls = 3; this.score = 0; this.fl = [0, 0]; this.fin = [false, false]; this.floats = []; this.mult = 1; this.t = 0; this.ptrs = {}; this.launch(); this.state = 'ready'; },
+      reset() { this.geom(); this.balls = 3; this.score = 0; this.fl = [0, 0]; this.fin = [false, false]; this.floats = []; this.mult = 1; this.t = 0; this.stuck = 0; this.ptrs = {}; this.launch(); this.state = 'ready'; },
       enter() { this.reset(); },
       key(e) { const d = e.type === 'keydown'; if (this.state !== 'run') return false; if (e.code === 'ArrowLeft' || e.code === 'KeyZ' || e.code === 'KeyA') { this.fin[0] = d; return true; } if (e.code === 'ArrowRight' || e.code === 'KeyM' || e.code === 'KeyD' || e.code === 'Slash') { this.fin[1] = d; return true; } return false; },
       bind(cv) {
@@ -6212,23 +6212,28 @@ html.fs .fsgp{display:block;position:fixed;left:0;right:0;bottom:6px;z-index:6;t
       tick(dt) {
         this.decay(dt); this.hitT = this.hitT.map(x => Math.max(0, x - dt)); if (this.state === 'dead') { this.dead += dt; return; } if (this.state !== 'run') return;
         this.t += dt; const w = this.w, h = this.h, prev = this.fl.slice();
-        for (let i = 0; i < 2; i++) this.fl[i] = clamp(this.fl[i] + (this.fin[i] ? 1 : -1) * dt * 14, 0, 1);
         if (this.fin[0] && !prev[0] || this.fin[1] && !prev[1]) { if ((this.fin[0] && prev[0] === 0) || (this.fin[1] && prev[1] === 0)) sfx(160, 0.05, 0.05, 'square'); }
         const b = this.ball; const steps = 6, h2 = dt / steps;
         for (let s = 0; s < steps; s++) {
           b.vy += 820 * h2; b.x += b.vx * h2; b.y += b.vy * h2; const R = 8, sp = Math.hypot(b.vx, b.vy); if (sp > 1100) { b.vx *= 1100 / sp; b.vy *= 1100 / sp; }
           if (b.x < R) { b.x = R; b.vx = Math.abs(b.vx) * 0.8; } if (b.x > w - R) { b.x = w - R; b.vx = -Math.abs(b.vx) * 0.8; } if (b.y < R) { b.y = R; b.vy = Math.abs(b.vy) * 0.8; }
-          segHit(b, 0, h * 0.62, this.fl_[0].x - 6, this.fy + 18, R + 3, 0.4); segHit(b, w, h * 0.62, this.fl_[1].x + 6, this.fy + 18, R + 3, 0.4);
+          segHit(b, 0, h * 0.62, this.fl_[0].x, this.fy, R + 3, 0.4); segHit(b, w, h * 0.62, this.fl_[1].x, this.fy, R + 3, 0.4);
           this.bump.forEach((bp, bi) => { const dx = b.x - bp.x, dy = b.y - bp.y, d = Math.hypot(dx, dy); if (d < bp.r + R) { const nx = dx / d, ny = dy / d; b.x = bp.x + nx * (bp.r + R); b.y = bp.y + ny * (bp.r + R); const dp = b.vx * nx + b.vy * ny; b.vx = b.vx - 2 * dp * nx + nx * 260; b.vy = b.vy - 2 * dp * ny + ny * 260; this.score += 100 * this.mult; this.hitT[bi] = 0.15; this.best = Math.max(this.best, this.score); sfx(500 + bi * 120, 0.08, 0.06, 'square'); buzz(6); if (this.score % 1000 < 100 * this.mult) this.mult = Math.min(5, this.mult + 1); } });
-          for (let i = 0; i < 2; i++) { const sg = this.flipperSeg(i), om = ((this.fin[i] ? 1 : -1) * 14) * (i ? 1 : -1) * -1, rx = b.x - sg[0], ry = b.y - sg[1]; const vx = -om * ry * (this.fl[i] > 0 && this.fl[i] < 1 ? 1 : 0), vy = om * rx * (this.fl[i] > 0 && this.fl[i] < 1 ? 1 : 0); segHit(b, sg[0], sg[1], sg[2], sg[3], R + 6, 0.35, vx, vy); }
+          for (let i = 0; i < 2; i++) {
+            const was = this.fl[i]; this.fl[i] = clamp(was + (this.fin[i] ? 1 : -1) * h2 * 14, 0, 1);
+            // angular velocity of the flipper (screen coords, + = clockwise); left flipper's angle is 0.5 - fl, right's is PI - 0.5 + fl
+            const sg = this.flipperSeg(i), om = ((this.fl[i] - was) / h2) * (i ? 1 : -1), rx = b.x - sg[0], ry = b.y - sg[1];
+            segHit(b, sg[0], sg[1], sg[2], sg[3], R + 6, 0.35, -om * ry, om * rx);
+          }
         }
+        if (Math.hypot(b.vx, b.vy) < 30 && !this.fin[0] && !this.fin[1]) { this.stuck += dt; if (this.stuck > 1.5) { this.stuck = 0; b.vy = -320; b.vx = rand(-160, 160); } } else this.stuck = 0;
         if (b.y > h + 20) { this.balls--; this.mult = 1; this.flash = 0.3; sfx(130, 0.4, 0.07, 'sawtooth'); buzz(60); if (this.balls <= 0) { this.finish(); return; } this.launch(); this.floats.push({ t: this.balls + ' ball' + (this.balls > 1 ? 's' : '') + ' left', x: w / 2, y: h * 0.5, age: 0, c: 'bad' }); }
       },
       draw() {
         const c = this.ctx, w = this.w, h = this.h, sk = SK;
         drawBg(c, w, h);
         c.fillStyle = 'rgba(0,0,0,.16)'; c.fillRect(-GM.ox, -GM.oy, GM.W, GM.H);
-        c.lineWidth = 6; c.strokeStyle = sk.line; c.lineCap = 'round'; c.beginPath(); c.moveTo(0, h * 0.62); c.lineTo(this.fl_[0].x - 6, this.fy + 18); c.moveTo(w, h * 0.62); c.lineTo(this.fl_[1].x + 6, this.fy + 18); c.stroke();
+        c.lineWidth = 6; c.strokeStyle = sk.line; c.lineCap = 'round'; c.beginPath(); c.moveTo(0, h * 0.62); c.lineTo(this.fl_[0].x, this.fy); c.moveTo(w, h * 0.62); c.lineTo(this.fl_[1].x, this.fy); c.stroke();
         this.bump.forEach((bp, i) => { const hit = this.hitT[i] > 0; dot(c, bp.x, bp.y, bp.r + (hit ? 4 : 0), hit ? sk.pal[3] : sk.pal[i % 3], { lw: sk.lw ? sk.lw : 0 }); dot(c, bp.x, bp.y, bp.r * 0.5, 'rgba(255,255,255,.4)', { lw: 0 }); });
         for (let i = 0; i < 2; i++) { const sg = this.flipperSeg(i); c.lineWidth = 15; c.strokeStyle = sk.line; c.beginPath(); c.moveTo(sg[0], sg[1]); c.lineTo(sg[2], sg[3]); c.stroke(); c.lineWidth = 11; c.strokeStyle = sk.pal[3]; c.beginPath(); c.moveTo(sg[0], sg[1]); c.lineTo(sg[2], sg[3]); c.stroke(); dot(c, sg[0], sg[1], 8, sk.fg, { lw: 0 }); }
         if (this.ball) { c.fillStyle = 'rgba(0,0,0,.3)'; c.beginPath(); c.arc(this.ball.x + 2, this.ball.y + 3, 8, 0, TAU); c.fill(); dot(c, this.ball.x, this.ball.y, 8, '#e8e8e8', { lw: sk.lw ? 1.5 : 0 }); dot(c, this.ball.x - 2.5, this.ball.y - 2.5, 2.5, '#ffffff', { lw: 0 }); }
