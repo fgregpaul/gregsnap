@@ -687,15 +687,15 @@ html.fs .fsgp{display:block;position:fixed;left:0;right:0;bottom:6px;z-index:6;t
   const DEADMSG = ['Game over.', 'Oof.', 'So close.', 'Try again.', 'Nice try.', 'Ouch.'];
   const MIX = {
     kick() {
-      if (this.state === 'ready') { this.state = 'run'; try { JING('start'); } catch (_) {} return true; }
+      if (this.state === 'ready') { this.state = 'run'; try { JING('start', this); } catch (_) {} return true; }
       if (this.state === 'dead') { if (this.dead > 0.6) { this.reset(); this.state = 'run'; } return true; }
       return false;
     },
-    finish() { this.state = 'dead'; this.dead = 0; this.msg = pick(DEADMSG); this.best = Math.max(this.best, this.score); try { JING('over'); } catch (_) {} },
+    finish() { this.state = 'dead'; this.dead = 0; this.msg = pick(DEADMSG); this.best = Math.max(this.best, this.score); try { JING('over', this); } catch (_) {} },
     hurt(label, x, y) {
       this.lives--; this.flash = 0.45; this.shake = 0.7;
       this.floats.push({ t: label, x, y, age: 0, c: 'bad' });
-      if (this.lives <= 0) this.finish();
+      if (this.lives <= 0) this.finish(); else { try { if (soundOn) SKIT.play('hit', this); } catch (_) {} }
     },
     decay(dt) {
       this.shake = Math.max(0, this.shake - dt * 3); this.flash = Math.max(0, this.flash - dt * 2.5);
@@ -36046,7 +36046,7 @@ function engine(){
   };
   SLIDES.forEach(buildSlide);
   theme(SLIDES[0].sk);
-  if (/[?&]debug/.test(location.search)) window.__gs = { games, SLIDES, SKINS, ensureAhead, get cur() { return cur; } };
+  if (/[?&]debug/.test(location.search)) window.__gs = { games, SLIDES, SKINS, ensureAhead, get cur() { return cur; }, get skit() { return SKIT; } };
 
   /* feed scrolling (deliberate only). Game canvases never scroll the page natively (touch-action:none), so taps and small
      drags in a game can't move the feed by accident. On tap games (not .hold) a clear vertical swipe drags the feed with
@@ -36397,15 +36397,241 @@ function engine(){
   }
   function SFX(f, d, v, t) {
     if (!soundOn) return; unlockAudio(); if (!ac || !ensureBus()) return;
+    let vo = null; if (!t) { try { vo = SKIT.voice(); } catch (_) {} } /* no wave picked: use the game's sound kit voice */
+    const sh = vo ? vo.shape : ''; if (vo) { t = vo.wave; v = (v || 0.05) * (t === 'square' ? 0.7 : t === 'sine' ? 1.2 : 1); if (sh === 'pluck') d *= 0.75; }
     v = v || 0.05; t = t || 'triangle'; const now = ac.currentTime, o = ac.createOscillator(), g = ac.createGain();
-    o.type = t; o.frequency.setValueAtTime(f, now);
+    o.type = t; o.frequency.setValueAtTime(sh === 'bloop' ? f * 0.6 : sh === 'laser' ? f * 1.8 : f, now);
     if (t === 'sawtooth') o.frequency.exponentialRampToValueAtTime(Math.max(30, f * 0.45), now + d);
+    else if (sh) o.frequency.exponentialRampToValueAtTime(Math.max(30, sh === 'up' ? f * 1.25 : sh === 'down' ? f * 0.72 : sh === 'bloop' ? f * 1.3 : sh === 'laser' ? f : f), now + d * (sh === 'laser' ? 0.6 : 1));
     g.gain.setValueAtTime(0.0001, now); g.gain.linearRampToValueAtTime(v * 1.7, now + 0.006); g.gain.exponentialRampToValueAtTime(0.0001, now + d);
-    o.connect(g); g.connect(sbus); o.start(now); o.stop(now + d + 0.03);
+    if (sh === 'pluck') { const lf = ac.createBiquadFilter(); lf.type = 'lowpass'; lf.frequency.setValueAtTime(Math.min(12000, f * 4), now); lf.frequency.exponentialRampToValueAtTime(Math.max(200, f * 1.2), now + d); o.connect(lf); lf.connect(g); } else o.connect(g);
+    g.connect(sbus); o.start(now); o.stop(now + d + 0.03);
     if (t === 'sawtooth' && f < 320) NOISE(d * 0.9, v * 1.8, 900);
   }
-  function JING(kind) {
+  /* ===== sound kits: every game gets its own death / start / win / coin / hit sounds and a default sfx voice =====
+     JING(kind, game) asks the game's kit first (kit picked by the slide's kind, or its title for the original 8).
+     Kits have a few variants of each sound; which variant a game gets is picked by a hash of its title, so two games
+     of the same kind (a hand-made one and its re-skinned copies) don't always sound the same.
+     SFX(f, d, v) with no wave type uses the kit's voice (wave + pitch shape), so plain sfx calls fit the game too. */
+  const SKIT = (() => {
+    const T = (at) => ac.currentTime + (at || 0);
+    /* tone: f0 -> f1 over d seconds. q: lp/lp1 filter sweep, Q, vib [rate, depth], a attack, hold (0..1 of d at full volume), lin */
+    function tn(f0, f1, d, v, w, at, q) {
+      q = q || {}; const t0 = T(at), o = ac.createOscillator(), g = ac.createGain();
+      o.type = w || 'triangle'; o.frequency.setValueAtTime(f0, t0);
+      if (f1 && f1 !== f0) { if (q.lin) o.frequency.linearRampToValueAtTime(f1, t0 + d); else o.frequency.exponentialRampToValueAtTime(Math.max(20, f1), t0 + d); }
+      if (q.vib) { const l = ac.createOscillator(), lg = ac.createGain(); l.frequency.value = q.vib[0]; lg.gain.value = q.vib[1]; l.connect(lg); lg.connect(o.frequency); l.start(t0); l.stop(t0 + d + 0.05); }
+      let out = o;
+      if (q.lp) { const f = ac.createBiquadFilter(); f.type = 'lowpass'; f.Q.value = q.Q || 0.8; f.frequency.setValueAtTime(q.lp, t0); if (q.lp1) f.frequency.exponentialRampToValueAtTime(q.lp1, t0 + d); o.connect(f); out = f; }
+      const a = q.a || 0.006;
+      g.gain.setValueAtTime(0.0001, t0); g.gain.linearRampToValueAtTime(v, t0 + a);
+      if (q.hold) g.gain.setValueAtTime(v, t0 + Math.max(a, d * q.hold));
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + d);
+      out.connect(g); g.connect(sbus); o.start(t0); o.stop(t0 + d + 0.05);
+    }
+    /* filtered noise: fc -> fc1 sweep, a = attack time (for swells like a crowd) */
+    function nz(d, v, fc, type, at, fc1, Q, a) {
+      const t0 = T(at), s = ac.createBufferSource(), f = ac.createBiquadFilter(), g = ac.createGain();
+      s.buffer = getNoise(); f.type = type || 'lowpass'; f.Q.value = Q || 0.8; f.frequency.setValueAtTime(fc, t0); if (fc1) f.frequency.exponentialRampToValueAtTime(fc1, t0 + d);
+      g.gain.setValueAtTime(0.0001, t0); g.gain.linearRampToValueAtTime(v, t0 + (a || 0.004)); g.gain.exponentialRampToValueAtTime(0.0001, t0 + d);
+      s.connect(f); f.connect(g); g.connect(sbus); s.start(t0, Math.random() * 0.5); s.stop(t0 + d + 0.02);
+    }
+    const R = (a, b) => a + Math.random() * (b - a);
+    const notes = (list, d, v, w, step, q) => list.forEach((f, i) => tn(f, f, d, v, w, i * step, q));
+
+    /* ---------- death / game over ---------- */
+    const OVER = {
+      trombone() { [247, 233, 220].forEach((f, i) => tn(f, f * 0.99, 0.34, 0.09, 'sawtooth', i * 0.36, { lp: 1100, hold: 0.6 })); tn(208, 196, 1.1, 0.09, 'sawtooth', 1.08, { lp: 1100, lp1: 500, vib: [6, 5], hold: 0.5 }); },
+      crash() { nz(0.7, 0.32, 2600, 'lowpass', 0, 180); tn(95, 38, 0.4, 0.26, 'sine'); tn(1240, 1150, 0.45, 0.035, 'square', 0.02, { lp: 5000 }); tn(1873, 1760, 0.4, 0.03, 'square', 0.05, { lp: 6000 }); for (let i = 0; i < 6; i++) tn(R(2500, 5000), 0, 0.06, 0.025, 'sine', 0.15 + i * R(0.04, 0.09)); nz(0.3, 0.08, 6000, 'highpass', 0.14); },
+      skid() { nz(0.55, 0.12, 2200, 'bandpass', 0, 1500, 6); tn(900, 700, 0.5, 0.04, 'sawtooth', 0, { lp: 2400, vib: [40, 30] }); nz(0.6, 0.3, 2200, 'lowpass', 0.5, 160); tn(90, 40, 0.4, 0.24, 'sine', 0.5); nz(0.3, 0.07, 6000, 'highpass', 0.62); },
+      splash() { nz(0.55, 0.22, 2600, 'bandpass', 0, 350, 0.9); for (let i = 0; i < 6; i++) { const f = R(280, 650); tn(f, f * 2.4, 0.07, 0.06, 'sine', 0.08 + i * 0.07); } tn(520, 140, 0.45, 0.07, 'sine', 0.55); },
+      sink() { for (let i = 0; i < 8; i++) { const f = 900 - i * 90; tn(f * 0.7, f, 0.09, 0.06, 'sine', i * 0.11); } tn(300, 80, 0.7, 0.06, 'sine', 0.95, { vib: [9, 25] }); },
+      boom() { tn(150, 26, 1.0, 0.3, 'sine'); nz(1.3, 0.34, 1800, 'lowpass', 0, 110); nz(0.14, 0.14, 4500, 'highpass'); nz(0.8, 0.06, 900, 'lowpass', 0.35, 200); },
+      bigboom() { nz(0.12, 0.2, 5000, 'highpass'); tn(110, 22, 1.5, 0.34, 'sine'); nz(2.0, 0.36, 1200, 'lowpass', 0, 70); for (let i = 0; i < 5; i++) nz(0.12, 0.06, R(500, 1400), 'bandpass', 0.3 + i * R(0.12, 0.25), 0, 2); },
+      glass() { nz(0.09, 0.18, 3000, 'highpass'); for (let i = 0; i < 9; i++) { const f = R(2400, 6000); tn(f, f * 0.98, R(0.2, 0.55), 0.03, 'sine', R(0, 0.3)); } nz(0.7, 0.07, 7000, 'highpass', 0.04); tn(180, 90, 0.2, 0.1, 'sine'); },
+      buzzer() { tn(110, 110, 0.9, 0.09, 'square', 0, { lp: 1600, hold: 0.85 }); tn(117, 117, 0.9, 0.07, 'sawtooth', 0, { lp: 1400, hold: 0.85 }); },
+      aww() { nz(1.4, 0.12, 900, 'bandpass', 0, 380, 1.5, 0.35); nz(1.4, 0.07, 1500, 'bandpass', 0.05, 600, 2, 0.35); tn(110, 110, 0.5, 0.06, 'square', 0, { lp: 1500, hold: 0.8 }); },
+      retro() { for (let i = 0; i < 11; i++) { const f = 880 * Math.pow(0.88, i); tn(f, f * 0.55, 0.085, 0.07, 'square', i * 0.07, { lp: 5000 }); } tn(196, 196, 0.08, 0.07, 'square', 0.86); tn(196, 196, 0.12, 0.07, 'square', 0.98); },
+      bitfall() { [784, 740, 698, 659, 622, 587].forEach((f, i) => tn(f, f, 0.1, 0.06, 'square', i * 0.12, { lp: 4000 })); tn(523, 262, 0.6, 0.07, 'square', 0.74, { lp: 3000 }); },
+      powerdown() { tn(1300, 45, 1.2, 0.1, 'sine', 0, { vib: [18, 40] }); tn(650, 25, 1.2, 0.05, 'sawtooth', 0, { lp: 1000, lp1: 90 }); },
+      warp() { for (let i = 0; i < 5; i++) tn(1800 - i * 300, 200 - i * 30, 0.35, 0.04, 'sine', i * 0.12, { vib: [30, 60] }); tn(80, 30, 0.9, 0.12, 'triangle', 0.4); },
+      wood() { tn(170, 60, 0.28, 0.22, 'sine'); nz(0.05, 0.16, 1800, 'bandpass'); [392, 330, 262].forEach((f, i) => { tn(f, f, 0.3, 0.07, 'triangle', 0.3 + i * 0.22, { lp: 1600 }); tn(f * 4, f * 4, 0.08, 0.02, 'sine', 0.3 + i * 0.22); }); },
+      timber() { nz(0.6, 0.14, 1200, 'bandpass', 0, 300, 2); for (let i = 0; i < 5; i++) nz(0.04, 0.12, 2200, 'bandpass', i * 0.11, 0, 3); tn(120, 45, 0.5, 0.28, 'sine', 0.62); nz(0.45, 0.2, 700, 'lowpass', 0.62, 90); },
+      squish() { tn(420, 85, 0.38, 0.13, 'sine', 0, { vib: [28, 60] }); nz(0.28, 0.1, 900, 'lowpass', 0, 200); tn(160, 60, 0.32, 0.09, 'triangle', 0.32); },
+      melt() { [523, 466, 415, 349].forEach((f, i) => tn(f, f * 0.94, 0.3, 0.06, 'sine', i * 0.24, { vib: [7, 9] })); tn(330, 110, 0.7, 0.06, 'sine', 0.96, { vib: [5, 14] }); },
+      fall() { tn(1900, 280, 0.9, 0.06, 'sine', 0, { vib: [7, 20] }); tn(210, 120, 0.16, 0.18, 'square', 0.95, { lp: 1200 }); nz(0.12, 0.12, 900, 'lowpass', 0.95); },
+      bonk() { tn(700, 300, 0.12, 0.12, 'square', 0, { lp: 2400 }); nz(0.08, 0.1, 1200, 'lowpass'); for (let i = 0; i < 5; i++) tn(2200 + i * 260, 2200 + i * 260, 0.1, 0.03, 'sine', 0.18 + i * 0.09); },
+      zap() { for (let i = 0; i < 9; i++) tn(R(80, 220), R(60, 200), 0.06, 0.06, 'sawtooth', i * 0.04, { lp: 4000 }); nz(0.45, 0.13, 4500, 'bandpass', 0, 1500, 3); tn(62, 40, 0.45, 0.11, 'square', 0.36, { lp: 380 }); },
+      pop() { nz(0.06, 0.3, 4000, 'highpass'); tn(1200, 300, 0.08, 0.09, 'sine'); tn(480, 1500, 0.7, 0.035, 'sawtooth', 0.12, { lp: 1600, vib: [32, 90] }); },
+      gunshot() { nz(0.4, 0.38, 2500, 'lowpass', 0, 280); tn(180, 55, 0.22, 0.2, 'sine'); tn(3400, 1300, 0.55, 0.04, 'sine', 0.24); tn(392, 388, 0.6, 0.05, 'square', 0.8, { lp: 1300, vib: [5, 6] }); tn(330, 326, 1.0, 0.05, 'square', 1.38, { lp: 1200, vib: [5, 7] }); },
+      flatline() { tn(55, 51, 1.7, 0.14, 'sawtooth', 0, { lp: 300 }); [0, 0.32].forEach(t => tn(1000, 1000, 0.14, 0.04, 'sine', t, { hold: 0.8 })); tn(1000, 1000, 1.4, 0.04, 'sine', 0.64, { hold: 0.9 }); nz(1.6, 0.05, 400, 'lowpass'); },
+      dread() { tn(73, 69, 1.8, 0.13, 'sawtooth', 0, { lp: 500, lp1: 120 }); tn(77.8, 73, 1.8, 0.1, 'sawtooth', 0, { lp: 500, lp1: 120 }); nz(1.2, 0.1, 2400, 'bandpass', 0, 300, 4, 0.2); tn(1100, 1050, 1.0, 0.02, 'sine', 0.2, { vib: [5, 30] }); },
+      crashmkt() { tn(1700, 120, 1.1, 0.06, 'sine', 0); for (let i = 0; i < 10; i++) tn(R(1800, 3200), 0, 0.07, 0.03, 'square', 0.15 + i * R(0.05, 0.1), { lp: 7000 }); tn(220, 110, 0.6, 0.08, 'triangle', 0.9); tn(110, 55, 0.8, 0.08, 'triangle', 1.2); },
+      glitch() { for (let i = 0; i < 14; i++) tn(R(150, 2400), 0, 0.03, 0.05, 'square', i * 0.034, { lp: 6000 }); nz(0.25, 0.08, 3000, 'bandpass', 0.48, 0, 2); tn(420, 40, 0.3, 0.09, 'square', 0.5, { lp: 1600 }); },
+      error() { [0, 0.22].forEach(t => tn(330, 330, 0.18, 0.07, 'square', t, { lp: 1800, hold: 0.7 })); tn(220, 220, 0.5, 0.07, 'square', 0.44, { lp: 1600, hold: 0.7 }); },
+      scratch() { nz(0.18, 0.2, 3200, 'bandpass', 0, 700, 3); nz(0.14, 0.16, 900, 'bandpass', 0.18, 2600, 3); tn(300, 60, 0.6, 0.08, 'sawtooth', 0.32, { lp: 900, lp1: 120 }); },
+      tapeStop() { tn(392, 40, 0.9, 0.06, 'square', 0, { lp: 2500, lp1: 200 }); tn(196, 20, 0.9, 0.07, 'triangle', 0); tn(98, 20, 0.9, 0.1, 'sine', 0); },
+      soft() { [[523, 659], [494, 587], [392, 466]].forEach((ch, i) => ch.forEach(f => tn(f, f, 0.5, 0.045, 'sine', i * 0.26))); },
+      wrong() { tn(311, 311, 0.22, 0.06, 'triangle', 0, { hold: 0.6 }); tn(277, 277, 0.22, 0.06, 'triangle', 0.24, { hold: 0.6 }); tn(233, 230, 0.6, 0.06, 'triangle', 0.48, { vib: [5, 4] }); },
+      plate() { nz(0.1, 0.2, 3500, 'highpass'); for (let i = 0; i < 6; i++) { const f = R(1800, 4200); tn(f, f, R(0.15, 0.4), 0.035, 'sine', R(0, 0.18)); } tn(250, 160, 0.15, 0.1, 'sine'); tn(392, 390, 0.4, 0.04, 'triangle', 0.55); tn(294, 290, 0.6, 0.04, 'triangle', 0.8); },
+      cluck() { for (let i = 0; i < 4; i++) { tn(R(500, 800), R(900, 1300), 0.07, 0.07, 'sawtooth', i * 0.12, { lp: 2500 }); } tn(1100, 400, 0.4, 0.06, 'sawtooth', 0.5, { lp: 2500, vib: [20, 60] }); },
+      thunk() { tn(90, 45, 0.5, 0.25, 'sine'); nz(0.3, 0.2, 500, 'lowpass', 0, 80); tn(240, 160, 0.25, 0.06, 'triangle', 0.05); },
+    };
+    /* ---------- start ---------- */
+    const START = {
+      blip() { tn(523, 523, 0.14, 0.07, 'triangle'); tn(784, 784, 0.16, 0.07, 'triangle', 0.08); },
+      coinIn() { tn(988, 988, 0.07, 0.05, 'square', 0, { lp: 6000 }); tn(1319, 1319, 0.2, 0.05, 'square', 0.07, { lp: 6000 }); },
+      whistle() { tn(2700, 2700, 0.14, 0.05, 'sine', 0, { vib: [32, 160] }); tn(2700, 2700, 0.4, 0.05, 'sine', 0.2, { vib: [32, 160], hold: 0.7 }); },
+      rev() { tn(70, 280, 0.55, 0.08, 'sawtooth', 0, { lp: 1200, vib: [30, 8] }); tn(150, 110, 0.35, 0.06, 'sawtooth', 0.55, { lp: 900, vib: [30, 6] }); },
+      lights() { [0, 0.3, 0.6].forEach(t => tn(440, 440, 0.16, 0.05, 'square', t, { lp: 3000, hold: 0.6 })); tn(880, 880, 0.4, 0.06, 'square', 0.9, { lp: 3000, hold: 0.6 }); },
+      bubbleUp() { for (let i = 0; i < 4; i++) { const f = 400 + i * 160; tn(f, f * 1.8, 0.08, 0.06, 'sine', i * 0.07); } },
+      powerUp() { tn(220, 1400, 0.35, 0.06, 'sine', 0, { vib: [20, 30] }); tn(110, 700, 0.35, 0.03, 'square', 0, { lp: 2000 }); },
+      chime() { tn(784, 784, 0.5, 0.05, 'sine'); tn(1175, 1175, 0.6, 0.05, 'sine', 0.1); },
+      bell() { tn(1047, 1047, 0.8, 0.05, 'triangle'); tn(2093, 2093, 0.5, 0.02, 'sine'); tn(2794, 2794, 0.3, 0.012, 'sine'); },
+      ding2() { [0, 0.18].forEach(t => { tn(1568, 1568, 0.45, 0.05, 'sine', t); tn(3136, 3136, 0.2, 0.015, 'sine', t); }); },
+      drum() { [0, 0.16, 0.32].forEach((t, i) => { tn(200 - i * 30, 70, 0.14, 0.18, 'sine', t); nz(0.05, 0.05, 2000, 'bandpass', t); }); nz(0.2, 0.12, 5000, 'highpass', 0.48); tn(180, 60, 0.2, 0.22, 'sine', 0.48); },
+      boing() { tn(140, 600, 0.3, 0.08, 'sine', 0, { vib: [18, 50] }); },
+      shuffle() { for (let i = 0; i < 7; i++) nz(0.035, 0.08, 4500, 'highpass', i * 0.045); nz(0.06, 0.1, 2000, 'bandpass', 0.34, 0, 2); },
+      cock() { nz(0.05, 0.2, 2500, 'bandpass', 0, 0, 3); nz(0.06, 0.18, 1600, 'bandpass', 0.14, 0, 3); },
+      gong() { tn(98, 96, 1.4, 0.1, 'sine'); tn(196, 190, 1.2, 0.04, 'triangle'); tn(311, 305, 1.0, 0.02, 'sine'); },
+      boot() { tn(200, 200, 0.08, 0.05, 'square', 0, { lp: 3000 }); tn(400, 400, 0.08, 0.05, 'square', 0.09, { lp: 3000 }); tn(800, 800, 0.16, 0.05, 'square', 0.18, { lp: 3000 }); },
+      knock() { tn(240, 180, 0.08, 0.12, 'triangle'); nz(0.03, 0.12, 2000, 'bandpass'); tn(240, 180, 0.08, 0.12, 'triangle', 0.14); nz(0.03, 0.12, 2000, 'bandpass', 0.14); },
+    };
+    /* ---------- win / level clear ---------- */
+    const WIN = {
+      fanfare() { [523, 659, 784, 1047].forEach((f, i) => tn(f, f, 0.16, 0.07, 'triangle', i * 0.09)); tn(1319, 1319, 0.4, 0.07, 'triangle', 0.4); },
+      arcade() { [523, 659, 784, 1047, 784, 1047, 1319, 1568].forEach((f, i) => tn(f, f, 0.07, 0.05, 'square', i * 0.06, { lp: 6000 })); tn(2093, 2093, 0.3, 0.05, 'square', 0.5, { lp: 6000 }); },
+      chimes() { [1047, 1319, 1568, 2093, 2637].forEach((f, i) => { tn(f, f, 0.7, 0.04, 'sine', i * 0.08); tn(f * 2, f * 2, 0.2, 0.01, 'sine', i * 0.08); }); },
+      cheer() { nz(1.6, 0.14, 1400, 'bandpass', 0, 900, 1, 0.25); nz(1.4, 0.07, 2800, 'bandpass', 0.05, 2000, 1.2, 0.2); tn(2800, 2800, 0.3, 0.035, 'sine', 0.3, { vib: [30, 150] }); [523, 659, 784].forEach((f, i) => tn(f, f, 0.2, 0.05, 'triangle', i * 0.1)); },
+      kaching() { nz(0.05, 0.15, 3500, 'bandpass', 0, 0, 2); tn(2093, 2093, 0.5, 0.05, 'square', 0.06, { lp: 7000 }); tn(2637, 2637, 0.7, 0.04, 'square', 0.12, { lp: 7000 }); for (let i = 0; i < 6; i++) tn(R(2800, 4200), 0, 0.06, 0.02, 'sine', 0.25 + i * 0.06); },
+      marimba() { [523, 659, 784, 1047, 1319].forEach((f, i) => { tn(f, f, 0.22, 0.08, 'triangle', i * 0.08, { lp: 2400 }); tn(f * 4, f * 4, 0.05, 0.015, 'sine', i * 0.08); }); },
+      synth() { [262, 330, 392, 523].forEach(f => tn(f, f, 1.1, 0.04, 'sawtooth', 0, { lp: 600, lp1: 3000, a: 0.08 })); tn(1047, 1047, 0.6, 0.03, 'sine', 0.2); },
+      magic() { for (let i = 0; i < 12; i++) { const f = 880 * Math.pow(2, i / 7); tn(f, f, 0.18, 0.03, 'sine', i * 0.035); } tn(3520, 3520, 0.6, 0.02, 'sine', 0.45); },
+      bubbles() { for (let i = 0; i < 7; i++) { const f = 350 + i * 120; tn(f, f * 2, 0.09, 0.06, 'sine', i * 0.07); } tn(1200, 1800, 0.25, 0.05, 'sine', 0.55); },
+      power() { tn(220, 880, 0.3, 0.05, 'square', 0, { lp: 3000 }); [880, 1109, 1319, 1760].forEach((f, i) => tn(f, f, 0.18, 0.05, 'square', 0.3 + i * 0.08, { lp: 4000 })); },
+      horn() { [392, 523, 659].forEach((f, i) => tn(f, f, 0.22, 0.05, 'sawtooth', i * 0.14, { lp: 1800, hold: 0.6 })); tn(784, 784, 0.7, 0.06, 'sawtooth', 0.42, { lp: 1800, hold: 0.6, vib: [5, 4] }); },
+      dark() { [220, 262, 330, 440].forEach((f, i) => tn(f, f, 0.9, 0.04, 'triangle', i * 0.12)); tn(880, 880, 0.9, 0.02, 'sine', 0.5); },
+      pickup() { tn(587, 587, 0.08, 0.06, 'square', 0, { lp: 5000 }); tn(784, 784, 0.08, 0.06, 'square', 0.08, { lp: 5000 }); tn(1175, 1175, 0.25, 0.06, 'square', 0.16, { lp: 5000 }); },
+    };
+    /* ---------- coin / point ---------- */
+    const COIN = {
+      ding() { tn(988, 988, 0.12, 0.06, 'triangle'); tn(1319, 1319, 0.18, 0.06, 'triangle', 0.07); },
+      coin8() { tn(988, 988, 0.06, 0.05, 'square', 0, { lp: 6000 }); tn(1319, 1319, 0.16, 0.05, 'square', 0.06, { lp: 6000 }); },
+      bloop() { tn(400, 950, 0.1, 0.07, 'sine'); },
+      sparkle() { tn(2093, 2093, 0.25, 0.035, 'sine'); tn(2637, 2637, 0.3, 0.03, 'sine', 0.05); },
+      tick() { tn(1200, 1000, 0.05, 0.08, 'triangle'); nz(0.02, 0.06, 3000, 'bandpass'); tn(1600, 1500, 0.08, 0.05, 'triangle', 0.06); },
+      chip() { nz(0.03, 0.12, 3200, 'bandpass', 0, 0, 3); nz(0.03, 0.1, 2600, 'bandpass', 0.05, 0, 3); },
+      cash() { nz(0.04, 0.12, 3500, 'bandpass', 0, 0, 2); tn(2093, 2093, 0.25, 0.04, 'square', 0.04, { lp: 7000 }); },
+      zing() { tn(800, 2400, 0.12, 0.04, 'sine'); tn(2400, 2400, 0.15, 0.03, 'sine', 0.12); },
+      thwack() { nz(0.05, 0.18, 2400, 'bandpass', 0, 0, 1.5); tn(300, 180, 0.08, 0.1, 'triangle'); },
+    };
+    /* ---------- hurt (lost a life but still going) ---------- */
+    const HIT = {
+      thump() { tn(130, 50, 0.18, 0.2, 'sine'); nz(0.1, 0.1, 700, 'lowpass'); },
+      blipDown() { tn(620, 140, 0.14, 0.06, 'square', 0, { lp: 4000 }); },
+      zapS() { for (let i = 0; i < 4; i++) tn(R(90, 200), 0, 0.04, 0.05, 'sawtooth', i * 0.03, { lp: 3000 }); nz(0.15, 0.08, 4000, 'bandpass', 0, 0, 3); },
+      crunch() { nz(0.14, 0.18, 1300, 'bandpass', 0, 500, 1.2); tn(160, 80, 0.12, 0.1, 'triangle'); },
+      splashS() { nz(0.25, 0.12, 2200, 'bandpass', 0, 500); tn(500, 900, 0.06, 0.04, 'sine', 0.05); },
+      squeak() { tn(900, 1800, 0.1, 0.05, 'sine'); tn(1800, 1100, 0.1, 0.04, 'sine', 0.1); },
+      clank() { tn(820, 760, 0.25, 0.04, 'square', 0, { lp: 5000 }); tn(1210, 1150, 0.22, 0.03, 'square', 0, { lp: 5000 }); nz(0.05, 0.1, 3000, 'highpass'); },
+      shatterS() { nz(0.06, 0.12, 3500, 'highpass'); for (let i = 0; i < 4; i++) tn(R(2500, 5000), 0, 0.15, 0.025, 'sine', R(0, 0.1)); },
+      sizzle() { nz(0.35, 0.08, 5000, 'highpass', 0, 3000); tn(500, 300, 0.1, 0.04, 'triangle'); },
+      buzzS() { tn(110, 110, 0.25, 0.06, 'square', 0, { lp: 1400, hold: 0.7 }); },
+      ouch() { tn(700, 300, 0.16, 0.06, 'sawtooth', 0, { lp: 2000 }); },
+    };
+    /* ---------- kits: [over variants], [start variants], [win variants], [coin variants], hit, default sfx voice ---------- */
+    const K = (over, start, win, coin, hit, wave, shape) => ({ over, start, win, coin, hit, wave, shape });
+    const KITS = {
+      arcade:  K(['retro', 'bitfall'], ['coinIn', 'boot'], ['arcade', 'pickup'], ['coin8'], 'blipDown', 'square', ''),
+      platform: K(['bitfall', 'fall'], ['coinIn', 'boing'], ['pickup', 'arcade'], ['coin8', 'ding'], 'blipDown', 'square', 'up'),
+      racing:  K(['crash', 'skid'], ['lights', 'rev'], ['horn', 'fanfare'], ['zing'], 'clank', 'square', 'down'),
+      water:   K(['splash', 'sink'], ['bubbleUp'], ['bubbles'], ['bloop'], 'splashS', 'sine', 'bloop'),
+      war:     K(['boom', 'bigboom'], ['cock', 'drum'], ['horn', 'fanfare'], ['ding'], 'thump', 'triangle', 'down'),
+      space:   K(['powerdown', 'warp', 'boom'], ['powerUp'], ['synth', 'power'], ['sparkle', 'zing'], 'zapS', 'sine', 'laser'),
+      glass:   K(['glass'], ['chime'], ['chimes'], ['sparkle'], 'shatterS', 'triangle', 'pluck'),
+      sports:  K(['buzzer', 'aww'], ['whistle'], ['cheer'], ['thwack', 'ding'], 'thump', 'triangle', ''),
+      wood:    K(['wood', 'thunk'], ['knock', 'bell'], ['marimba'], ['tick'], 'thump', 'triangle', 'pluck'),
+      lumber:  K(['timber'], ['knock'], ['marimba'], ['tick'], 'crunch', 'triangle', 'pluck'),
+      slime:   K(['squish', 'melt'], ['bubbleUp', 'boing'], ['bubbles', 'magic'], ['bloop'], 'squeak', 'sine', 'up'),
+      cartoon: K(['fall', 'trombone', 'bonk'], ['boing'], ['magic', 'fanfare'], ['ding', 'bloop'], 'squeak', 'square', 'up'),
+      rhythm:  K(['scratch', 'tapeStop'], ['drum'], ['synth', 'chimes'], ['sparkle'], 'buzzS', 'square', ''),
+      puzzle:  K(['soft', 'wrong'], ['chime'], ['chimes', 'marimba'], ['sparkle', 'tick'], 'blipDown', 'sine', ''),
+      money:   K(['crashmkt'], ['shuffle'], ['kaching'], ['chip', 'cash'], 'ouch', 'triangle', ''),
+      cards:   K(['wrong', 'crashmkt'], ['shuffle'], ['kaching', 'fanfare'], ['chip'], 'ouch', 'triangle', 'pluck'),
+      horror:  K(['flatline', 'dread'], ['gong'], ['dark'], ['sparkle'], 'crunch', 'triangle', 'down'),
+      digital: K(['glitch', 'error'], ['boot'], ['arcade', 'power'], ['coin8'], 'blipDown', 'square', ''),
+      electric: K(['zap'], ['powerUp'], ['synth'], ['zing'], 'zapS', 'square', 'laser'),
+      balloon: K(['pop'], ['boing'], ['magic'], ['bloop'], 'squeak', 'sine', 'up'),
+      western: K(['gunshot'], ['bell'], ['horn'], ['cash'], 'thump', 'triangle', ''),
+      kitchen: K(['plate'], ['ding2'], ['kaching'], ['cash', 'ding'], 'sizzle', 'triangle', 'pluck'),
+      farm:    K(['wood', 'cluck'], ['bell'], ['marimba', 'chimes'], ['tick', 'ding'], 'thump', 'triangle', 'pluck'),
+    };
+    /* which kit each game kind uses */
+    const BY = {
+      arcade: 'blocks munch snake rocks pinball runner deep simon quest dig pegs crownrush pong',
+      platform: 'hop flap gworld g64 summit gate',
+      racing: 'road race kart moto facet magic lawn rails jam',
+      water: 'river fishing pour beads bubble pipes gregillion',
+      war: 'hot shooter strike sitebreak gridlock royale extract drop mortar sweeper fleet aim',
+      space: 'boss hue bridge',
+      glass: 'break smash blast',
+      sports: 'pens hoops bowling puck futsal putt darts cars',
+      wood: 'chess checkers reversi mancala ludo four mahjong ttt dots dice voxel pool wobble hanoi knife',
+      lumber: 'chop',
+      slime: 'goo worm blobs merge crush fruit',
+      cartoon: 'sling tumble cliff hole catch whack siege chute rps helix cross',
+      rhythm: 'beat encore dash circles',
+      puzzle: 'sudoku pairs code lights fifteen nono wordsearch gregle groups amaze arrows stroop hl type',
+      money: 'clicker tycoon plinko creator',
+      cards: 'cards solitaire clash',
+      horror: 'hollow under sus overtime survive',
+      digital: 'feedgame factory',
+      electric: 'jetlab',
+      balloon: 'hang td',
+      western: 'react',
+      kitchen: 'kitchen chefrush pizza fizz slice',
+      farm: 'isle',
+    };
+    const KIND = {}; Object.keys(BY).forEach(k => BY[k].split(' ').forEach(n => { KIND[n] = k; }));
+    /* the original 8 have no kind */
+    const TITLE = { 'Steady Greg': 'electric', 'Gregbit': 'space', 'Raise Round': 'money', 'Server Fire': 'war', 'Dark Pattern': 'digital', 'Swipe Ideas': 'cartoon', 'Stack the Interns': 'wood', 'Greg Dash': 'platform' };
+    /* a few games get one specific sound instead of the kit's first pick */
+    const PICK = { 'Pop Defense': { over: 'pop' }, 'Cluck Line': { over: 'cluck' }, 'Server Fire': { over: 'bigboom' }, 'Sweeper': { over: 'boom' }, 'Turbo Sweep': { over: 'boom' }, 'Swipe Ideas': { over: 'trombone' }, 'Stack the Interns': { over: 'bonk' }, 'Raise Round': { over: 'crashmkt' }, 'Chop Chop': { over: 'timber' }, 'Stick It': { over: 'thunk' }, 'Tower Wobble': { over: 'bonk' }, 'Rooftop Tower': { over: 'fall' }, 'Content Creator': { over: 'trombone' }, 'Lanes': { over: 'crash' }, 'Pitch Dash': { over: 'crash' }, 'Fleet': { over: 'splash' }, 'Petal Fleet': { over: 'sink' }, 'Lot Jam': { over: 'skid' }, 'Type Rush': { over: 'error' }, 'Stat Check': { over: 'wrong' }, 'Galaxy Guess': { over: 'warp' } };
+    const ALL = Object.keys(KITS), cache = new WeakMap();
+    function kitFor(s) {
+      if (!s || !s.game) return null;
+      let k = cache.get(s.game); if (k !== undefined) return k;
+      const name = TITLE[s.title] || KIND[s.kind] || ALL[hashS(s.title || '') % ALL.length], kit = KITS[name], h = hashS((s.title || '') + '#snd'), pk = PICK[s.title] || {};
+      const v = (arr, key) => pk[key] || arr[(h >>> (key.length * 3)) % arr.length];
+      k = { name, over: v(kit.over, 'over'), start: v(kit.start, 'start'), win: v(kit.win, 'win'), coin: v(kit.coin, 'coin'), hit: kit.hit, wave: kit.wave, shape: kit.shape };
+      cache.set(s.game, k); return k;
+    }
+    function slideOf(g) {
+      if (g) { for (let i = 0; i < SLIDES.length; i++) if (SLIDES[i].game === g) return SLIDES[i]; return null; }
+      return SLIDES[cur] || null;
+    }
+    const BANK = { over: OVER, start: START, win: WIN, coin: COIN, pop: COIN, hit: HIT };
+    return {
+      KITS, OVER, START, WIN, COIN, HIT, KIND, kitFor, slideOf,
+      /* play the game's version of a jingle; false = no kit (use the old one) */
+      play(kind, g) {
+        if (!soundOn) return true;
+        if (paused && !g) return false; /* a sheet (casino, comments) is open: its own sounds stay generic */
+        const s = slideOf(g); if (!s || (s.game && s.game.casino)) return false;
+        const k = kitFor(s); if (!k) return false;
+        const id = kind === 'pop' ? null : k[kind]; const fn = id && BANK[kind][id];
+        if (!fn) return false;
+        unlockAudio(); if (!ac || !ensureBus()) return true;
+        fn(); return true;
+      },
+      /* default voice for sfx() calls that didn't pick a wave */
+      voice() { if (paused) return null; const s = SLIDES[cur]; if (!s || (s.game && s.game.casino)) return null; return kitFor(s); },
+      test(bank, id) { unlockAudio(); if (!ac || !ensureBus()) return; (BANK[bank] || OVER)[id](); },
+    };
+  })();
+  function JING(kind, game) {
     if (!soundOn) return;
+    try { if (SKIT.play(kind, game)) return; } catch (_) {} /* the game's own sound kit (see sound kits) */
     const seqs = { start: [[523, 0], [784, 80]], over: [[392, 0], [330, 120], [262, 240], [196, 380]], win: [[523, 0], [659, 90], [784, 180], [1047, 270], [1319, 400]], coin: [[988, 0], [1319, 70]], pop: [[880, 0], [1175, 50]] };
     (seqs[kind] || []).forEach(n => setTimeout(() => SFX(n[0], kind === 'over' ? 0.28 : 0.16, kind === 'win' ? 0.07 : 0.06, kind === 'over' ? 'sawtooth' : 'triangle'), n[1]));
   }
