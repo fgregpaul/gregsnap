@@ -12987,7 +12987,7 @@ const SUMMIT_LEVELS = [
     function seeRoom(ri) { if (seenFor === ri) return; seenFor = ri; SEEN.clear(); const R = ROOMS[ri]; if (!R || R.bx1 < 0) return; let fr = [];
       for (let y = R.by0; y <= R.by1; y++) for (let x = R.bx0; x <= R.bx1; x++) if (ROOMID[y * MW + x] === ri) fr.push(y * MW + x);
       for (let d = 1; d <= 4 && fr.length; d++) { const nx = []; for (const o of fr) { const x = o % MW, y = (o / MW) | 0; for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) { const X = x + dx, Y = y + dy; if (X < 0 || Y < 0 || X >= MW || Y >= MH) continue; const q = Y * MW + X, r = ROOMID[q]; if (r === ri || SEEN.has(q) || (r >= 0 && d > 3)) continue; SEEN.set(q, d); nx.push(q); } } fr = nx; } }
-    function hideOthers() { const ri = G.curRoom; if (ri == null || ri < 0) return; seeRoom(ri); const tx0 = Math.floor(CX / T) - 1, tx1 = Math.floor((CX + LW) / T) + 1, ty0 = Math.floor(CY / T) - 1, ty1 = Math.floor((CY + LH) / T) + 1;
+    function hideOthers() { const ri = G.curRoom; if (G.noclip || ri == null || ri < 0) return; seeRoom(ri); const tx0 = Math.floor(CX / T) - 1, tx1 = Math.floor((CX + LW) / T) + 1, ty0 = Math.floor(CY / T) - 1, ty1 = Math.floor((CY + LH) / T) + 1;
       for (let ty = Math.max(0, ty0); ty <= Math.min(MH - 1, ty1); ty++) for (let tx = Math.max(0, tx0); tx <= Math.min(MW - 1, tx1); tx++) { const o = ty * MW + tx, r = ROOMID[o]; if (r === ri) continue; const d = SEEN.get(o), f = !d ? 0.03 : r < 0 ? [1, 1, 1, 0.55, 0.2][d] : [1, 0.62, 0.32, 0.12][d]; if (f < 1) DIM(tx * T - CX, ty * T - CY, T, T, f); } }
     const roomAt = (px, py) => { const tx = Math.floor(px / T), ty = Math.floor(py / T); if (tx < 0 || ty < 0 || tx >= MW || ty >= MH) return -1; return ROOMID[ty * MW + tx]; };
 
@@ -13057,7 +13057,7 @@ const SUMMIT_LEVELS = [
     const toast = (t, c, life) => { G.toasts.push({ t, c: c || HX('#ffffff'), age: 0, life: life || 1.2 }); if (G.toasts.length > 3) G.toasts.shift(); };
     const puff = (x, y, n, col, sp, life, g) => { for (let i = 0; i < n; i++) { const a = Math.random() * TAU, s = sp * (0.3 + Math.random() * 0.7); G.parts.push({ x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, l: 0, ml: life * (0.5 + Math.random() * 0.6), c: col, g: g || 0 }); } };
     const dropGeo = (x, y, n) => { for (let i = 0; i < n; i++) G.geoP.push({ x, y, vx: (Math.random() - 0.5) * 90, vy: -60 - Math.random() * 80, t: 0 }); };
-    function hurtP(n, from) { const P = G.P; if (P.inv > 0 || G.deathT > 0 || G.mode !== 'play') return; P.hp -= n; P.inv = 1.15; P.focusT = 0; P.dashT = 0; const dir = from != null ? Math.sign(P.x + 3 - from) || -P.face : -P.face; P.vx = dir * 130; P.vy = -150; G.flash = 0.35; G.shake = 0.45; G.hitstop = 0.08; sfx(120, 0.22, 0.07, 'sawtooth'); sfx(70, 0.3, 0.05, 'square'); try { navigator.vibrate && navigator.vibrate(40); } catch (_) {} puff(P.x + 3, P.y + 5, 10, HX('#ffffff'), 90, 0.4);
+    function hurtP(n, from) { const P = G.P; if (G.noclip || P.inv > 0 || G.deathT > 0 || G.mode !== 'play') return; P.hp -= n; P.inv = 1.15; P.focusT = 0; P.dashT = 0; const dir = from != null ? Math.sign(P.x + 3 - from) || -P.face : -P.face; P.vx = dir * 130; P.vy = -150; G.flash = 0.35; G.shake = 0.45; G.hitstop = 0.08; sfx(120, 0.22, 0.07, 'sawtooth'); sfx(70, 0.3, 0.05, 'square'); try { navigator.vibrate && navigator.vibrate(40); } catch (_) {} puff(P.x + 3, P.y + 5, 10, HX('#ffffff'), 90, 0.4);
       if (P.hp <= 0) { G.deathT = 1.6; G.deaths++; puff(P.x + 3, P.y + 5, 26, HX('#1a1428'), 110, 1.0); puff(P.x + 3, P.y + 5, 12, HX('#e8e0ff'), 70, 0.8); sfx(90, 0.6, 0.08, 'sawtooth'); } }
     function respawnP() { const P = G.P; if (P.geo > 0) G.shade = { x: P.x, y: P.y, geo: P.geo }; P.geo = 0; const b = G.bench ? G.bench : [START[0], START[1]]; P.x = b[0] * T + 1; P.y = (b[1] + 1) * T - 10; P.vx = P.vy = 0; P.hp = P.mhp; P.soul = 0; P.inv = 1; G.bossOn = false; endAmb(false); openGate(); spawnEnemies(); G.camInit = true; }
     const closeGate = () => setGates(BOSSR.q, 1);
@@ -13091,6 +13091,10 @@ const SUMMIT_LEVELS = [
     function bossDie(e) { G.bossDead = 1; clearSave(); G.bossOn = false; G.shake = 1.2; G.flash = 0.5; toast('THE GUARDIAN FALLS', HX('#ffcf70'), 2.4); openGate(); G.winT = 0.001; try { JING('win'); } catch (_) {} }
     function step(dt) { const P = G.P, inp = input(); G.time += dt;
       if (G.deathT > 0) { G.deathT -= dt; if (G.deathT <= 0) respawnP(); return; }
+      if (G.noclip) { const sp = inp.dash ? 420 : 160, my = inp.my || (inp.jump ? -1 : 0); P.x = clamp(P.x + inp.mx * sp * dt, 2, MW * T - 8); P.y = clamp(P.y + my * sp * dt, 2, MH * T - 12); P.vx = P.vy = 0; P.on = false; P.inv = 0.5; G.hazT = 0; if (inp.mx) P.face = inp.mx;
+        const ri = roomAt(P.x + 3, P.y + 5); if (ri >= 0) G.vis.add(ri);
+        for (const it of ITEMS) { if (G.got.has(it.id) || (it.amb >= 0 && !G.ambDone.has(it.amb))) continue; if (Math.abs(P.x + 3 - (it.tx * T + 4)) < 8 && Math.abs(P.y + 5 - (it.ty * T + 2)) < 11) getItem(it); }
+        return; }
       if (G.hazT > 0) { G.hazT -= dt; if (G.hazT <= 0 && P.safe) { P.x = P.safe[0]; P.y = P.safe[1]; P.vx = P.vy = 0; } return; }
       P.inv = Math.max(0, P.inv - dt); P.acd = Math.max(0, P.acd - dt); P.atk = Math.max(0, P.atk - dt); P.dashCd = Math.max(0, P.dashCd - dt); P.coy -= dt; P.jb -= dt;
       const jp = inp.jump && !prevIn.jump, sp = inp.slash && !prevIn.slash, dp = inp.dash && !prevIn.dash;
@@ -13427,6 +13431,7 @@ const SUMMIT_LEVELS = [
       key(e) { const d = e.type === 'keydown', m = { ArrowLeft: 'l', KeyA: 'l', ArrowRight: 'r', KeyD: 'r', ArrowUp: 'u', KeyW: 'u', ArrowDown: 'd', KeyS: 'd', Space: 'jump', KeyZ: 'jump', KeyK: 'jump', KeyX: 'slash', KeyJ: 'slash', KeyC: 'dash', ShiftLeft: 'dash', ShiftRight: 'dash', KeyL: 'dash', KeyF: 'spell', KeyV: 'spell', KeyQ: 'spell' }[e.code];
         if (G.mode === 'title') { if (d && !e.repeat && e.code === 'KeyN' && G.sv) { this.start(true); return true; } if (d && !e.repeat && (m || e.code === 'Enter')) { this.start(); return true; } return !!m; }
         if (G.mode === 'win') { if (d && G.winT > 3 && (m || e.code === 'Enter')) { G.mode = 'title'; G.sv = loadSave(); this.state = 'ready'; } return !!m; }
+        if (e.code === 'F7') { if (d && !e.repeat && G.mode === 'play') { G.noclip = !G.noclip; const P = G.P; P.vx = P.vy = 0; P.dashT = 0; P.cling = 0; if (!G.noclip) { const free = (x, y) => !solidAt(x + 0.5, y + 0.5) && !solidAt(x + 5.5, y + 0.5) && !solidAt(x + 0.5, y + 9.5) && !solidAt(x + 5.5, y + 9.5) && !solidAt(x + 3, y + 5); if (!free(P.x, P.y)) { let done = false; for (let r = 1; r <= 40 && !done; r++) for (let dy = -r; dy <= r && !done; dy++) for (let dx = -r; dx <= r && !done; dx++) { if (Math.max(Math.abs(dx), Math.abs(dy)) !== r) continue; const x = P.x + dx * T, y = P.y + dy * T; if (free(x, y)) { P.x = x; P.y = y; done = true; } } } G.camInit = true; } toast(G.noclip ? 'NOCLIP ON - FLY THROUGH WALLS' : 'NOCLIP OFF', HX(G.noclip ? '#8affc8' : '#ffd0a0')); } if (e.preventDefault) e.preventDefault(); return true; }
         if (e.code === 'KeyM' || e.code === 'Tab') { if (d && !e.repeat && G.mode === 'play') { G.mapOpen = !G.mapOpen; G.mapPan = 0; G.keys = {}; } return true; }
         if (G.mapOpen) { if (d && (m === 'l' || m === 'r')) G.mapPan += m === 'l' ? -24 : 24; if (d && e.code === 'Escape') G.mapOpen = false; return !!m; }
         if (!m) return false; G.keys[m] = d; return true; },
@@ -13439,10 +13444,10 @@ const SUMMIT_LEVELS = [
           if (P.on && Math.abs(P.vx) > 60 && Math.random() < dt * 9) G.parts.push({ x: P.x + 3 - P.face * 3, y: P.y + P.h - 1, vx: -P.face * 15, vy: -12, l: 0, ml: 0.3, c: AREAS[areaAt(P.x + 3, P.y + 5)].c.dust, g: 0 }); }
         const P = G.P, ai = areaAt(P.x + 3, P.y + 5); if (ai !== G.area) { G.area = ai; if (G.bannerQ || true) G.banner = { t: 0, a: AREAS[ai].name, b: null }; }
         // which room are we in? crossing into another one fades to black, swaps the camera over, then fades back in
-        { const rr = roomAt(P.x + 3, P.y + 5); if (G.fade) { G.fade.t += dt; if (G.fade.ph === 'out' && G.fade.t >= 0.13) { G.curRoom = G.fade.to; G.camInit = true; G.fade = { ph: 'in', t: 0 }; } else if (G.fade.ph === 'in' && G.fade.t >= 0.2) G.fade = null; }
+        { const rr = G.noclip ? -1 : roomAt(P.x + 3, P.y + 5); if (G.noclip) G.fade = null; if (G.fade) { G.fade.t += dt; if (G.fade.ph === 'out' && G.fade.t >= 0.13) { G.curRoom = G.fade.to; G.camInit = true; G.fade = { ph: 'in', t: 0 }; } else if (G.fade.ph === 'in' && G.fade.t >= 0.2) G.fade = null; }
           if (G.camInit && rr >= 0) G.curRoom = rr; else if (rr >= 0 && rr !== G.curRoom && !G.fade) { if (G.curRoom == null || G.curRoom < 0) G.curRoom = rr; else G.fade = { ph: 'out', t: 0, to: rr }; } }
         const tx = P.x + 3 - (GX + GW * 0.5) + P.face * 14, ty = P.y + 5 - (GY + GH * 0.52); if (G.camInit) { G.cam.x = tx; G.cam.y = ty; } else { G.cam.x += (tx - G.cam.x) * Math.min(1, dt * 5); G.cam.y += (ty - G.cam.y) * Math.min(1, dt * 4); }
-        { const R = G.curRoom >= 0 ? ROOMS[G.curRoom] : null; if (R && R.bx1 >= 0) { const clampC = (v, lo, hi) => hi < lo ? (lo + hi) / 2 : clamp(v, lo, hi);
+        { const R = !G.noclip && G.curRoom >= 0 ? ROOMS[G.curRoom] : null; if (R && R.bx1 >= 0) { const clampC = (v, lo, hi) => hi < lo ? (lo + hi) / 2 : clamp(v, lo, hi);
             const x0 = (R.bx0 - 1) * T - GX, x1 = (R.bx1 + 2) * T - GX - GW, y0 = (R.by0 - 1) * T - GY, y1 = (R.by1 + 2) * T - GY - GH; G.cam.x = clampC(G.cam.x, x0, x1); G.cam.y = clampC(G.cam.y, y0, y1); } }
         G.camInit = false;
         G.cam.x = clamp(G.cam.x, -LW * 0.25, MW * T - LW * 0.75); G.cam.y = clamp(G.cam.y, -LH * 0.3, MH * T - LH * 0.6);
