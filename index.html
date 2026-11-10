@@ -343,9 +343,9 @@ html.fs .fsgp{display:block;position:fixed;left:0;right:0;bottom:6px;z-index:6;t
     <header><span>Share</span><button type="button" data-closeall>Close</button></header>
     <div class="cbody">
       <p class="sdesc" id="sTitle"></p>
-      <textarea id="shareUrl" class="smsg" rows="3" readonly aria-label="Message to share">fazegregpaul.com</textarea>
+      <textarea id="shareUrl" class="smsg" rows="3" readonly aria-label="Message to share">gregsnap.com</textarea>
       <div class="urlrow"><button type="button" id="copyBtn">Copy</button><button type="button" id="nativeShare" hidden>Share…</button></div>
-      <a class="spinbtn linka" id="openSite" href="https://fazegregpaul.com" target="_blank" rel="noopener">Open fazegregpaul.com</a>
+      <a class="spinbtn linka" id="openSite" href="https://gregsnap.com" target="_blank" rel="noopener">Open gregsnap.com</a>
     </div>
   </section>
   <div class="gift" id="gift" hidden aria-hidden="true">
@@ -18636,7 +18636,7 @@ function engine(){
     const setName = n => { try { localStorage.setItem(NAMEK, n); } catch (_) {} };
     const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
     const slug = t => String(t || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-    const link = () => { const base = /^https?:$/.test(location.protocol) ? location.origin : 'https://fazegregpaul.com'; return base + '/' + (SOLO ? 'stormisle' : slug(game && game.title)) + '?lobby=' + (NET.s ? NET.s.code : ''); };
+    const link = () => { const base = /^https?:$/.test(location.protocol) ? location.origin : 'https://gregsnap.com'; return base + '/' + (SOLO ? 'stormisle' : slug(game && game.title)) + '?lobby=' + (NET.s ? NET.s.code : ''); };
     function ensure() {
       if (el) return;
       const st = document.createElement('style');
@@ -18683,7 +18683,7 @@ function engine(){
           s.players.map((p, i) => '<li><i style="background:' + COLS[i % COLS.length] + '">' + esc(String(p.name).trim().charAt(0).toUpperCase() || '?') + '</i>' + esc(p.name) + (p.id === s.me ? '<em>you</em>' : '') + '<small>' + (p.host ? 'HOST' : '') + '</small></li>').join('') + '</ul>' +
           (host ? '<button data-a="start" data-enter ' + (busy || short ? 'disabled' : '') + '>' + (s.inGame ? 'Match in progress…' : short ? 'Waiting for a friend to join…' : 'Start match') + '</button>' : '<div class="gl-wait"><span class="gl-spin"></span>Waiting for the host to start…</div>') +
           '<button class="gl-ghost" data-a="leave">Leave lobby</button>' +
-          (host && NET.s.sigUp === false ? '<div class="gl-err">Reconnecting the lobby…</div>' : '') + (host && !s.inGame ? '<div class="gl-note"><b>Keep GregSnap open on this screen while friends join.</b> If you switch apps to send the code, come right back.</div>' : '') + (host ? '<div class="gl-note">' + esc((game && game.mpNote) || 'Empty spots are filled with bots.') + ' Friends can join with the code on fazegregpaul.com, or by opening the invite link.</div>' : '');
+          (host && NET.s.sigUp === false ? '<div class="gl-err">Reconnecting the lobby…</div>' : '') + (host && !s.inGame ? '<div class="gl-note"><b>Keep GregSnap open on this screen while friends join.</b> If you switch apps to send the code, come right back.</div>' : '') + (host ? '<div class="gl-note">' + esc((game && game.mpNote) || 'Empty spots are filled with bots.') + ' Friends can join with the code on gregsnap.com, or by opening the invite link.</div>' : '');
       } else if (view === 'wait') {
         h += '<h3>Play with friends</h3><p class="gl-sub">' + t + '</p><div class="gl-wait"><span class="gl-spin"></span>' + esc(err || 'Connecting…') + '</div><button class="gl-ghost" data-a="cancel">Cancel</button>';
       } else {
@@ -36550,9 +36550,9 @@ function engine(){
   $('getMore').addEventListener('click', () => showSheet(crate));
 
   /* share */
-  let shareLink = 'https://fazegregpaul.com';
+  let shareLink = 'https://gregsnap.com';
   function openShare(i) {
-    const s = SLIDES[i], path = 'fazegregpaul.com/' + linkOf(s);
+    const s = SLIDES[i], path = 'gregsnap.com/' + linkOf(s);
     shareLink = 'https://' + path;
     $('sTitle').textContent = 'Send ' + s.title + ' to a friend';
     $('shareUrl').value = 'i just played ' + s.title + ' and got a lot of Dopamine you should try it at ' + path;
