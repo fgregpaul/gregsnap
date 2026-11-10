@@ -7145,7 +7145,7 @@ html.fs .fsgp{display:block;position:fixed;left:0;right:0;bottom:6px;z-index:6;t
   NEW_SLIDES.push(
     mk(makeGate(SKINS.lab), 'Gate Hop', SKINS.lab, 'Six rooms with portals, buttons, doors, boxes and acid. Light walls take portals, metal does not.', '#portal #puzzle #hard', 6.8e9, 1.8e9, 450e6, 'gate'),
     mk(makeUnderPx(SKINS.styx), 'Underworld', SKINS.styx, 'Escape the underworld room by room. Three-hit combos, dashes, casts and boons from five elements. The Warden waits every sixth room.', '#roguelike #dungeon #boss', 8.4e9, 2.6e9, 740e6, 'under'),
-    mk(makeHollowPx(SKINS.cavern), 'Hollow Path', SKINS.cavern, 'A gigantic web of pixel caverns: fifteen areas, 80 rooms, branching districts with secrets, bounce mushrooms, hidden walls, ambushes and a map. Find the Swift Cloak and Thorn Claws, collect mask shards, rest at benches and face the Hollow Guardian.', '#metroidvania #pixelart #soulslike', 6.1e9, 1.6e9, 410e6, 'hollow')
+    mk(makeHollowPx(SKINS.cavern), 'Hollow Path', SKINS.cavern, 'A gigantic web of pixel caverns: fifteen areas, 89 rooms, branching districts, sinkholes and hidden passages, bounce mushrooms, ambushes and a map. Find the Swift Cloak and Thorn Claws, collect mask shards, rest at benches and face the Hollow Guardian.', '#metroidvania #pixelart #soulslike', 6.1e9, 1.6e9, 410e6, 'hollow')
   );
 
   /* ===== stage 5f: boost ball (car soccer), hot time (time-stop shooter) ===== */
@@ -10267,14 +10267,23 @@ const SUMMIT_LEVELS = [
         '#...==#',
         '#.....#',
         '#.....#']),
-      R_("c5", "Acid Gap", 0, 280, 60, [
-        H7(70),
+      R_("c5", "Acid Gap", 0, 280, 51, [
+        H7(49) + '..' + H7(19),
+        H7(33) + '..' + H7(11) + D7(8) + H7(16),
+        H7(32) + '.....#####' + D7(12) + H7(16),
+        H7(32) + D7(11) + 'L' + D7(11) + H7(15),
+        H7(32) + '.====' + D7(18) + H7(15),
+        H7(32) + D7(23) + H7(15),
+        H7(32) + D7(23) + H7(15),
+        H7(32) + '..====' + D7(17) + H7(15),
+        H7(32) + D7(23) + H7(15),
+        H7(32) + D7(23) + H7(15),
         '####..L' + D7(57) + 'L.####',
         '##' + D7(66) + '##',
         '#' + D7(68) + '#',
         D7(70),
         D7(70),
-        D7(65) + 'h....',
+        D7(22) + '#####' + D7(38) + 'h....',
         '#####~~~~~~~~~' + H7(56)]),
       R_("m1", "Mossy Descent", 1, 110, 60, [
         H7(30),
@@ -10322,10 +10331,10 @@ const SUMMIT_LEVELS = [
         '##' + D7(32) + H7(44),
         '##' + D7(10) + '=====' + D7(8) + '=====....' + H7(44),
         '##' + D7(32) + H7(44),
-        '##' + D7(32) + H7(44),
-        '##.....=====' + D7(10) + '=====.......' + H7(44),
-        '##' + D7(32) + H7(44),
-        '##' + D7(32) + H7(44),
+        '##' + D7(32) + H7(19) + '...' + H7(22),
+        '##.....=====' + D7(10) + '=====.......' + H7(18) + '.....' + H7(21),
+        '##' + D7(32) + H7(18) + '.r...' + H7(21),
+        '##' + D7(32) + H7(18) + '.===.' + H7(21),
         '##' + D7(32) + 'q' + D7(43),
         '##....2' + D7(15) + '2' + D7(11) + 'q' + D7(43),
         '##..1.......3' + D7(9) + '3' + D7(8) + 'D..q' + D7(43),
@@ -10484,15 +10493,21 @@ const SUMMIT_LEVELS = [
         '##' + D7(37) + 'q' + H7(46),
         '##' + D7(33) + 'G...q' + H7(46),
         H7(86)], { boss: true }),
-      R_("f1", "Frost Gate", 6, 390, 56, [
-        H7(129),
-        H7(129),
-        H7(41) + '.....L' + D7(55) + 'L' + D7(17) + 'L.......#',
-        H7(41) + D7(87) + '#',
-        H7(41) + D7(12) + '===' + D7(73),
-        H7(41) + D7(11) + 'f' + D7(76),
-        H7(41) + D7(15) + '===' + D7(70),
-        H7(41) + '.....=====' + D7(67) + '=====......',
+      R_("f1", "Frost Gate", 6, 390, 50, [
+        '#######.' + H7(13) + D7(9) + H7(99),
+        '#######..##.......##' + D7(10) + H7(99),
+        '######' + D7(25) + H7(98),
+        '######' + D7(12) + 'L' + D7(12) + H7(98),
+        '######' + D7(25) + H7(98),
+        '######.====' + D7(20) + H7(98),
+        '######' + D7(25) + H7(98),
+        '######' + D7(25) + H7(98),
+        '######.====' + D7(20) + H7(10) + '.....L' + D7(55) + 'L' + D7(17) + 'L.......#',
+        '######' + D7(25) + H7(10) + D7(87) + '#',
+        '######' + D7(25) + H7(10) + D7(12) + '===' + D7(73),
+        '######....====' + D7(17) + H7(10) + D7(11) + 'f' + D7(76),
+        '######' + D7(25) + H7(10) + D7(15) + '===' + D7(70),
+        '######' + D7(25) + H7(10) + '.....=====' + D7(67) + '=====......',
         D7(129),
         D7(53) + '===' + D7(73),
         D7(43) + 'n' + D7(64) + 'c' + D7(15) + 'h....',
@@ -10641,15 +10656,15 @@ const SUMMIT_LEVELS = [
       R_("e1", "Cinder Gate", 7, 571, 104, [
         H7(90),
         H7(90),
-        '#' + D7(10) + 'L' + D7(25) + 'L' + D7(51) + '#',
-        '#' + D7(23) + 'f' + D7(64) + '#',
+        '#' + D7(10) + 'L' + D7(25) + 'L' + D7(14) + '####' + D7(33) + '#',
+        '#' + D7(23) + 'f' + D7(28) + '##' + D7(34) + '#',
         '#' + D7(88) + '#',
         '#' + D7(20) + '=======' + D7(61) + '#',
         D7(90),
-        D7(90),
+        D7(72) + '=====' + D7(13),
         D7(90),
         D7(8) + 'c' + D7(32) + 'h' + D7(48),
-        H7(14) + '~~~~~' + H7(11) + '~~~~~' + H7(55),
+        H7(14) + '~~~~~' + H7(11) + '~~~~~' + H7(38) + '~~~' + H7(14),
         H7(90)]),
       R_("e2", "Furnace Hall", 7, 661, 102, [
         H7(48),
@@ -10747,9 +10762,9 @@ const SUMMIT_LEVELS = [
         '##....====##']),
       R_("e4b", "Slag Run", 7, 571, 124, [
         H7(90),
-        H7(90),
-        H7(90),
-        H7(90),
+        H7(65) + '.L' + H7(23),
+        H7(64) + '....' + H7(22),
+        H7(64) + '....' + H7(22),
         '#' + D7(8) + 'L' + D7(17) + 'L' + D7(15) + 'L' + D7(45) + '#',
         '#' + D7(22) + 'f' + D7(65) + '#',
         D7(90),
@@ -10760,18 +10775,20 @@ const SUMMIT_LEVELS = [
         H7(14) + '^^^^^' + H7(10) + '~~~~~' + H7(56),
         H7(90),
         H7(90)]),
-      R_("e4", "Ember Vault", 7, 390, 122, [
-        H7(181),
-        H7(181),
-        H7(41) + D7(9) + 'L' + D7(59) + 'L' + D7(19) + 'L' + D7(49) + '#',
-        H7(41) + D7(139) + '#',
-        H7(41) + D7(139) + '#',
-        H7(41) + D7(81) + 'f' + D7(57) + '#',
-        H7(41) + D7(139) + '#',
-        H7(41) + D7(139) + '#',
+      R_("e4", "Ember Vault", 7, 390, 120, [
+        H7(15) + '.#....#####....' + H7(151),
+        H7(13) + D7(17) + H7(151),
+        H7(13) + D7(17) + H7(151),
+        H7(12) + D7(9) + 'L' + D7(9) + H7(150),
+        H7(12) + '.......====' + D7(8) + H7(10) + D7(9) + 'L' + D7(59) + 'L' + D7(19) + 'L' + D7(13) + 'L' + D7(35) + '#',
+        H7(12) + D7(19) + H7(10) + D7(139) + '#',
+        H7(12) + D7(19) + H7(10) + D7(139) + '#',
+        H7(12) + '..====' + D7(13) + H7(10) + D7(81) + 'f' + D7(24) + 'r' + D7(32) + '#',
+        H7(12) + D7(19) + H7(10) + D7(99) + '#####.......###' + D7(25) + '#',
+        H7(12) + D7(19) + H7(10) + D7(99) + '#####.......###' + D7(25) + '#',
         D7(181),
-        D7(54) + '=============================================' + D7(9) + 'a' + D7(72),
-        D7(102) + H7(14) + D7(65),
+        D7(54) + '=============================================' + D7(9) + 'a' + D7(36) + '=======' + D7(29),
+        D7(102) + H7(14) + D7(28) + '=======' + D7(30),
         D7(102) + H7(14) + D7(65),
         D7(48) + 'h' + D7(53) + H7(14) + D7(16) + 'r' + D7(48),
         H7(181),
@@ -10799,20 +10816,20 @@ const SUMMIT_LEVELS = [
       R_("r1", "Rotwood Hollow", 8, 210, 118, [
         H7(140),
         H7(140),
-        '#' + D7(49) + 'L' + D7(19) + 'L' + D7(59) + 'L' + D7(8) + '#',
-        '#' + D7(138) + '#',
-        '#' + D7(138) + '#',
-        '#' + D7(138) + '#',
-        '#' + D7(73) + '=======' + D7(58) + '#',
-        '#' + D7(65) + 'f' + D7(72) + '#',
-        '#' + D7(138) + '#',
-        '#' + D7(138) + '#',
-        '#' + D7(61) + '=======' + D7(70) + '#',
-        '#' + D7(85) + '===============================================......#',
-        '#' + D7(139),
-        '#' + D7(139),
-        D7(50) + '=======' + D7(83),
-        D7(140),
+        '#' + D7(15) + H7(11) + D7(23) + 'L' + D7(19) + 'L' + D7(59) + 'L' + D7(8) + '#',
+        '#' + D7(16) + '##.##..##' + D7(113) + '#',
+        '#' + D7(14) + 'f.##.##..##' + D7(113) + '#',
+        '#' + D7(16) + '##.##..##' + D7(113) + '#',
+        '#' + D7(16) + '##.##..##' + D7(48) + '=======' + D7(58) + '#',
+        '#' + D7(16) + '##.##..##' + D7(40) + 'f' + D7(72) + '#',
+        '#' + D7(16) + '##.##..##' + D7(113) + '#',
+        '#' + D7(16) + '##.##..##' + D7(113) + '#',
+        '#' + D7(16) + '##.##..##' + D7(36) + '=======' + D7(70) + '#',
+        '#' + D7(16) + '##.##..##' + D7(60) + '===============================================......#',
+        '#' + D7(16) + '##.##..##' + D7(114),
+        '#' + D7(16) + '##.##..##' + D7(114),
+        D7(17) + '##.##..##' + D7(24) + '=======' + D7(83),
+        D7(24) + '====' + D7(112),
         D7(140),
         D7(139) + '#',
         D7(55) + 'h' + D7(16) + 'c' + D7(11) + 'r' + D7(45) + 's' + D7(8) + '#',
@@ -10902,10 +10919,21 @@ const SUMMIT_LEVELS = [
         '##...===##',
         '##......##',
         '##......##']),
-      R_("r4", "Spore Nook", 8, 52, 128, [
-        H7(58),
-        H7(58),
-        H7(58),
+      R_("r4", "Spore Nook", 8, 52, 117, [
+        H7(21) + '...#####....' + H7(25),
+        H7(21) + D7(18) + H7(19),
+        H7(20) + D7(20) + H7(18),
+        H7(20) + D7(10) + 'L' + D7(9) + H7(18),
+        H7(20) + D7(21) + H7(17),
+        H7(20) + '.====' + D7(16) + H7(17),
+        H7(20) + D7(21) + H7(17),
+        H7(20) + D7(21) + H7(17),
+        H7(20) + '.====' + D7(16) + H7(17),
+        H7(20) + D7(21) + H7(17),
+        H7(20) + D7(21) + H7(17),
+        H7(20) + '...====' + D7(14) + H7(17),
+        H7(20) + D7(21) + H7(17),
+        H7(20) + D7(21) + H7(17),
         '#.......L' + D7(49),
         '#' + D7(57),
         '#' + D7(57),
@@ -10996,22 +11024,22 @@ const SUMMIT_LEVELS = [
       R_("v2", "Hollow Deep", 9, 210, 194, [
         H7(280),
         H7(280),
-        '#' + D7(54) + 'L' + D7(24) + 'L' + D7(79) + 'L' + D7(64) + 'L' + D7(53) + '#',
-        '#' + D7(278) + '#',
-        '#' + D7(278) + '#',
-        '#' + D7(132) + 'r' + D7(145) + '#',
-        '#' + D7(129) + '=======' + D7(142) + '#',
-        '#' + D7(149) + 'f' + D7(128) + '#',
-        '#' + D7(278) + '#',
-        '#' + D7(278) + '#',
-        '#' + D7(74) + '=======' + D7(73) + '=======' + D7(117) + '#',
-        '#' + D7(278) + '#',
-        '#' + D7(278) + '#',
-        '#' + D7(278) + '#',
-        D7(60) + '=======' + D7(108) + '===============================================' + D7(58),
+        '#' + D7(13) + H7(8) + '..####' + D7(27) + 'L' + D7(24) + 'L' + D7(13) + 'L' + D7(65) + 'L' + D7(64) + 'L' + D7(19) + 'L' + D7(33) + '#',
+        '#' + D7(14) + '##..##....##' + D7(252) + '#',
+        '#' + D7(14) + '##..#f....##' + D7(252) + '#',
+        '#' + D7(14) + '##..##....##' + D7(106) + 'r' + D7(145) + '#',
+        '#' + D7(14) + '##..##....##' + D7(103) + '=======' + D7(142) + '#',
+        '#' + D7(14) + '##..##....##' + D7(123) + 'f' + D7(128) + '#',
+        '#' + D7(14) + '##..##....##' + D7(252) + '#',
+        '#' + D7(14) + '##..##....##' + D7(71) + 'c' + D7(153) + 'r' + D7(26) + '#',
+        '#' + D7(14) + '##..##....##' + D7(48) + '=======' + D7(8) + '#####....#....###' + D7(48) + '=======' + D7(79) + '#####....#######....####' + D7(14) + '#',
+        '#' + D7(14) + '##..##....##' + D7(63) + '#####....#....###' + D7(134) + '#####....#######....####' + D7(14) + '#',
+        '#' + D7(14) + '##..##....##' + D7(252) + '#',
+        '#' + D7(14) + '##..##....##' + D7(68) + '====.====' + D7(142) + '====.......====' + D7(18) + '#',
+        D7(15) + '##..##....##' + D7(33) + '=======' + D7(29) + '====.====' + D7(70) + '===============================================' + D7(25) + '====.......====' + D7(18),
+        D7(15) + '##..##....##' + D7(253),
         D7(280),
-        D7(280),
-        D7(280),
+        D7(94) + '====.====' + D7(142) + '====.......====' + D7(20),
         D7(280),
         D7(50) + 'h' + D7(31) + 'a' + D7(53) + 'n...B' + D7(13) + 'c' + D7(73) + 's' + D7(51),
         H7(65) + '~~~~~~~~' + H7(95) + '~~~~~~~' + H7(55) + '....' + H7(46),
@@ -11031,22 +11059,22 @@ const SUMMIT_LEVELS = [
         H7(80) + '.....' + H7(135),
         H7(80) + '.....' + H7(125) + D7(8) + '##',
         H7(80) + '.....' + H7(125) + D7(8) + '##',
-        '#' + D7(14) + 'L' + D7(84) + 'L' + D7(74) + 'L' + D7(24) + 'L' + D7(9) + '====.....#',
+        '#' + D7(14) + 'L' + D7(84) + 'L' + D7(36) + 'L' + D7(37) + 'L' + D7(24) + 'L' + D7(9) + '====.....#',
         '#' + D7(218) + '#',
         '#' + D7(35) + '============================================' + D7(139) + '#',
         '#' + D7(213) + '====.#',
         '#' + D7(218) + '#',
         '#' + D7(80) + '====' + D7(87) + 'f' + D7(46) + '#',
         '#' + D7(209) + '====.....#',
-        '#' + D7(25) + 'f' + D7(192) + '#',
-        '#' + D7(35) + '============================================' + D7(139) + '#',
-        '#' + D7(213) + '====.#',
+        '#' + D7(25) + 'f' + D7(115) + 'c' + D7(76) + '#',
+        '#' + D7(35) + '============================================' + D7(53) + '###....#####....####' + D7(66) + '#',
+        '#' + D7(132) + '###....#####....####' + D7(61) + '====.#',
         '#' + D7(218) + '#',
-        '#' + D7(80) + '====' + D7(134) + '#',
-        D7(210) + '====......',
+        '#' + D7(80) + '====' + D7(51) + '====.....====' + D7(70) + '#',
+        D7(137) + '====.....====' + D7(60) + '====......',
         D7(220),
         D7(36) + '============================================' + D7(140),
-        D7(214) + '====..',
+        D7(135) + '====.....====' + D7(66) + '====..',
         D7(220),
         D7(98) + 'r' + D7(11) + 'a' + D7(71) + 's' + D7(12) + 'h' + D7(24),
         H7(16) + '~~~~~~' + H7(98) + '^^^^^^' + H7(94),
@@ -11065,7 +11093,15 @@ const SUMMIT_LEVELS = [
         H7(103),
         H7(103),
         H7(103),
-        H7(103)]),
+        H7(103),
+        H7(20) + '                     ' + H7(62),
+        H7(20) + '                     ' + H7(62),
+        H7(20) + '                     ' + H7(62),
+        H7(20) + '                     ' + H7(62),
+        H7(20) + '                     ' + H7(62),
+        H7(20) + '                     ' + H7(62),
+        H7(21) + '                   ' + H7(63),
+        H7(28) + '     ' + H7(70)]),
       R_("ar2", "The Stacks", 10, 810, 38, [
         H7(140),
         H7(140),
@@ -11156,9 +11192,9 @@ const SUMMIT_LEVELS = [
         H7(50)], { amb: true }),
       R_("ar6", "Scriptorium", 10, 709, 124, [
         H7(101),
-        H7(101),
-        H7(101),
-        H7(101),
+        H7(9) + '..L.' + H7(20) + '..L.' + H7(64),
+        H7(8) + '......' + H7(18) + '......' + H7(63),
+        H7(8) + '......' + H7(18) + '......' + H7(63),
         '#' + D7(50) + 'L' + D7(19) + 'L' + D7(19) + 'L' + D7(8) + '#',
         '#' + D7(99) + '#',
         D7(86) + 'f' + D7(14),
@@ -11282,16 +11318,16 @@ const SUMMIT_LEVELS = [
         H7(160),
         H7(160),
         H7(160),
-        D7(55) + 'L' + D7(29) + 'L' + D7(64) + 'L' + D7(8) + '#',
+        D7(26) + 'L' + D7(28) + 'L' + D7(29) + 'L' + D7(31) + 'L' + D7(32) + 'L' + D7(8) + '#',
         D7(159) + '#',
         D7(12) + '===' + D7(144) + '#',
         D7(159) + '#',
-        D7(9) + '===' + D7(78) + 'f' + D7(68) + '#',
-        D7(159) + '#',
-        D7(160),
+        D7(9) + '===' + D7(18) + 'c' + D7(59) + 'f' + D7(32) + 'c' + D7(35) + '#',
+        D7(22) + '#####....##....###' + D7(73) + '##....' + H7(8) + '....####' + D7(24) + '#',
+        D7(22) + '#####....##....###' + D7(73) + '##....' + H7(8) + '....####' + D7(25),
         D7(12) + '===' + D7(145),
-        D7(160),
-        D7(9) + '===' + D7(148),
+        D7(27) + '====..====' + D7(78) + '====' + D7(8) + '====' + D7(29),
+        D7(9) + '===' + D7(14) + '====..====' + D7(78) + '====' + D7(8) + '====' + D7(30),
         D7(160),
         D7(48) + 'h' + D7(56) + 'a' + D7(54),
         H7(60) + '^^^^^^^^^^^^^^' + H7(86),
@@ -11564,42 +11600,50 @@ const SUMMIT_LEVELS = [
         '#......' + H7(41),
         '#......' + H7(41)]),
       R_("d2", "Flooded Nave", 12, 130, 284, [
-        H7(309) + '===...' + H7(125),
-        H7(309) + '......' + H7(125),
-        H7(309) + '......' + H7(125),
-        H7(309) + '...===' + H7(125),
-        H7(309) + '......' + H7(125),
-        H7(309) + '......' + H7(125),
-        H7(309) + '===...' + H7(125),
-        H7(309) + '......' + H7(125),
-        '#' + D7(14) + 'L' + D7(34) + 'L' + D7(79) + 'L' + D7(79) + 'L' + D7(39) + 'L' + D7(124) + 'L' + D7(23) + H7(41),
-        '#' + D7(398) + H7(41),
-        '#...===' + D7(302) + '===' + D7(87) + H7(41),
-        '#' + D7(398) + H7(41),
-        '#===' + D7(66) + 'f' + D7(164) + 'f' + D7(163) + H7(41),
-        '#' + D7(311) + '===' + D7(84) + H7(41),
-        D7(440),
-        '....===' + D7(433),
-        D7(19) + '=========' + D7(31) + '==========' + D7(80) + '=========' + D7(66) + '=========' + D7(76) + '===' + D7(128),
-        '.===' + D7(436),
+        H7(309) + '===...' + H7(90) + '.#####.###.' + H7(24),
+        H7(309) + '......' + H7(90) + D7(12) + H7(23),
+        H7(309) + '......' + H7(89) + D7(15) + H7(21),
+        H7(309) + '...===' + H7(89) + D7(9) + 'L' + D7(9) + H7(17),
+        H7(309) + '......' + H7(89) + D7(19) + H7(17),
+        H7(309) + '......' + H7(89) + D7(14) + '====..' + H7(16),
+        H7(309) + '===...' + H7(89) + D7(20) + H7(16),
+        H7(309) + '......' + H7(89) + D7(20) + H7(16),
+        '#' + D7(14) + 'L' + D7(34) + 'L' + D7(79) + 'L' + D7(79) + 'L' + D7(39) + 'L' + D7(75) + 'L' + D7(21) + H7(11) + D7(16) + 'L' + D7(23) + '#####' + D7(8) + '====' + D7(8) + H7(16),
+        '#' + D7(348) + '##..##.##' + D7(41) + '#####' + D7(20) + H7(16),
+        '#...===' + D7(302) + '===' + D7(37) + '##..#f.##' + D7(41) + '#####' + D7(20) + H7(16),
+        '#' + D7(348) + '##..##.##' + D7(41) + '#####..====' + D7(14) + H7(16),
+        '#===' + D7(66) + 'f' + D7(164) + 'f' + D7(92) + 'r' + D7(20) + '##..##.##' + D7(41) + '#####' + D7(20) + H7(16),
+        '#' + D7(311) + '===.......####.....#####' + D7(13) + '##..##.##' + D7(41) + '#####' + D7(20) + H7(16),
+        D7(322) + '####.....#####' + D7(13) + '##..##.##' + D7(82),
+        '....===' + D7(342) + '##..##.##' + D7(82),
+        D7(19) + '=========' + D7(31) + '==========' + D7(80) + '=========' + D7(66) + '=========' + D7(76) + '===' + D7(15) + '====' + D7(15) + '====' + D7(90),
+        '.===' + D7(321) + '=====' + D7(110),
         D7(440),
         D7(35) + 'c' + D7(44) + 'h' + D7(59) + 'a' + D7(69) + 'c' + D7(34) + 's' + D7(124) + 'h' + D7(14) + 'r' + D7(54),
-        H7(20) + '~~~~~~~' + H7(33) + '~~~~~~~~' + H7(82) + '~~~~~~~' + H7(68) + '~~~~~~~' + H7(208),
-        H7(440),
-        H7(440)]),
+        H7(20) + '~~~~~~~' + H7(33) + '~~~~~~~~' + H7(18) + D7(19) + H7(45) + '~~~~~~~######' + D7(28) + H7(34) + '~~~~~~~' + H7(24) + D7(27) + H7(157),
+        H7(86) + D7(19) + H7(58) + '....===' + D7(17) + '===.' + H7(65) + '....===' + D7(16) + '===.' + H7(157),
+        H7(86) + '.===' + D7(8) + '=f=....' + H7(58) + D7(28) + H7(65) + D7(27) + H7(157),
+        H7(86) + D7(19) + H7(58) + '.......==============.......' + H7(65) + '.......=============.......' + H7(157),
+        H7(86) + D7(19) + H7(58) + '.===' + D7(17) + '===....' + H7(65) + '.===' + D7(16) + '===....' + H7(157),
+        H7(86) + '....===' + D7(8) + '===.' + H7(58) + D7(28) + H7(65) + D7(27) + H7(157),
+        H7(86) + D7(19) + H7(59) + D7(26) + H7(67) + D7(25) + H7(158),
+        H7(86) + D7(19) + H7(66) + '~~~~~~~~~~~~' + H7(81) + '~~~~~~~~~~~' + H7(165),
+        H7(86) + '.===' + D7(8) + '===....' + H7(335),
+        H7(86) + D7(19) + H7(335),
+        H7(87) + D7(17) + H7(336)]),
       R_("d3", "Pump Room", 12, 60, 290, [
         H7(70),
         H7(70),
         H7(70),
         H7(70),
-        '#' + D7(49) + 'L' + D7(11) + 'L......#',
+        '#' + D7(17) + 'L' + D7(31) + 'L' + D7(11) + 'L......#',
         '#' + D7(68) + '#',
         '#' + D7(68) + '#',
-        '#' + D7(68) + '#',
+        '#' + D7(24) + 'c' + D7(43) + '#',
+        D7(14) + '#####....#######....###' + D7(33),
+        D7(14) + '#####....#######....###' + D7(33),
         D7(70),
-        D7(70),
-        D7(70),
-        D7(70),
+        D7(18) + '====.......====' + D7(37),
         D7(70),
         D7(51) + 'n...B' + D7(8) + 'r.....',
         H7(70),
@@ -11819,15 +11863,15 @@ const SUMMIT_LEVELS = [
         H7(9) + '...' + H7(14) + '^^^^' + H7(29) + '......#######u###',
         '#######......#.' + H7(42) + D7(10) + '##...####',
         '##.####..===....L.######.##..' + H7(12) + '...' + H7(12) + '....====' + D7(8) + 'L###',
-        '#..L' + D7(14) + '###' + D7(9) + 'L..#####......L......####' + D7(18) + '###',
-        '#' + D7(33) + '#####' + D7(12) + '#####' + D7(17) + '###',
+        '#..L' + D7(14) + '###' + D7(9) + H7(8) + '......L......####' + D7(18) + '###',
+        '#' + D7(30) + '##.#####' + D7(12) + '#####' + D7(17) + '###',
         '#' + D7(8) + '===' + D7(22) + '####' + D7(13) + '####....===...===.....###',
         '##....=====..====.......===......######' + D7(13) + '###' + D7(18) + '###',
         '##.......===' + D7(22) + '####' + D7(14) + '####......===.......####',
         '#' + D7(33) + '####..======......###' + D7(13) + '=====###',
         '#' + D7(72) + '###',
         '#' + D7(8) + '===.......#' + D7(39) + '===' + D7(11) + '###',
-        '#' + D7(17) + '####n..B' + D7(18) + 'h.c' + D7(26) + '###',
+        '#' + D7(17) + '####n..B' + D7(18) + 'h.c.......#####' + D7(14) + '###',
         H7(8) + '......' + H7(55) + '^^^####',
         H7(8) + '......' + H7(62),
         H7(8) + '.====.' + H7(62)]),
@@ -11880,7 +11924,7 @@ const SUMMIT_LEVELS = [
         '####' + D7(71) + '#',
         '####..===' + D7(18) + '===' + D7(13) + '===' + D7(17) + '#' + D7(11) + '#',
         '####' + D7(58) + '#####.n..B...#',
-        H7(8) + '......' + H7(62),
+        H7(8) + '......' + H7(25) + '^^^' + H7(34),
         H7(8) + '......' + H7(62),
         H7(8) + '.====.' + H7(62)]),
       R_("w7a", "Foundry Floors", 7, 607, 135, [
@@ -12069,8 +12113,8 @@ const SUMMIT_LEVELS = [
         '#####..L...' + H7(13) + '......#.L.#######' + D7(9) + H7(12) + '.......#.#####',
         '##' + D7(10) + '#.' + H7(9) + '...==......#######...====...L..#..###L...==......L###',
         '#' + D7(12) + '==' + H7(8) + D7(11) + '#.#####' + D7(32) + '###',
-        '#' + D7(18) + 'L' + D7(16) + '#####' + D7(31) + '####',
-        '#' + D7(24) + '===.......#####...===.....=====.......===......####',
+        '#' + D7(18) + 'L' + D7(12) + H7(9) + D7(31) + '####',
+        '#' + D7(24) + '===.....#######...===.....=====.......===......####',
         '##.===' + D7(13) + '====' + D7(12) + '#####' + D7(33) + '###',
         '#' + D7(25) + '===.......####......===' + D7(15) + '===......###',
         '#' + D7(35) + '####' + D7(11) + '====' + D7(18) + '###',
@@ -12362,8 +12406,8 @@ const SUMMIT_LEVELS = [
         H7(26) + 'L..' + H7(10) + '.###.##.##.##.L#.#.####' + D7(9) + '#####',
         H7(8) + '.' + H7(14) + '......' + H7(8) + '...##..L...#..#.......#.....====..#.###',
         '###.#' + D7(8) + H7(10) + '......#.#######..##' + D7(9) + '#.......#' + D7(11) + '#####',
-        '###.L' + D7(9) + 'L..#####' + D7(13) + '##' + D7(35) + '####',
-        '####' + D7(13) + '#####' + D7(13) + '###' + D7(26) + '===......###',
+        '###.L......####..' + H7(9) + D7(9) + '##' + D7(35) + '####',
+        '####' + D7(8) + '##...#####.##' + D7(10) + '###' + D7(26) + '===......###',
         '###...=====.......####' + D7(13) + '###' + D7(35) + '###',
         '###' + D7(15) + '####' + D7(13) + '##' + D7(13) + 'f======' + D7(10) + '====..###',
         '###' + D7(15) + '####.......=====.##' + D7(23) + '======.......###',
@@ -12728,7 +12772,160 @@ const SUMMIT_LEVELS = [
         '###....===' + D7(14) + '===' + D7(16) + '===' + D7(15) + '#....===......#',
         '###' + D7(58) + '#' + D7(13) + '#',
         H7(76),
-        H7(76)])
+        H7(76)]),
+      R_("p0", "Sinkhole", 2, 442, 104, [
+        '#####',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#####']),
+      R_("p1", "Sinkhole", 7, 410, 184, [
+        '#####',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#####']),
+      R_("p2", "Sinkhole", 4, 317, 104, [
+        '#####',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#####']),
+      R_("p3", "Sinkhole", 10, 777, 134, [
+        '#####',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#####']),
+      R_("p4", "Sinkhole", 8, 241, 186, [
+        '#####',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#####']),
+      R_("p5", "Sinkhole", 5, 268, 40, [
+        '#####',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#####']),
+      R_("p6", "Sinkhole", 8, 41, 148, [
+        '#####',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#####']),
+      R_("p7", "Sinkhole", 5, 321, 40, [
+        '#####',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#...#',
+        '#####']),
+      R_("p8", "Hidden Passage", 9, 196, 260, [
+        H7(11),
+        '#....L...x#',
+        '#' + D7(8) + 'x#',
+        '#' + D7(8) + 'x#',
+        H7(11)])
     ];
     const T = 8, MW = 1100, MH = 360;
     // the Nov 2026 "layers" rebuild stretched the old 640x240 map: columns after each seam moved right 40, rows after 109 moved down 40, then everything moved 30 right and down
@@ -12743,7 +12940,7 @@ const SUMMIT_LEVELS = [
     function buildMap() {
       MAP.fill(ROCK); AREAM.fill(255); ROOMID.fill(-1); BOUNCE.clear(); ENT.length = 0; LANT.length = 0; BENCH.length = 0; DECO.length = 0; ITEMS.length = 0; LEVERS.length = 0; ROOMS.length = 0;
       ROOMDEF.forEach((rd, ri) => { const w = Math.max(...rd.rows.map(r => r.length)), h = rd.rows.length;
-        const R = { id: rd.id, name: rd.name, area: rd.area, x: rd.x, y: rd.y, w, h, amb: !!rd.amb, boss: !!rd.boss, gid: rd.gid || null, q: [], g: [], spawn: [] }; ROOMS.push(R);
+        const R = { id: rd.id, name: rd.name, area: rd.area, x: rd.x, y: rd.y, w, h, amb: !!rd.amb, boss: !!rd.boss, gid: rd.gid || null, q: [], g: [], spawn: [], bx0: 0, by0: 0, bx1: -1, by1: -1 }; ROOMS.push(R);
         rd.rows.forEach((row, j) => { for (let i = 0; i < w; i++) { const ch = row[i] || '#', x = rd.x + i, y = rd.y + j; if (x < 0 || y < 0 || x >= MW || y >= MH) continue; const o = y * MW + x;
           if (AREAM[o] === 255) AREAM[o] = rd.area; if (ch === '#') continue; if (ch === 'u') { BOUNCE.add(o); AREAM[o] = rd.area; continue; } ROOMID[o] = ri; AREAM[o] = rd.area;
           MAP[o] = ch === '=' ? ONE : ch === '^' ? SPK : ch === '~' ? ACID : ch === 'x' ? BRK : ch === 'g' ? GATE : AIR;
@@ -12759,7 +12956,7 @@ const SUMMIT_LEVELS = [
       let fr = []; for (let o = 0; o < MW * MH; o++) if (AREAM[o] !== 255) fr.push(o);
       while (fr.length) { const nf = []; for (const o of fr) { const x = o % MW, y = (o / MW) | 0; for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const nx = x + dx, ny = y + dy; if (nx < 0 || ny < 0 || nx >= MW || ny >= MH) continue; const n = ny * MW + nx; if (AREAM[n] === 255) { AREAM[n] = AREAM[o]; nf.push(n); } } } fr = nf; }
     }
-    buildMap();
+    buildMap(); roomBoxes();
     const tile = (x, y) => (x < 0 || y < 0 || x >= MW || y >= MH) ? ROCK : MAP[y * MW + x];
     const solidT = v => v === ROCK || v === GATE || v === BRK;
     const AREAS = [
@@ -12783,6 +12980,15 @@ const SUMMIT_LEVELS = [
     AREAS.forEach(a => ['bg0', 'bg1', 'far', 'mid', 'rock', 'rockB', 'rim', 'rimHi', 'light', 'dust', 'acc', 'map'].forEach(k => a.c[k] = HX(a[k])));
     const areaT = (tx, ty) => AREAM[clamp(ty, 0, MH - 1) * MW + clamp(tx, 0, MW - 1)];
     const areaAt = (px, py) => areaT(Math.floor(px / T), Math.floor(py / T));
+    // room-by-room camera (like the real thing): each room's box of its own tiles, worked out once per map build
+    function roomBoxes() { for (const R of ROOMS) { R.bx0 = 1e9; R.by0 = 1e9; R.bx1 = -1; R.by1 = -1; } for (let y = 0; y < MH; y++) for (let x = 0; x < MW; x++) { const r = ROOMID[y * MW + x]; if (r < 0) continue; const R = ROOMS[r]; if (x < R.bx0) R.bx0 = x; if (x > R.bx1) R.bx1 = x; if (y < R.by0) R.by0 = y; if (y > R.by1) R.by1 = y; } }
+    // tiles of OTHER rooms seen from the current one: 1..3 = the mouth of a passage fading to black, anything further is hidden (no peeking through walls)
+    const SEEN = new Map(); let seenFor = -2;
+    function seeRoom(ri) { if (seenFor === ri) return; seenFor = ri; SEEN.clear(); const R = ROOMS[ri]; if (!R || R.bx1 < 0) return; let fr = [];
+      for (let y = R.by0; y <= R.by1; y++) for (let x = R.bx0; x <= R.bx1; x++) if (ROOMID[y * MW + x] === ri) fr.push(y * MW + x);
+      for (let d = 1; d <= 4 && fr.length; d++) { const nx = []; for (const o of fr) { const x = o % MW, y = (o / MW) | 0; for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) { const X = x + dx, Y = y + dy; if (X < 0 || Y < 0 || X >= MW || Y >= MH) continue; const q = Y * MW + X, r = ROOMID[q]; if (r === ri || SEEN.has(q) || (r >= 0 && d > 3)) continue; SEEN.set(q, d); nx.push(q); } } fr = nx; } }
+    function hideOthers() { const ri = G.curRoom; if (ri == null || ri < 0) return; seeRoom(ri); const tx0 = Math.floor(CX / T) - 1, tx1 = Math.floor((CX + LW) / T) + 1, ty0 = Math.floor(CY / T) - 1, ty1 = Math.floor((CY + LH) / T) + 1;
+      for (let ty = Math.max(0, ty0); ty <= Math.min(MH - 1, ty1); ty++) for (let tx = Math.max(0, tx0); tx <= Math.min(MW - 1, tx1); tx++) { const o = ty * MW + tx, r = ROOMID[o]; if (r === ri) continue; const d = SEEN.get(o), f = !d ? 0.03 : r < 0 ? [1, 1, 1, 0.55, 0.2][d] : [1, 0.62, 0.32, 0.12][d]; if (f < 1) DIM(tx * T - CX, ty * T - CY, T, T, f); } }
     const roomAt = (px, py) => { const tx = Math.floor(px / T), ty = Math.floor(py / T); if (tx < 0 || ty < 0 || tx >= MW || ty >= MH) return -1; return ROOMID[ty * MW + tx]; };
 
     /* ---------- pixel sprites ---------- */
@@ -12827,17 +13033,19 @@ const SUMMIT_LEVELS = [
     const SKEY = 'gregsnap_hollow_v2';
     const loadSave = () => { try { const v = JSON.parse(localStorage.getItem(SKEY) || 'null'); return v && v.v === 2 ? v : null; } catch (_) { return null; } };
     const clearSave = () => { try { localStorage.removeItem(SKEY); } catch (_) {} };
-    function saveGame() { const P = G.P; if (!P) return; try { localStorage.setItem(SKEY, JSON.stringify({ v: 2, mw: MW, bench: G.lastBench, dash: P.dash, claw: P.claw, wings: P.wings, shards: P.shards, mhp: P.mhp, geo: P.geo, got: [...G.got], broken: [...G.broken], levers: [...G.levers], amb: [...G.ambDone], vis: [...G.vis], rocks: Object.keys(G.rocksDone), deaths: G.deaths, kills: G.kills, time: Math.round(G.time) })); } catch (_) {} }
+    function saveGame() { const P = G.P; if (!P) return; try { localStorage.setItem(SKEY, JSON.stringify({ v: 2, mw: MW, lv: 3, bench: G.lastBench, dash: P.dash, claw: P.claw, wings: P.wings, shards: P.shards, mhp: P.mhp, geo: P.geo, got: [...G.got], broken: [...G.broken], levers: [...G.levers], amb: [...G.ambDone], vis: [...G.vis], rocks: Object.keys(G.rocksDone), deaths: G.deaths, kills: G.kills, time: Math.round(G.time) })); } catch (_) {} }
     const setGates = (list, on) => { for (const o of list) { if (on) MAP[o] = GATE; else if (MAP[o] === GATE) MAP[o] = AIR; } };
     function openLever(gid) { G.levers.add(gid); ROOMS.forEach(r => { if (r.gid === gid) setGates(r.g, 0); }); }
-    function newRun(sv) { buildMap(); G.rocksDone = {}; G.bossDead = 0; G.bossOn = false; G.deaths = 0; G.kills = 0; G.time = 0; G.shade = null; G.bench = null; G.lastBench = -1; G.geoP = []; G.parts = []; G.bolts = []; G.toasts = []; G.area = -1; G.winT = 0;
+    function newRun(sv) { buildMap(); roomBoxes(); seenFor = -2; G.rocksDone = {}; G.bossDead = 0; G.bossOn = false; G.deaths = 0; G.kills = 0; G.time = 0; G.shade = null; G.bench = null; G.lastBench = -1; G.geoP = []; G.parts = []; G.bolts = []; G.toasts = []; G.area = -1; G.winT = 0;
       G.got = new Set(); G.broken = new Set(); G.levers = new Set(); G.ambDone = new Set(); G.vis = new Set(); G.amb = null; G.mapOpen = false; G.mapPan = 0; G.mapDrag = null; G.brkHp = new Map(); G.pal = null; G.keys = {}; G.ptrs = {}; G.joy = null;
       G.P = { x: START[0] * T + 1, y: (START[1] + 1) * T - 10, w: 6, h: 10, vx: 0, vy: 0, face: 1, on: false, coy: 0, jb: 0, dashT: 0, dashCd: 0, airDash: true, atk: 0, adir: 's', acd: 0, inv: 0, hp: 5, mhp: 5, soul: 0, focusT: 0, spellDown: false, spellT: 0, geo: 0, safe: null, anim: 0, recoil: 0, dash: false, claw: false, wings: false, airJ: true, shards: 0, cling: 0, wjT: 0 };
       if (sv) { const P = G.P; P.dash = !!sv.dash; P.claw = !!sv.claw; P.wings = !!sv.wings; P.shards = sv.shards | 0; P.mhp = P.hp = clamp(sv.mhp | 0, 5, 9); P.geo = sv.geo | 0; G.deaths = sv.deaths | 0; G.kills = sv.kills | 0; G.time = sv.time || 0;
         const omw = sv.mw || 240, conv = omw !== MW;
         // item ids are room:col:row, so items in rooms that the rebuild stretched need their col/row moved too
-        const gidConv = k => { if (!conv) return k; const [id, i, j] = k.split(':'); const R = ROOMS.find(r => r.id === id); if (!R) return k; let ox = R.x; while (ox > 0 && o2nX(ox) > R.x) ox--; let oy = R.y; while (oy > 0 && o2nY(oy) > R.y) oy--; return id + ':' + (o2nX(ox + +i) - R.x) + ':' + (o2nY(oy + +j) - R.y); };
-        (sv.got || []).forEach(k => G.got.add(gidConv(k))); (sv.broken || []).forEach(o => { o = conv ? o2nY(Math.floor(o / omw)) * MW + o2nX(o % omw) : o; if (MAP[o] === BRK) { MAP[o] = AIR; G.broken.add(o); } }); (sv.levers || []).forEach(openLever); (sv.amb || []).forEach(a => G.ambDone.add(a)); (sv.vis || []).forEach(a => G.vis.add(a)); (sv.rocks || []).forEach(k => G.rocksDone[k] = 1);
+        // layout v3 (Nov 2026 basins/vaults) grew a few rooms upward/leftward: move their item ids along
+        const LV3 = {"c5": [0, 9], "f1": [0, 6], "e4": [0, 2], "r4": [0, 11]}; const lvConv = k => { if ((sv.lv || 0) >= 3) return k; const [id, i, j] = k.split(':'); const d = LV3[id]; return d ? id + ':' + (+i + d[0]) + ':' + (+j + d[1]) : k; };
+        const gidConv = k => { if (!conv) return k; const [id, i, j] = k.split(':'); const R = ROOMS.find(r => r.id === id); if (!R) return k; const d = LV3[id] || [0, 0], RX = R.x + d[0], RY = R.y + d[1]; let ox = RX; while (ox > 0 && o2nX(ox) > RX) ox--; let oy = RY; while (oy > 0 && o2nY(oy) > RY) oy--; return id + ':' + (o2nX(ox + +i) - RX) + ':' + (o2nY(oy + +j) - RY); };
+        (sv.got || []).forEach(k => G.got.add(lvConv(gidConv(k)))); (sv.broken || []).forEach(o => { o = conv ? o2nY(Math.floor(o / omw)) * MW + o2nX(o % omw) : o; if (MAP[o] === BRK) { MAP[o] = AIR; G.broken.add(o); } }); (sv.levers || []).forEach(openLever); (sv.amb || []).forEach(a => G.ambDone.add(a)); (sv.vis || []).forEach(a => G.vis.add(a)); (sv.rocks || []).forEach(k => G.rocksDone[k] = 1);
         const b = BENCH[sv.bench]; if (b) { G.bench = b; G.lastBench = sv.bench; P.x = b[0] * T + 1; P.y = (b[1] + 1) * T - 10; } }
       spawnEnemies(); G.mode = 'play'; G.camInit = true; G.deathT = 0; G.hazT = 0; G.bannerQ = true; }
     const solidAt = (px, py) => solidT(tile(Math.floor(px / T), Math.floor(py / T)));
@@ -13197,7 +13405,7 @@ const SUMMIT_LEVELS = [
       const m = Math.floor(G.time / 60), s = Math.floor(G.time % 60); PT('TIME ' + m + ':' + (s < 10 ? '0' : '') + s, GX + GW / 2, y + 48, 1, DIMC, null, 'c'); PT('GEO ' + P.geo + '   FOES ' + G.kills + '   DEATHS ' + G.deaths, GX + GW / 2, y + 58, 1, DIMC, null, 'c'); if (a > 3 && (Math.floor(t * 1.6) & 1)) PT(G.touch ? 'TAP TO RETURN' : 'PRESS ANY KEY', GX + GW / 2, y + 76, 1, W_, null, 'c'); }
 
     return Object.assign({
-      _dbg: { G, ROOMS, ITEMS, newRun, T, MW, MH, BOUNCE },
+      _dbg: { G, ROOMS, ITEMS, newRun, T, MW, MH, BOUNCE, ROOMID, MAP },
       sk, hold: true, title: 'Hollow Path', how: 'Explore a big web of caverns. Find the Swift Cloak, the Thorn Claws and the Galaxy Wings, break hidden walls, collect mask shards, rest at benches and defeat the Hollow Guardian. M or the MAP button opens the map.',
       state: 'ready', score: 0, best: 0, dead: 0, shake: 0, flash: 0, floats: [],
       geom() { const dp = Math.min(window.devicePixelRatio || 1, 2), st = dp >= 2 ? 0.5 : 1; PSZ = Math.max(2, Math.round(Math.min(this.w || 300, (this.h || 500) * 0.62) / 190 / st) * st); GX = (this.ox || 0) / PSZ; GY = (this.oy || 0) / PSZ; GW = (this.w || 300) / PSZ; GH = (this.h || 500) / PSZ; },
@@ -13226,17 +13434,23 @@ const SUMMIT_LEVELS = [
         for (const q of G.parts) { q.l += dt; q.vy += (q.g || 0) * dt; q.x += q.vx * dt; q.y += q.vy * dt; if (q.to) { q.x += (G.P.x + 3 - q.x) * dt * 6; q.y += (G.P.y + 5 - q.y) * dt * 6; } } G.parts = G.parts.filter(q => q.l < q.ml); if (G.parts.length > 500) G.parts.splice(0, G.parts.length - 500);
         G.shake = Math.max(0, G.shake - dt * 2.5); G.flash = Math.max(0, G.flash - dt * 2.5);
         if (G.winT > 0) { G.winT += dt; if (G.winT > 2.2) G.mode = 'win'; }
-        if (G.hitstop > 0) { G.hitstop -= dt; } else if (G.mode === 'play' && !G.mapOpen) { const n = Math.ceil(dt / (1 / 120)); for (let i = 0; i < n; i++) step(dt / n); }
+        if (G.hitstop > 0) { G.hitstop -= dt; } else if (G.mode === 'play' && !G.mapOpen && !(G.fade && G.fade.ph === 'out')) { const n = Math.ceil(dt / (1 / 120)); for (let i = 0; i < n; i++) step(dt / n); }
         { const P = G.P; G.ghosts = G.ghosts || []; if (P.dashT > 0 && G.mode === 'play') { G.gn = (G.gn || 0) + 1; G.ghosts.push({ x: P.x, y: P.y, face: P.face, a: 0, n: G.gn }); } G.ghosts.forEach(g => g.a += dt); G.ghosts = G.ghosts.filter(g => g.a < 0.2);
           if (P.on && Math.abs(P.vx) > 60 && Math.random() < dt * 9) G.parts.push({ x: P.x + 3 - P.face * 3, y: P.y + P.h - 1, vx: -P.face * 15, vy: -12, l: 0, ml: 0.3, c: AREAS[areaAt(P.x + 3, P.y + 5)].c.dust, g: 0 }); }
         const P = G.P, ai = areaAt(P.x + 3, P.y + 5); if (ai !== G.area) { G.area = ai; if (G.bannerQ || true) G.banner = { t: 0, a: AREAS[ai].name, b: null }; }
-        const tx = P.x + 3 - (GX + GW * 0.5) + P.face * 14, ty = P.y + 5 - (GY + GH * 0.52); if (G.camInit) { G.cam.x = tx; G.cam.y = ty; G.camInit = false; } else { G.cam.x += (tx - G.cam.x) * Math.min(1, dt * 5); G.cam.y += (ty - G.cam.y) * Math.min(1, dt * 4); }
+        // which room are we in? crossing into another one fades to black, swaps the camera over, then fades back in
+        { const rr = roomAt(P.x + 3, P.y + 5); if (G.fade) { G.fade.t += dt; if (G.fade.ph === 'out' && G.fade.t >= 0.13) { G.curRoom = G.fade.to; G.camInit = true; G.fade = { ph: 'in', t: 0 }; } else if (G.fade.ph === 'in' && G.fade.t >= 0.2) G.fade = null; }
+          if (G.camInit && rr >= 0) G.curRoom = rr; else if (rr >= 0 && rr !== G.curRoom && !G.fade) { if (G.curRoom == null || G.curRoom < 0) G.curRoom = rr; else G.fade = { ph: 'out', t: 0, to: rr }; } }
+        const tx = P.x + 3 - (GX + GW * 0.5) + P.face * 14, ty = P.y + 5 - (GY + GH * 0.52); if (G.camInit) { G.cam.x = tx; G.cam.y = ty; } else { G.cam.x += (tx - G.cam.x) * Math.min(1, dt * 5); G.cam.y += (ty - G.cam.y) * Math.min(1, dt * 4); }
+        { const R = G.curRoom >= 0 ? ROOMS[G.curRoom] : null; if (R && R.bx1 >= 0) { const clampC = (v, lo, hi) => hi < lo ? (lo + hi) / 2 : clamp(v, lo, hi);
+            const x0 = (R.bx0 - 1) * T - GX, x1 = (R.bx1 + 2) * T - GX - GW, y0 = (R.by0 - 1) * T - GY, y1 = (R.by1 + 2) * T - GY - GH; G.cam.x = clampC(G.cam.x, x0, x1); G.cam.y = clampC(G.cam.y, y0, y1); } }
+        G.camInit = false;
         G.cam.x = clamp(G.cam.x, -LW * 0.25, MW * T - LW * 0.75); G.cam.y = clamp(G.cam.y, -LH * 0.3, MH * T - LH * 0.6);
         this.score = (P.geo || 0) + G.kills * 10; this.best = Math.max(this.best, this.score); },
       draw() { const c = this.ctx; this.geom(); if (!this.W || !this.H) return; ensureBuf(this.W, this.H, PSZ); const t = G.t;
         if (G.mode === 'title') drawTitle(t);
         else { const sh = G.shake > 0 ? Math.round((Math.random() - 0.5) * 6 * G.shake) : 0; CX = Math.round(G.cam.x) + sh; CY = Math.round(G.cam.y) + (G.shake > 0 ? Math.round((Math.random() - 0.5) * 6 * G.shake) : 0); const C = areaPal();
-          drawBack(C, t); drawTiles(t); drawShrooms(t); drawLights(C, t); drawEntities(t); drawAmb(C, t, AREAS[Math.max(0, G.area)].st); drawFore(C, t); drawDust(C, t); vignette(); if (G.flash > 0 && (Math.floor(t * 30) & 1)) DV(0, 0, LW, LH, HX('#ffffff'), 0); drawHUD(t); if (G.mapOpen && G.mode === 'play') drawMap(t); if (G.mode === 'win') drawWin(t); }
+          drawBack(C, t); drawTiles(t); drawShrooms(t); drawLights(C, t); drawEntities(t); drawAmb(C, t, AREAS[Math.max(0, G.area)].st); drawFore(C, t); drawDust(C, t); hideOthers(); vignette(); if (G.fade) DIM(0, 0, LW, LH, G.fade.ph === 'out' ? Math.max(0, 1 - G.fade.t / 0.13) : Math.min(1, G.fade.t / 0.2)); if (G.flash > 0 && (Math.floor(t * 30) & 1)) DV(0, 0, LW, LH, HX('#ffffff'), 0); drawHUD(t); if (G.mapOpen && G.mode === 'play') drawMap(t); if (G.mode === 'win') drawWin(t); }
         lx.putImageData(img, 0, 0); c.save(); c.imageSmoothingEnabled = false; c.drawImage(lc, -this.ox, -this.oy, LW * PSZ, LH * PSZ); c.restore(); }
     }, MIX);
   }
