@@ -92,6 +92,9 @@ body{
 }
 .play canvas{display:block;width:100%;height:100%;touch-action:none;-webkit-user-select:none;user-select:none}
 .play canvas.hold{touch-action:none}
+  /* no iOS text loupe / selection / callout from a long press (games are held a lot); real text stays selectable */
+  html,body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none} canvas{-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
+  input,textarea,[contenteditable],.essay,.essay *{-webkit-user-select:text;user-select:text;-webkit-touch-callout:default}
 /* essay post: a long read that sometimes shows up in the feed */
 .essay{position:absolute;overflow-y:auto;overscroll-behavior-y:auto;-webkit-overflow-scrolling:touch;touch-action:pan-y;scrollbar-width:thin;color:#1d1d1b;font:17px/1.62 Georgia,'Iowan Old Style','Times New Roman',serif;-webkit-user-select:text;user-select:text}
 .essay .in{max-width:34em;margin:0 auto;padding:26px 22px 40px}
@@ -132,7 +135,7 @@ body{
 .music{display:flex;align-items:center;gap:8px;font:400 12px var(--mono);color:var(--sfg,#fff)}
 .mq{overflow:hidden;white-space:nowrap;flex:1;min-width:0}
 .mq span{display:inline-block;padding-left:100%;animation:marq 10s linear infinite}
-@keyframes marq{to{transform:translateX(-100%)}}
+@keyframes marq{to{transform:translateX(-100%)}} .slide:not(.is-cur) .mq span{animation:none}
 
 .scrim{position:absolute;inset:0;z-index:9;background:rgba(0,0,0,.45)}
 .sheet{
@@ -736,6 +739,7 @@ html.fs .fsgp{display:block;position:fixed;left:0;right:0;bottom:6px;z-index:6;t
       post(this);
     };
     const fit = () => {
+      if (g._asleep && g.inited) { g._stale = true; return; } /* off-screen: lay out when it wakes (iOS bar changes used to redraw all 120 games) */
       const r = realRect();
       const d = Math.min(window.devicePixelRatio || 1, 2);
       g.W = Math.round(r.width); g.H = Math.round(r.height);
@@ -758,7 +762,7 @@ html.fs .fsgp{display:block;position:fixed;left:0;right:0;bottom:6px;z-index:6;t
     g._wake = () => {
       if (!g._asleep) return; g._asleep = false;
       const r = realRect();
-      if (!g.W || Math.round(r.width) !== g.W || Math.round(r.height) !== g.H) { fit(); return; }
+      if (g._stale || !g.W || Math.round(r.width) !== g.W || Math.round(r.height) !== g.H) { g._stale = false; fit(); return; }
       canvas.width = g.W * g.d; canvas.height = g.H * g.d; g.ctx.setTransform(g.d, 0, 0, g.d, 0, 0); g._bgc = null; g._ovc = null;
       if (g.inited) { SK = g.sk || SKINS.comic; GM = g; g.draw(); }
     };
@@ -768,10 +772,11 @@ html.fs .fsgp{display:block;position:fixed;left:0;right:0;bottom:6px;z-index:6;t
     games.push(g);
   }
   let last = performance.now();
+  let feedBusy = -1e9; /* last time the feed moved (scroll or finger drag); games pause while it moves so scrolling stays smooth */
   function frame(t) {
     const dt = Math.min(0.05, (t - last) / 1000); last = t;
     const g = games[cur];
-    if (g && g.w && !paused) { SK = g.sk || SKINS.comic; GM = g; if (g.tick) g.tick(dt); g.draw(); }
+    if (g && g.w && !paused && performance.now() - feedBusy > 120) { SK = g.sk || SKINS.comic; GM = g; if (g.tick) g.tick(dt); g.draw(); }
     if (window.__mpTick) window.__mpTick(dt, g, paused);
     requestAnimationFrame(frame);
   }
@@ -37565,16 +37570,28 @@ function engine(){
       if (e.isIntersecting) {
         const i = +e.target.dataset.i;
         if (i !== cur || !games[i].entered) { cur = i; games[i].entered = true; if (games[i].enter) games[i].enter(); }
-        for (let j = 0; j < SLIDES.length; j++) { const g = SLIDES[j].game; if (!g || !g._wake) continue; if (Math.abs(j - i) <= WAKE) g._wake(); else g._sleep(); }
-        theme(SLIDES[i].sk);
-        if (i !== 0) pathOn = true;
-        setPath(SLIDES[i]);
+        for (let j = i - 1; j <= i + 1; j++) { const g = SLIDES[j] && SLIDES[j].game; if (g && g._wake) g._wake(); } /* no-op if already awake */
+        try { const g = games[i]; if (g && g.w && g.inited) { SK = g.sk || SKINS.comic; GM = g; g.draw(); } } catch (_) {}
         feed.querySelectorAll('.is-cur').forEach(x => x.classList.remove('is-cur')); e.target.classList.add('is-cur');
-        try { musicSwitch(i); } catch (_) {}
-        ensureAhead(i + 3);
+        settleSoon();
       }
     });
   }, { root: feed, threshold: [0.6] });
+  /* heavy per-post work (canvas sleep/wake, theme colours, address bar, music, building posts ahead) waits until the
+     feed stops moving, so it never lands in the middle of a swipe */
+  let settleT = 0, settledAt = -1;
+  const settle = () => {
+    settleT = 0; const i = cur;
+    for (let j = 0; j < SLIDES.length; j++) { const g = SLIDES[j].game; if (!g || !g._wake) continue; if (Math.abs(j - i) <= WAKE) g._wake(); else g._sleep(); }
+    if (settledAt === i) return; settledAt = i;
+    theme(SLIDES[i].sk);
+    if (i !== 0) pathOn = true;
+    setPath(SLIDES[i]);
+    try { musicSwitch(i); } catch (_) {}
+    ensureAhead(i + 3);
+  };
+  const settleSoon = () => { clearTimeout(settleT); settleT = setTimeout(() => { if (performance.now() - feedBusy < 120) settleSoon(); else settle(); }, 140); };
+  feed.addEventListener('scroll', () => { feedBusy = performance.now(); if (settleT) settleSoon(); }, { passive: true });
   const WAKE = 2; /* slides within this many of the current one keep full-size canvases (canvas sleep) */
   const buildSlide = (s, i) => {
     const sk = s.sk; s.liked = false; s.game.sk = sk; loadFonts(sk);
@@ -37624,7 +37641,7 @@ function engine(){
     cv.addEventListener('pointermove', e => {
       const d = fdrag; if (!d || d.id !== e.pointerId || d.multi) return; const dx = e.clientX - d.x, dy = e.clientY - d.y;
       if (!d.on) { if (Math.abs(dy) > 18 && Math.abs(dy) > Math.abs(dx) * 1.4) { d.on = true; unsnap(); try { cv.dispatchEvent(new PointerEvent('pointercancel', { pointerId: e.pointerId, pointerType: e.pointerType, bubbles: true })); } catch (_) {} d.y = e.clientY - Math.sign(dy) * 18; } else return; }
-      feed.scrollTop = Math.max(0, d.top - (e.clientY - d.y)); d.lastY = e.clientY; const nt = performance.now(); (d.hist || (d.hist = [])).push([nt, e.clientY]); while (d.hist.length > 2 && nt - d.hist[1][0] > 110) d.hist.shift();
+      feedBusy = performance.now(); d.want = Math.max(0, d.top - (e.clientY - d.y)); if (!d.raf) d.raf = requestAnimationFrame(() => { d.raf = 0; if (fdrag === d) feed.scrollTop = d.want; }); d.lastY = e.clientY; const nt = performance.now(); (d.hist || (d.hist = [])).push([nt, e.clientY]); while (d.hist.length > 2 && nt - d.hist[1][0] > 110) d.hist.shift();
     });
     const end = e => {
       const d = fdrag; if (!d || d.id !== e.pointerId || !e.isTrusted) return; fdrag = null; if (!d.on) return;
