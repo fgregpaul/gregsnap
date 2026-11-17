@@ -39480,7 +39480,24 @@ function engine(){
   let fdrag = null, snapT = 0;
   feedLanded = () => { if (fdrag) return false; const h = feed.clientHeight; return h > 0 && Math.abs(feed.scrollTop - cur * h) < 1.5; };
   const unsnap = () => { clearTimeout(snapT); feed.style.scrollSnapType = 'none'; };
-  const resnap = () => { clearTimeout(snapT); snapT = setTimeout(() => { if (!fdrag) feed.style.scrollSnapType = ''; }, 520); };
+  /* glide: the feed's own ease-out to post n, started in the same frame as the release. The browser's smooth scrollTo
+     (used before) sat still for ~80ms after you let go in the home-screen app on iPhones before it started moving.
+     v = finger speed in px/ms (positive = finger moving down); a flick hands its speed over so there's no jolt.
+     Snap stays off while gliding and comes back once the feed sits exactly on the post. */
+  let glideRaf = 0;
+  const glide = (n, v) => {
+    cancelAnimationFrame(glideRaf); glideRaf = 0; unsnap();
+    const h = feed.clientHeight, to = n * h, from = feed.scrollTop, dist = to - from, sv = -(v || 0);
+    const T = Math.sign(sv) === Math.sign(dist) && Math.abs(sv) > 0.1 ? clamp(3 * Math.abs(dist) / Math.abs(sv), 140, 380) : clamp(200 + Math.abs(dist) / Math.max(1, h) * 160, 200, 360);
+    const t0 = performance.now() - 8;
+    const step = () => {
+      glideRaf = 0; if (fdrag && fdrag.on) return; /* grabbed again mid-glide: the finger takes over */
+      const k = Math.min(1, (performance.now() - t0) / T), e = 1 - Math.pow(1 - k, 3);
+      feedBusy = performance.now(); feed.scrollTop = k >= 1 ? to : from + dist * e;
+      if (k < 1) glideRaf = requestAnimationFrame(step); else if (!(fdrag && fdrag.on)) feed.style.scrollSnapType = '';
+    };
+    step();
+  };
   function feedSwipe(cv) {
     cv.addEventListener('pointerdown', e => { if (e.pointerType === 'mouse' || paused) return; if (fdrag) { fdrag.multi = true; return; } fdrag = { id: e.pointerId, cv, x: e.clientX, y: e.clientY, t: performance.now(), top: feed.scrollTop, i0: cur, on: false, multi: false }; });
     cv.addEventListener('pointermove', e => {
@@ -39492,7 +39509,7 @@ function engine(){
       const d = fdrag; if (!d || d.id !== e.pointerId || !e.isTrusted) return; fdrag = null; if (!d.on) return;
       const dy = (d.lastY != null ? d.lastY : e.clientY) - d.y, h = feed.clientHeight, H = d.hist || [], o = H[0], q = H[H.length - 1], v = o && q && q[0] > o[0] ? (q[1] - o[1]) / Math.max(16, q[0] - o[0]) : 0;
       const dir = dy < -h * 0.16 || (v < -0.35 && dy < -30) ? 1 : dy > h * 0.16 || (v > 0.35 && dy > 30) ? -1 : 0;
-      const n = Math.max(0, d.i0 + dir); ensureAhead(n); feed.scrollTo({ top: n * h, behavior: 'smooth' }); resnap();
+      const n = Math.max(0, d.i0 + dir); glide(n, v); ensureAhead(n);
     };
     cv.addEventListener('pointerup', end); cv.addEventListener('pointercancel', end);
   }
@@ -39511,7 +39528,7 @@ function engine(){
   const go = d => {
     const n = Math.max(0, cur + d);
     ensureAhead(n);
-    feed.scrollTo({ top: n * feed.clientHeight, behavior: 'smooth' });
+    glide(n, 0);
   };
 
   /* sheets */
@@ -39568,7 +39585,7 @@ function engine(){
         const b = ac.createBuffer(1, 1, 22050), src = ac.createBufferSource();
         src.buffer = b; src.connect(ac.destination); src.start(0);
       }
-      if (ac.state !== 'running') ac.resume();
+      if (ac.state !== 'running' && performance.now() - (unlockAudio.t || -1e9) > 1500) { unlockAudio.t = performance.now(); ac.resume(); } /* not on every touch: a resume per swipe can stall the frame you let go on */
     } catch (_) {}
   }
   ['pointerdown', 'touchend', 'click', 'keydown'].forEach(t => document.addEventListener(t, unlockAudio, { capture: true, passive: true }));
