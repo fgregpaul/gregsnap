@@ -280,6 +280,16 @@ body{overscroll-behavior:none;-webkit-text-size-adjust:100%}
 }
 /* ---- desktop fullscreen: the game fills the whole monitor (e.g. 1920x1080) ---- */
 .navb.fsb{display:none}
+/* ---- desktop volume slider (PC only): speaker button under the arrows, slider slides out to its left on hover ---- */
+.volw{display:none;position:relative}
+@media (min-width:700px) and (hover:hover) and (pointer:fine){ .volw{display:block} }
+.volw input{position:absolute;right:54px;top:50%;width:120px;transform:translateY(-50%);margin:0;opacity:0;pointer-events:none;transition:opacity .15s;accent-color:#fff;cursor:pointer;height:18px}
+.volw::before{content:"";position:absolute;right:46px;top:0;width:140px;height:46px}
+.volw:hover input,.volw:focus-within input{opacity:1;pointer-events:auto}
+.volw:not(:hover):not(:focus-within)::before{pointer-events:none}
+.volw .mx{display:none}
+.volw.lo .w2,.volw.off .w1,.volw.off .w2{display:none}
+.volw.off .mx{display:block}
 @media (min-width:700px) and (hover:hover) and (pointer:fine){ .fsok .navb.fsb{display:grid} }
 .navb.fsb .ic-out{display:none}
 html.fs .navb.fsb .ic-in{display:none}
@@ -310,7 +320,7 @@ html.fs .fsgp{display:block;position:fixed;left:0;right:0;bottom:6px;z-index:6;t
     <button type="button" class="galchip" id="galchip" aria-label="Open Galaxy Crate"><span id="galIcon"></span><span id="galn">0</span><span class="plus">+</span></button>
   </div>
   <div class="feed" id="feed" tabindex="0" aria-label="GregSnap game feed"></div>
-  <div class="navs"><button type="button" class="navb" id="navUp" aria-label="Previous game"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg></button><button type="button" class="navb" id="navDn" aria-label="Next game"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button><button type="button" class="navb fsb" id="navFs" aria-label="Fullscreen" title="Fullscreen (Esc to exit)"><svg class="ic-in" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg><svg class="ic-out" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/></svg></button></div><div class="fsgp" aria-hidden="true">a Greg Paul production</div>
+  <div class="navs"><button type="button" class="navb" id="navUp" aria-label="Previous game"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg></button><button type="button" class="navb" id="navDn" aria-label="Next game"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button><div class="volw" id="volW"><input type="range" id="volR" min="0" max="100" step="1" value="80" aria-label="Volume"><button type="button" class="navb" id="volB" aria-label="Mute" title="Volume"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor" stroke="none"/><path class="w1" d="M16.5 9.5a3.5 3.5 0 0 1 0 5"/><path class="w2" d="M19 7a7 7 0 0 1 0 10"/><path class="mx" d="M16 9l5 6M21 9l-5 6"/></svg></button></div><button type="button" class="navb fsb" id="navFs" aria-label="Fullscreen" title="Fullscreen (Esc to exit)"><svg class="ic-in" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg><svg class="ic-out" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/></svg></button></div><div class="fsgp" aria-hidden="true">a Greg Paul production</div>
   <div class="scrim" id="scrim" hidden></div>
   <section class="sheet" id="sheet" aria-label="Comments">
     <header><span id="sheetTitle">Comments</span><button type="button" data-closeall>Close</button></header>
@@ -39577,11 +39587,33 @@ function engine(){
   const PITCH = 94, WINIDX = 46, TOTAL = 58;
   const reduced = () => !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
 
+  /* desktop volume slider (#volW): 0-100, saved in gregsnap_volume_v1; the speaker button mutes/unmutes */
+  const VOL = { v: 80, mute: false, node: null,
+    apply() { const g = this.mute ? 0 : (this.v / 100) * (this.v / 100); if (this.node) try { this.node.gain.setTargetAtTime(g, ac.currentTime, 0.02); } catch (_) { this.node.gain.value = g; }
+      const w = document.getElementById('volW'), r = document.getElementById('volR'), b = document.getElementById('volB');
+      if (w) { const off = this.mute || this.v === 0; w.classList.toggle('off', off); w.classList.toggle('lo', !off && this.v < 50); }
+      if (r) { r.value = this.v; r.style.background = ''; } if (b) b.setAttribute('aria-label', this.mute ? 'Unmute' : 'Mute');
+      try { localStorage.setItem('gregsnap_volume_v1', JSON.stringify({ v: this.v, m: this.mute })); } catch (_) {} } };
+  try { const o = JSON.parse(localStorage.getItem('gregsnap_volume_v1') || 'null'); if (o) { VOL.v = Math.max(0, Math.min(100, +o.v || 0)); VOL.mute = !!o.m; } } catch (_) {}
+  {
+    const r = document.getElementById('volR'), b = document.getElementById('volB');
+    if (r) {
+      r.addEventListener('input', () => { VOL.v = +r.value; VOL.mute = false; VOL.apply(); });
+      ['keydown', 'keyup'].forEach(t => r.addEventListener(t, e => e.stopPropagation()));
+      r.addEventListener('wheel', e => { e.preventDefault(); e.stopPropagation(); VOL.v = Math.max(0, Math.min(100, VOL.v + (e.deltaY < 0 ? 5 : -5))); VOL.mute = false; VOL.apply(); }, { passive: false });
+    }
+    if (b) b.addEventListener('click', () => { if (VOL.v === 0) { VOL.v = 50; VOL.mute = false; } else VOL.mute = !VOL.mute; VOL.apply(); const f = document.getElementById('feed'); if (f) f.focus({ preventScroll: true }); });
+    if (r) r.addEventListener('change', () => { r.blur(); const f = document.getElementById('feed'); if (f) f.focus({ preventScroll: true }); });
+    VOL.apply();
+  }
+  window.__gsVol = VOL;
   function unlockAudio() {
     try {
       if (!ac) {
         if (navigator.audioSession) navigator.audioSession.type = 'playback';
         ac = new (window.AudioContext || window.webkitAudioContext)();
+        /* master volume: every sound in the app connects to ac.destination, so point that at one gain node */
+        try { const real = ac.destination, mg = ac.createGain(); mg.connect(real); Object.defineProperty(ac, 'destination', { value: mg, configurable: true }); VOL.node = mg; VOL.apply(); } catch (_) {}
         const b = ac.createBuffer(1, 1, 22050), src = ac.createBufferSource();
         src.buffer = b; src.connect(ac.destination); src.start(0);
       }
