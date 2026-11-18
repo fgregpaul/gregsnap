@@ -116,6 +116,7 @@ body{
 .rbtn .ic{width:44px;height:44px;border-radius:50%;background:color-mix(in srgb,var(--sfg,#fff) 16%,transparent);display:grid;place-items:center}
 .rbtn svg{width:24px;height:24px}
 .rbtn.on .ic{color:#ff3b5c}
+.rbtn.sv.on .ic{color:#ffc93c}
 .rbtn:focus-visible,.follow:focus-visible,.sheet button:focus-visible{outline:2px solid var(--yellow);outline-offset:2px;border-radius:12px}
 .rbtn.pulse .ic{animation:pop .3s}
 @media (max-height:660px){.rbtn[data-act="next"]{display:none}}
@@ -283,9 +284,12 @@ body{overscroll-behavior:none;-webkit-text-size-adjust:100%}
 /* ---- desktop volume slider (PC only): speaker button under the arrows, slider slides out to its left on hover ---- */
 .volw{display:none;position:relative}
 @media (min-width:700px) and (hover:hover) and (pointer:fine){ .volw{display:block} }
-.volw input{position:absolute;right:54px;top:50%;width:120px;transform:translateY(-50%);margin:0;opacity:0;pointer-events:none;transition:opacity .15s;accent-color:#fff;cursor:pointer;height:18px}
-.volw::before{content:"";position:absolute;right:46px;top:0;width:140px;height:46px}
-.volw:hover input,.volw:focus-within input{opacity:1;pointer-events:auto}
+.volp{position:absolute;right:54px;top:50%;transform:translateY(-50%);display:grid;gap:8px;padding:10px 12px;border-radius:14px;background:rgba(20,20,26,.92);box-shadow:0 8px 24px rgba(0,0,0,.4);opacity:0;pointer-events:none;transition:opacity .15s;color:#fff;font:600 11px system-ui,sans-serif}
+.volp label{display:grid;grid-template-columns:52px 120px;align-items:center;gap:6px;cursor:pointer}
+.volp span{opacity:.7;letter-spacing:.04em}
+.volp input{width:120px;margin:0;accent-color:#fff;cursor:pointer;height:18px}
+.volw::before{content:"";position:absolute;right:46px;top:-20px;width:30px;height:86px}
+.volw:hover .volp,.volw:focus-within .volp{opacity:1;pointer-events:auto}
 .volw:not(:hover):not(:focus-within)::before{pointer-events:none}
 .volw .mx{display:none}
 .volw.lo .w2,.volw.off .w1,.volw.off .w2{display:none}
@@ -320,7 +324,7 @@ html.fs .fsgp{display:block;position:fixed;left:0;right:0;bottom:6px;z-index:6;t
     <button type="button" class="galchip" id="galchip" aria-label="Open Galaxy Crate"><span id="galIcon"></span><span id="galn">0</span><span class="plus">+</span></button>
   </div>
   <div class="feed" id="feed" tabindex="0" aria-label="GregSnap game feed"></div>
-  <div class="navs"><button type="button" class="navb" id="navUp" aria-label="Previous game"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg></button><button type="button" class="navb" id="navDn" aria-label="Next game"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button><div class="volw" id="volW"><input type="range" id="volR" min="0" max="100" step="1" value="80" aria-label="Volume"><button type="button" class="navb" id="volB" aria-label="Mute" title="Volume"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor" stroke="none"/><path class="w1" d="M16.5 9.5a3.5 3.5 0 0 1 0 5"/><path class="w2" d="M19 7a7 7 0 0 1 0 10"/><path class="mx" d="M16 9l5 6M21 9l-5 6"/></svg></button></div><button type="button" class="navb fsb" id="navFs" aria-label="Fullscreen" title="Fullscreen (Esc to exit)"><svg class="ic-in" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg><svg class="ic-out" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/></svg></button></div><div class="fsgp" aria-hidden="true">a Greg Paul production</div>
+  <div class="navs"><button type="button" class="navb" id="navUp" aria-label="Previous game"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg></button><button type="button" class="navb" id="navDn" aria-label="Next game"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button><div class="volw" id="volW"><div class="volp"><label><span>Effects</span><input type="range" id="volR" min="0" max="100" step="1" value="80" aria-label="Effects volume"></label><label><span>Music</span><input type="range" id="musR" min="0" max="100" step="1" value="0" aria-label="Music volume"></label></div><button type="button" class="navb" id="volB" aria-label="Mute" title="Volume"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor" stroke="none"/><path class="w1" d="M16.5 9.5a3.5 3.5 0 0 1 0 5"/><path class="w2" d="M19 7a7 7 0 0 1 0 10"/><path class="mx" d="M16 9l5 6M21 9l-5 6"/></svg></button></div><button type="button" class="navb fsb" id="navFs" aria-label="Fullscreen" title="Fullscreen (Esc to exit)"><svg class="ic-in" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg><svg class="ic-out" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/></svg></button></div><div class="fsgp" aria-hidden="true">a Greg Paul production</div>
   <div class="scrim" id="scrim" hidden></div>
   <section class="sheet" id="sheet" aria-label="Comments">
     <header><span id="sheetTitle">Comments</span><button type="button" data-closeall>Close</button></header>
@@ -39323,6 +39327,7 @@ function engine(){
   };
   const SWIRL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="' + arm(0) + arm(Math.PI) + '"/><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/></svg>';
   const ICON = {
+    save: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 2.5h12a1.5 1.5 0 0 1 1.5 1.5v17.4a.6.6 0 0 1-.95.5L12 17.3l-6.55 4.6a.6.6 0 0 1-.95-.5V4A1.5 1.5 0 0 1 6 2.5z"/></svg>',
     heart: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-8-4.9-9.7-10C1.1 7.600 3.200 4.500 6.400 4.500c2.100 0 3.900 1.200 5.600 3.400 1.700-2.200 3.500-3.400 5.600-3.400 3.200 0 5.300 3.100 4.100 6.500C20 16.100 12 21 12 21z"/></svg>',
     chat: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 4h16a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-8l-5 4v-4H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/></svg>',
     share: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 3l8 7-8 7v-4.200c-5.500 0-9 1.800-11 6.200 1-6.500 4.500-11.200 11-12V3z"/></svg>',
@@ -39447,6 +39452,12 @@ function engine(){
   const settleSoon = () => { clearTimeout(settleT); settleT = setTimeout(() => { if (performance.now() - feedBusy < 120) settleSoon(); else settle(); }, 140); };
   feed.addEventListener('scroll', () => { feedBusy = performance.now(); if (settleT) settleSoon(); }, { passive: true });
   const WAKE = 2; /* slides within this many of the current one keep full-size canvases (canvas sleep) */
+  /* saved games: bookmark button on the rail, "Saved" list at the top of search. Stored in localStorage (gregsnap_saved_v1) as [{l: link slug, t: title}], newest first */
+  const FAV = { list: [],
+    has(s) { const l = linkOf(s); return this.list.some(f => f.l === l); },
+    toggle(s) { const l = linkOf(s), k = this.list.findIndex(f => f.l === l); if (k >= 0) this.list.splice(k, 1); else this.list.unshift({ l, t: s.title }); this.save(); return k < 0; },
+    save() { try { localStorage.setItem('gregsnap_saved_v1', JSON.stringify(this.list)); } catch (_) {} } };
+  try { const a = JSON.parse(localStorage.getItem('gregsnap_saved_v1') || '[]'); if (Array.isArray(a)) FAV.list = a.filter(f => f && typeof f.l === 'string' && typeof f.t === 'string'); } catch (_) {}
   const buildSlide = (s, i) => {
     const sk = s.sk; s.liked = false; s.game.sk = sk; loadFonts(sk);
     const el = document.createElement('section');
@@ -39460,6 +39471,7 @@ function engine(){
         '<div class="av">' + s.handle[0].toUpperCase() + '</div>' +
         '<button type="button" class="rbtn like" data-act="like" aria-label="Like"><span class="ic">' + ICON.heart + '</span><span class="n">' + fmt(s.likes) + '</span></button>' +
         '<button type="button" class="rbtn" data-act="comment" aria-label="Comments"><span class="ic">' + ICON.chat + '</span><span class="n">' + fmt(s.comments) + '</span></button>' +
+        (s === ESSAY ? '' : '<button type="button" class="rbtn sv' + (FAV.has(s) ? ' on' : '') + '" data-act="save" aria-label="' + (FAV.has(s) ? 'Saved' : 'Save game') + '"><span class="ic">' + ICON.save + '</span><span class="n">' + (FAV.has(s) ? 'saved' : 'save') + '</span></button>') +
         '<button type="button" class="rbtn share" data-act="share" aria-label="Share"><span class="ic">' + ICON.share + '</span><span class="n">' + fmt(s.shares) + '</span></button>' +
         '<button type="button" class="rbtn dn" data-act="donate" aria-label="Donate galaxies"><span class="ic">' + SWIRL + '</span><span class="n">donate</span></button>' +
         '<button type="button" class="rbtn" data-act="next" aria-label="Next game"><span class="ic">' + ICON.down + '</span><span class="n">next</span></button>' +
@@ -39588,13 +39600,15 @@ function engine(){
   const reduced = () => !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
 
   /* desktop volume slider (#volW): 0-100, saved in gregsnap_volume_v1; the speaker button mutes/unmutes */
-  const VOL = { v: 80, mute: false, node: null,
-    apply() { const g = this.mute ? 0 : (this.v / 100) * (this.v / 100); if (this.node) try { this.node.gain.setTargetAtTime(g, ac.currentTime, 0.02); } catch (_) { this.node.gain.value = g; }
+  const VOL = { v: 80, mute: false, node: null, mus: 0, mnode: null, onMus: null,
+    apply() { const g = this.mute ? 0 : (this.v / 100) * (this.v / 100), gm = this.mute ? 0 : (this.mus / 100) * (this.mus / 100);
+      [[this.node, g], [this.mnode, gm]].forEach(([n, v]) => { if (n) try { n.gain.setTargetAtTime(v, ac.currentTime, 0.02); } catch (_) { n.gain.value = v; } });
+      const mr = document.getElementById('musR'); if (mr) mr.value = this.mus; if (this.mus > 0) this.lastMus = this.mus; if (this.onMus) this.onMus(this.mus > 0);
       const w = document.getElementById('volW'), r = document.getElementById('volR'), b = document.getElementById('volB');
-      if (w) { const off = this.mute || this.v === 0; w.classList.toggle('off', off); w.classList.toggle('lo', !off && this.v < 50); }
+      if (w) { const off = this.mute || (this.v === 0 && this.mus === 0); w.classList.toggle('off', off); w.classList.toggle('lo', !off && this.v < 50); }
       if (r) { r.value = this.v; r.style.background = ''; } if (b) b.setAttribute('aria-label', this.mute ? 'Unmute' : 'Mute');
-      try { localStorage.setItem('gregsnap_volume_v1', JSON.stringify({ v: this.v, m: this.mute })); } catch (_) {} } };
-  try { const o = JSON.parse(localStorage.getItem('gregsnap_volume_v1') || 'null'); if (o) { VOL.v = Math.max(0, Math.min(100, +o.v || 0)); VOL.mute = !!o.m; } } catch (_) {}
+      try { localStorage.setItem('gregsnap_volume_v1', JSON.stringify({ v: this.v, m: this.mute, mu: this.mus })); } catch (_) {} } };
+  try { const o = JSON.parse(localStorage.getItem('gregsnap_volume_v1') || 'null'); if (o) { VOL.v = Math.max(0, Math.min(100, +o.v || 0)); VOL.mute = !!o.m; VOL.mus = Math.max(0, Math.min(100, +o.mu || 0)); } } catch (_) {}
   {
     const r = document.getElementById('volR'), b = document.getElementById('volB');
     if (r) {
@@ -39602,7 +39616,14 @@ function engine(){
       ['keydown', 'keyup'].forEach(t => r.addEventListener(t, e => e.stopPropagation()));
       r.addEventListener('wheel', e => { e.preventDefault(); e.stopPropagation(); VOL.v = Math.max(0, Math.min(100, VOL.v + (e.deltaY < 0 ? 5 : -5))); VOL.mute = false; VOL.apply(); }, { passive: false });
     }
-    if (b) b.addEventListener('click', () => { if (VOL.v === 0) { VOL.v = 50; VOL.mute = false; } else VOL.mute = !VOL.mute; VOL.apply(); const f = document.getElementById('feed'); if (f) f.focus({ preventScroll: true }); });
+    const mr = document.getElementById('musR');
+    if (mr) {
+      mr.addEventListener('input', () => { VOL.mus = +mr.value; VOL.mute = false; unlockAudio(); VOL.apply(); });
+      ['keydown', 'keyup'].forEach(t => mr.addEventListener(t, e => e.stopPropagation()));
+      mr.addEventListener('wheel', e => { e.preventDefault(); e.stopPropagation(); VOL.mus = Math.max(0, Math.min(100, VOL.mus + (e.deltaY < 0 ? 5 : -5))); VOL.mute = false; VOL.apply(); }, { passive: false });
+      mr.addEventListener('change', () => { mr.blur(); const f = document.getElementById('feed'); if (f) f.focus({ preventScroll: true }); });
+    }
+    if (b) b.addEventListener('click', () => { if (VOL.v === 0 && VOL.mus === 0) { VOL.v = 50; VOL.mute = false; } else VOL.mute = !VOL.mute; VOL.apply(); const f = document.getElementById('feed'); if (f) f.focus({ preventScroll: true }); });
     if (r) r.addEventListener('change', () => { r.blur(); const f = document.getElementById('feed'); if (f) f.focus({ preventScroll: true }); });
     VOL.apply();
   }
@@ -39613,7 +39634,7 @@ function engine(){
         if (navigator.audioSession) navigator.audioSession.type = 'playback';
         ac = new (window.AudioContext || window.webkitAudioContext)();
         /* master volume: every sound in the app connects to ac.destination, so point that at one gain node */
-        try { const real = ac.destination, mg = ac.createGain(); mg.connect(real); Object.defineProperty(ac, 'destination', { value: mg, configurable: true }); VOL.node = mg; VOL.apply(); } catch (_) {}
+        try { const real = ac.destination, mg = ac.createGain(), mu = ac.createGain(); mg.connect(real); mu.connect(real); VOL.realDest = real; Object.defineProperty(ac, 'destination', { value: mg, configurable: true }); VOL.node = mg; VOL.mnode = mu; VOL.apply(); } catch (_) {}
         const b = ac.createBuffer(1, 1, 22050), src = ac.createBufferSource();
         src.buffer = b; src.connect(ac.destination); src.start(0);
       }
@@ -39833,6 +39854,7 @@ function engine(){
     if (act === 'like') { s.liked = !s.liked; s.likes += s.liked ? 69e6 : -69e6; b.classList.toggle('on', s.liked); b.querySelector('.n').textContent = fmt(s.likes); pulse(); }
     else if (act === 'share') { s.shares += 21e6; b.querySelector('.n').textContent = fmt(s.shares); pulse(); openShare(i); }
     else if (act === 'donate') openDonate(i);
+    else if (act === 'save') { const on = FAV.toggle(s); b.classList.toggle('on', on); b.setAttribute('aria-label', on ? 'Saved' : 'Save game'); b.querySelector('.n').textContent = on ? 'saved' : 'save'; pulse(); }
     else if (act === 'comment') openSheet(i);
     else if (act === 'next') go(1);
     else if (act === 'follow') { const on = b.classList.toggle('on'); b.textContent = on ? 'Following' : 'Follow'; }
@@ -39844,6 +39866,7 @@ function engine(){
     else if (games[cur] && games[cur].key && games[cur].key(wasd(games[cur], e))) { e.preventDefault(); }
     else if (e.code === 'Space') { const g = games[cur]; if (g && g.tap) { e.preventDefault(); g.tap(); } }
     else if (e.code === 'ArrowLeft' || e.code === 'ArrowRight') { const g = games[cur]; if (g && g.swipe) { e.preventDefault(); g.swipe(e.code === 'ArrowRight' ? 1 : -1); } }
+    else if (e.code === 'KeyM' && !e.repeat && !e.ctrlKey && !e.metaKey && !e.altKey && !(e.target && /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName))) { const b = document.getElementById('volB'); if (b) b.click(); }
     else if (e.code === 'PageDown') { e.preventDefault(); go(1); }
     else if (e.code === 'PageUp') { e.preventDefault(); go(-1); }
     else if (e.code === 'ArrowDown' || e.code === 'ArrowUp') { const g = games[cur]; e.preventDefault(); if (!(g && g.key && /Arrow(Up|Down)/.test(g.__ksrc || (g.__ksrc = String(g.key))))) go(e.code === 'ArrowDown' ? 1 : -1); }
@@ -39862,7 +39885,7 @@ function engine(){
   let musicOn = false, sbus = null, mbus = null, noiseBuf = null;
   const ensureBus = () => {
     if (!ac) return false;
-    if (!sbus) { const comp = ac.createDynamicsCompressor(); comp.connect(ac.destination); sbus = ac.createGain(); sbus.gain.value = 1; sbus.connect(comp); mbus = ac.createGain(); mbus.gain.value = 0.42; mbus.connect(comp); }
+    if (!sbus) { const comp = ac.createDynamicsCompressor(); comp.connect(ac.destination); sbus = ac.createGain(); sbus.gain.value = 1; sbus.connect(comp); mbus = ac.createGain(); mbus.gain.value = 0.42; if (VOL.mnode) { const mc = ac.createDynamicsCompressor(); mc.connect(VOL.mnode); mbus.connect(mc); } else mbus.connect(comp); }
     return true;
   };
   const getNoise = () => { if (!noiseBuf) { noiseBuf = ac.createBuffer(1, ac.sampleRate, ac.sampleRate); const d = noiseBuf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1; } return noiseBuf; };
@@ -40139,7 +40162,10 @@ function engine(){
   setInterval(musicTick, 40);
   (() => {
     const mb = document.getElementById('mus'); if (!mb) return;
-    mb.addEventListener('click', () => { musicOn = !musicOn; mb.textContent = musicOn ? 'Music on' : 'Music off'; mb.setAttribute('aria-pressed', String(musicOn)); if (musicOn) { unlockAudio(); MUS.next = 0; JING('coin'); } });
+    const showM = () => { mb.textContent = musicOn ? 'Music on' : 'Music off'; mb.setAttribute('aria-pressed', String(musicOn)); };
+    VOL.onMus = on => { if (on && !musicOn) MUS.next = 0; musicOn = on; showM(); };
+    VOL.apply();
+    mb.addEventListener('click', () => { if (musicOn) VOL.mus = 0; else { VOL.mus = VOL.lastMus || 60; unlockAudio(); JING('coin'); } VOL.mute = false; VOL.apply(); });
     document.getElementById('feed').addEventListener('click', e => {
       const b = e.target.closest && e.target.closest('[data-act]'); if (!b) return; const a = b.dataset.act;
       if (a === 'like') JING('pop'); else if (a === 'share') SFX(660, 0.12, 0.06); else if (a === 'follow') SFX(540, 0.1, 0.06, 'square'); else if (a === 'comment') SFX(440, 0.08, 0.05);
@@ -40155,6 +40181,7 @@ function engine(){
       '#sov .sr{display:flex;gap:8px;align-items:center}#sin{flex:1;min-width:0;height:42px;border-radius:21px;border:2px solid rgba(255,255,255,.25);background:rgba(255,255,255,.1);color:#fff;font:500 16px system-ui,sans-serif;padding:0 16px;outline:none}#sin:focus{border-color:#fff}' +
       '#sx{border:0;background:none;color:#fff;font:600 14px system-ui,sans-serif;padding:8px;cursor:pointer}#sl{flex:1;overflow:auto;margin:12px -16px 0;padding:0 16px 24px}' +
       '#sl button{display:block;width:100%;text-align:left;background:none;border:0;border-bottom:1px solid rgba(255,255,255,.1);color:#fff;padding:11px 2px;cursor:pointer}#sl b{display:block;font:700 16px system-ui,sans-serif}#sl span{display:block;font:400 12px system-ui,sans-serif;opacity:.65;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#sl p{opacity:.6;font:400 14px system-ui,sans-serif;padding:20px 2px}';
+    st.textContent += '#sl h4{margin:14px 2px 4px;font:700 12px system-ui,sans-serif;letter-spacing:.08em;text-transform:uppercase;opacity:.55}#sl button.fav{display:flex;align-items:center;gap:8px}#sl button.fav b{flex:1;color:#ffc93c}#sl button.fav i{font-style:normal;opacity:.5;padding:4px 8px;font-size:13px}#sl button.fav i:hover{opacity:1}';
     document.head.appendChild(st);
     const btn = document.createElement('button'); btn.id = 'sbtn'; btn.type = 'button'; btn.setAttribute('aria-label', 'Search games');
     btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg>';
@@ -40167,6 +40194,21 @@ function engine(){
       SLIDES.forEach((s, i) => { if (s === ESSAY) return; /* the essay is never in search */ const hay = (s.title + ' ' + s.tags + ' ' + s.desc + ' ' + s.handle).toLowerCase(); if (toks.every(t => hay.indexOf(t) >= 0)) rows.push([i, s, s.title.toLowerCase().indexOf(q) === 0 ? 0 : s.title.toLowerCase().indexOf(q) > 0 ? 1 : 2]); });
       rows.sort((a, b) => a[2] - b[2] || (a[1].title < b[1].title ? -1 : 1));
       list.innerHTML = '';
+      if (!q && FAV.list.length) {
+        const h = document.createElement('h4'); h.textContent = 'Saved'; list.appendChild(h);
+        FAV.list.forEach(f => {
+          const b = document.createElement('button'); b.type = 'button'; b.className = 'fav'; const t = document.createElement('b'); t.textContent = f.t; b.appendChild(t);
+          const x = document.createElement('i'); x.textContent = '✕'; x.setAttribute('aria-label', 'Remove from saved'); x.setAttribute('role', 'button'); b.appendChild(x);
+          b.addEventListener('click', ev => {
+            if (ev.target === x) { FAV.list = FAV.list.filter(o => o !== f); FAV.save(); document.querySelectorAll('.slide').forEach(el => { const sl = SLIDES[+el.dataset.i], sb = el.querySelector('.rbtn.sv'); if (sl && sb && linkOf(sl) === f.l) { sb.classList.remove('on'); sb.querySelector('.n').textContent = 'save'; } }); render(); return; }
+            const k = SLIDES.findIndex(sl => sl !== ESSAY && linkOf(sl) === f.l);
+            if (k >= 0) { close(); ensureAhead(k + 2); feed.scrollTo({ top: k * feed.clientHeight }); }
+            else location.href = (webby ? '/' : location.pathname) + '?g=' + encodeURIComponent(f.l); /* a re-skinned game that isn't in this feed: reload with it first */
+          });
+          list.appendChild(b);
+        });
+        const h2 = document.createElement('h4'); h2.textContent = 'All games'; list.appendChild(h2);
+      }
       if (!rows.length) { const p = document.createElement('p'); p.textContent = 'No games match "' + inp.value.trim() + '". Try a different word.'; list.appendChild(p); return; }
       rows.slice(0, 60).forEach(r => { const b = document.createElement('button'); b.type = 'button'; const t = document.createElement('b'); t.textContent = r[1].title; const d = document.createElement('span'); d.textContent = r[1].tags + '  by @' + r[1].handle; b.appendChild(t); b.appendChild(d); b.addEventListener('click', () => { close(); feed.scrollTo({ top: r[0] * feed.clientHeight }); }); list.appendChild(b); });
     };
