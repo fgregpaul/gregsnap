@@ -97,6 +97,7 @@ body{
   input,textarea,[contenteditable],.essay,.essay *{-webkit-user-select:text;user-select:text;-webkit-touch-callout:default}
 /* essay post: a long read that sometimes shows up in the feed */
 .essay{position:absolute;overflow-y:auto;overscroll-behavior-y:auto;-webkit-overflow-scrolling:touch;touch-action:pan-y;scrollbar-width:thin;color:#1d1d1b;font:17px/1.62 Georgia,'Iowan Old Style','Times New Roman',serif;-webkit-user-select:text;user-select:text}
+.abyss{position:absolute;overflow:hidden;background:#03131c}.abyss iframe{display:block;width:100%;height:100%;border:0}
 .essay .in{max-width:34em;margin:0 auto;padding:26px 22px 40px}
 .essay h1{font:700 27px/1.2 Georgia,serif;margin:4px 0 6px;letter-spacing:-.01em}
 .essay .by{font:13px/1.4 Georgia,serif;color:#77756e;font-style:italic;margin:0 0 22px}
@@ -1631,6 +1632,7 @@ html.fs .fsgp{display:block;position:fixed;left:0;right:0;bottom:6px;z-index:6;t
     metro: ['the river ate all my tunnels', 'triangle station overflowed out of nowhere', 'picked bigger cars and it saved me', 'my map looks like spaghetti now', 'so relaxing until week 5', 'the star station is always on the other side of the city', 'redrew the whole red line and it fixed everything', 'got 600 passengers', 'circles everywhere and one lonely square', 'new line upgrade every time', 'love how clean this looks', 'that overflow timer stresses me out'],
     sled: ['drew the worst line ever and he still made it', 'the little scarf flapping is so cute', 'cant get the 3rd star on zig zag', 'ran out of ink 2cm from the flag', 'level 6 under the thorns is evil', 'loop de loop actually worked', 'watching him crash into spikes is weirdly funny', 'got stuck on a flat line lol', 'ski jump was so satisfying', 'all 36 stars finally', 'the snow falling is a nice touch', 'drawing a ramp then praying'],
     skeet: ['PULL', 'the golden clay is so fast', 'doubles are hard on a phone', 'missed by like 2 pixels', 'the rabbit clay bouncing on the ground got me', 'round 5 needs 11 hits??', 'that shotgun sound is crunchy', 'hit both with one shot!!', 'aim a little ahead of them', 'streak x3 lets gooo', 'ran out of shells watching it fly', 'the little houses are cute'],
+    abyss: ['how is this one file', 'the manta just swam over me', 'i could sit here for hours', 'my phone is so hot rn', 'the kelp swaying is unreal', 'needs webgpu so my old ipad cant :(', 'found a giant fish near the rocks', 'putting this on when i cant sleep', 'the ambient sound is so calming', 'low detail still looks insane', 'swam straight down into the dark and got scared', 'this is the most peaceful post on here', 'press 1-6 for the camera spots', 'genuinely looks like a real game'],
     drop: ['called an airstrike on myself again', 'the reinforce code is burned into my brain', 'orbital laser deleted the whole bug breach', 'chargers from the back only', 'extraction with 2 seconds left', 'the sentry carried me', 'cinderfall bots are no joke', 'accidentals: 4 lol', 'resupply pod landed on my head', 'for democracy'],
     deep: ['first night the zombies got me instantly', 'found a life crystal in a cave', 'the torch lighting underground is so good', 'built a house out of planks', 'iron pickaxe changes everything', 'the watcher dashes so fast', 'chopping trees is weirdly satisfying', 'gold is so deep down', 'eyes keep dropping lenses for me', 'my world has the coolest cave'],
     hollow: ['the guardian hits so hard', 'pogoing off the spikes feels so good', 'the lantern glow in the dark is beautiful', 'lost all my geo and then got it back from my shade', 'mossgrave is my favourite area', 'phase two with the falling rocks is insane', 'focusing to heal mid fight is clutch', 'the pixel art is so clean', 'that acid pit got me 5 times', 'finally beat the guardian with 1 mask left', 'the map is so much bigger now', 'took me forever to find the thorn claws', 'glimmer deep is so pretty', 'who else missed the hidden wall in crossroads', 'that ambush in the thicket got me', 'used the lever shortcut and felt like a genius'],
@@ -38880,6 +38882,45 @@ function engine(){
   }
   skin('skeetshot', { bg: ['#4a90c8', '#3a5a2a'], pat: 'none', patc: 'rgba(0,0,0,0)', fg: '#ffffff', dim: '#e8f0f8', panel: '#3a4a2a', pfg: '#fff', dark: true, line: '#ffd23f', lw: 0, r: 12, pal: ['#ff7a2a', '#ffd23f', '#8ab85a', '#c0392b'], good: '#ffd23f', bad: '#c0392b', font: '"Alfa Slab One","Rockwell","Georgia",serif', fw: 400, fs: 1, mono: '"Oswald","Arial Narrow",sans-serif', mw: 600, ms: 1, veil: 'rgba(40,60,30,.6)', vfg: '#ffffff', slide: '#4a90c8', sbgc: '#3a5a2a', sfg: '#fff', sdim: '#e8f0f8', stag: '#ffd23f', tsize: 28, tfw: 400, tls: '.02em', frame: '' });
   NEW_SLIDES.push(mk(makeSkeet(SKINS.skeetshot), 'Skeet Shot', SKINS.skeetshot, 'Pull! Orange clays fly out of the high house and the low house. Tap to fire, two shells per throw. Doubles, golden clays and bouncing rabbit clays later on. Hit the quota to make the next round.', '#shooting #reflex #outdoors', 7.4e9, 1.2e9, 820e6, 'skeet'));
+  /* ===== Abyssal Garden: someone else's WebGPU underwater world (by Noniv, MIT; github.com/Noniv/abyssal-garden).
+     Not our code: the scene lives untouched-ish in abyssal.html (license at its top) and this post just frames it.
+     The iframe only exists while this is the current post and the page is visible, so the heavy WebGPU scene never
+     runs (or holds GPU memory) off-screen; scrolling away removes it. hold: the iframe takes every touch, so you
+     scroll past it from the caption/rail. ===== */
+  function makeAbyss(sk) {
+    let host = null, fr = null, g = null, slide = null, chk = 0;
+    const place = () => { if (!host || !g) return; host.style.left = g.ox + 'px'; host.style.top = g.oy + 'px'; host.style.width = g.w + 'px'; host.style.height = g.h + 'px'; };
+    const live = () => slide && slide.classList.contains('is-cur') && !document.hidden;
+    const open = () => { if (fr || !host) return; fr = document.createElement('iframe'); fr.src = 'abyssal.html'; fr.title = 'Abyssal Garden'; fr.setAttribute('allow', 'autoplay'); fr.setAttribute('loading', 'eager'); host.appendChild(fr); };
+    const close = () => { if (!fr) return; try { fr.src = 'about:blank'; } catch (_) {} fr.remove(); fr = null; };
+    return g = Object.assign({
+      sk, title: 'Abyssal Garden', how: '', hold: true, noVeil: true, state: 'run', score: 0, best: 0, dead: 0, shake: 0, flash: 0, floats: [],
+      layout() { place(); }, reset() {}, kick() { return false; },
+      enter() { if (live()) open(); },
+      bind(cv) {
+        slide = cv.closest('.slide');
+        host = document.createElement('div'); host.className = 'abyss';
+        cv.parentNode.appendChild(host); place();
+        chk = setInterval(() => { if (!live()) close(); }, 300);
+      },
+      tick() { if (!fr && live()) open(); },
+      draw() {
+        if (fr) return;
+        const c = this.ctx, w = this.w, h = this.h;
+        const gr = c.createRadialGradient(w / 2, h * 0.45, 0, w / 2, h * 0.45, Math.max(w, h) * 0.7);
+        gr.addColorStop(0, '#0b3a4d'); gr.addColorStop(1, '#03131c'); c.fillStyle = gr; c.fillRect(0, 0, w, h);
+        txt(c, 'ABYSSAL GARDEN', w / 2, h * 0.45, Math.min(34, w * 0.08), '#bff8ff', 'center');
+        txt(c, 'diving…', w / 2, h * 0.45 + 34, 14, 'rgba(191,248,255,.6)', 'center');
+      }
+    }, MIX);
+  }
+  skin('abyss', { bg: ['#03131c', '#0b3a4d'], pat: 'none', fg: '#e8fbff', dim: '#7fb8c4', panel: '#062431', pfg: '#e8fbff', dark: true, line: '#7ff3ff', lw: 0, r: 10, pal: ['#7ff3ff', '#14a9c4', '#9ff6ff', '#ff5e5b'], good: '#7ff3ff', bad: '#ff5e5b', font: 'system-ui,sans-serif', fw: 800, fs: 1, mono: 'ui-monospace,Consolas,monospace', mw: 500, ms: 0.9, veil: 'rgba(3,19,28,.85)', vfg: '#e8fbff', slide: '#03131c', sbgc: '#03131c', sfg: '#e8fbff', sdim: '#7fb8c4', stag: '#7ff3ff', tsize: 26, tfw: 900, tls: '.05em' });
+  {
+    const AB = mk(makeAbyss(SKINS.abyss), 'Abyssal Garden', SKINS.abyss, 'Not mine, just had to post it. A whole underwater world in one tiny file, made by Noniv: kelp forests, coral, fish schools and the occasional manta. No goal, just swim. Hold to swim, slide to steer (WASD + mouse on PC). Needs WebGPU.', '#underwater #webgpu #chill #swim', 14.2e9, 2.6e9, 3.9e9, 'abyss');
+    AB.handle = 'noniv'; AB.music = 'original sound - noniv'; AB.quiet = true;
+    NEW_SLIDES.push(AB);
+  }
+
   /* ===== endless generator: same four game engines, but every game is dressed by a different "author" ===== */
   const PACKS = [
     { adj: ['Cosmic', 'Orbit', 'Nova', 'Galaxy', 'Astro'], goods: ['STAR', 'MOON', 'ORB'], bads: ['ROCK', 'JUNK', 'VOID'], tags: ['#space #stars', '#astronomy #cosmic'] },
@@ -40070,7 +40111,7 @@ function engine(){
       arcade: 'blocks munch snake rocks pinball runner deep simon quest dig pegs crownrush pong',
       platform: 'hop flap gworld g64 summit gate sled',
       racing: 'road race kart moto facet magic lawn rails jam',
-      water: 'river fishing pour beads bubble pipes gregillion',
+      water: 'abyss river fishing pour beads bubble pipes gregillion',
       war: 'hot shooter strike sitebreak gridlock royale extract drop mortar sweeper fleet aim tanks',
       space: 'boss hue bridge missile',
       glass: 'break smash blast',
