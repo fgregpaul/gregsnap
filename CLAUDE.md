@@ -9,7 +9,7 @@ Read this first. It is the memory for this project, so a fresh chat can pick up 
 - Live at **https://gregsnap.com** (GitHub Pages from `main`, custom domain in `CNAME`). Merging to `main` is deploying.
 - Almost everything is in **one file: `index.html`** (~1.7 MB, ~12.5k lines, vanilla JS + canvas, no build step, no libraries except Google Fonts).
 - `dev/sigserver.js` is a tiny local signaling server for testing multiplayer offline (see `GregNet`).
-- Other files: `cpu.html` (CPU Platformer Quiz), `emt.html` (Morpheme Works), `404.html` (redirects game links like `/chess` into the app, see `game links:`), `style.css` (404 page only), `cranberry.mp3`. Leave them alone unless asked.
+- Other files: `cpu.html` (CPU Platformer Quiz), `emt.html` (Morpheme Works), `abyssal.html` (Abyssal Garden, Noniv's MIT scene, shown in the feed by an iframe), `404.html` (redirects game links like `/chess` into the app, see `game links:`), `style.css` (404 page only), `cranberry.mp3`. Leave them alone unless asked.
 - `stockfish/`: Stockfish 11 compiled to WebAssembly (GPL, from nmrugg/stockfish.js branch `Stockfish11`). Chess loads it as a Web Worker (`SFISH` in index.html). It only works over http(s): from `file://` the game falls back to its built-in engine, so test Stockfish with a local server (`python3 -m http.server`).
 
 ## House rules (from the owner)
@@ -132,12 +132,13 @@ Minimum before merging:
 - Real touch input: use CDP `Input.dispatchTouchEvent` (synthetic mouse clicks miss touch-only bugs).
 - Google Fonts fail to load in the sandbox. That's expected, not a bug.
 
-## Game list (146 hand-made games, shuffled into the feed on each load)
+## Game list (147 hand-made games, shuffled into the feed on each load)
 
 Plus the 7 Galaxy Casino games (Blackjack, Hold'em, Roulette, Slots, Crash, Mines, Cluck Cross — a chicken-crossing-the-road multiplier game inspired by Shuffle's chicken game) and the endless re-skinned games after them.
 
 | Game | Inspired by | `kind` |
 |---|---|---|
+| Abyssal Garden | **not ours**: Noniv's WebGPU underwater world (github.com/Noniv/abyssal-garden, MIT). Pure swim, no goal. The scene is `abyssal.html` (MIT license at its top; our only changes: no landscape rotation/fullscreen on phones, author's GitHub/Ko-fi buttons swapped for a small credit line, friendlier no-WebGPU message). `makeAbyss` just frames it in an iframe (`.abyss`) that exists only while the post is current and the tab is visible (checked every 300 ms), so it never runs or holds GPU memory off-screen. `hold` + `quiet` (it has its own sound). Posted by @noniv. Keep the credit and license if you touch it | `abyss` |
 | Aim Lab | Aim Lab | `aim` |
 | Arrow Out | arrow-escape puzzles (Arrows – Puzzle Escape). Bent arrows (`gen(lvl)`, seeded): each piece is a snake of cells and leaves along its head's direction if the ray ahead is clear. Pieces are placed so each new one could leave past the earlier ones, so removing in reverse always works (checked levels 1-40 with a greedy solver). 3 hearts; level saved in `gregsnap_arrowout_v1` | `arrows` |
 | Balloon Words | hangman (a bear in a basket held up by 7 balloons; each wrong letter pops one) | `hang` |
